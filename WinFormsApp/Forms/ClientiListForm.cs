@@ -6,6 +6,8 @@ using FormulariRif_G.Models;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq; // Per l'estensione Where
 using Microsoft.EntityFrameworkCore; // Necessario per il metodo Include
+using System.Threading; // Aggiungi questo per CancellationTokenSource
+using System.Windows.Forms; // Per Timer (se usi System.Windows.Forms.Timer)
 
 namespace FormulariRif_G.Forms
 {
@@ -14,7 +16,12 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Cliente> _clienteRepository;
         private readonly IGenericRepository<Configurazione> _configurazioneRepository; 
         // Per risolvere i form di dettaglio
-        private readonly IServiceProvider _serviceProvider; 
+        private readonly IServiceProvider _serviceProvider;
+        // Timer per il debouncing
+        private System.Windows.Forms.Timer _searchTimer;
+        // Per la cancellazione delle query
+        private CancellationTokenSource _cancellationTokenSource; 
+
 
         public ClientiListForm(IGenericRepository<Cliente> clienteRepository,
                                  IGenericRepository<Configurazione> configurazioneRepository, // Aggiunta la dipendenza
@@ -25,6 +32,12 @@ namespace FormulariRif_G.Forms
             _configurazioneRepository = configurazioneRepository;
             _serviceProvider = serviceProvider;
             this.Load += ClientiListForm_Load; // Carica i dati all'avvio del form
+
+            // **Inizializza il timer per il debouncing**
+            _searchTimer = new System.Windows.Forms.Timer();
+            _searchTimer.Interval = 500; // Aspetta 500ms dopo l'ultima battitura
+            _searchTimer.Tick += SearchTimer_Tick; // Collega l'evento Tick al metodo di ricerca
+            _searchTimer.Stop(); // Il timer inizia fermo
         }
 
         // Metodo chiamato al caricamento del form
@@ -36,10 +49,16 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Carica i dati dei clienti nella DataGridView, filtrando per dati di test se necessario.
         /// </summary>
-        private async Task LoadClientiAsync()
+        private async Task LoadClientiAsync(CancellationToken cancellationToken = default)
         {
             try
             {
+                // **Cancellare l'operazione precedente se presente**
+                _cancellationTokenSource?.Cancel(); // Annulla qualsiasi operazione precedente
+                _cancellationTokenSource?.Dispose(); // Rilascia le risorse del vecchio CancellationTokenSource
+                _cancellationTokenSource = new CancellationTokenSource(); // Crea un nuovo CancellationTokenSource
+                cancellationToken = _cancellationTokenSource.Token; // Assegna il token per questa operazione
+
                 var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
                 bool showTestData = configurazione?.DatiTest ?? false;
 
@@ -50,8 +69,20 @@ namespace FormulariRif_G.Forms
                 if (!showTestData)
                     // Carica solo i clienti non di test                
                     query = query.Where(c => c.IsTestData == false);
+                //Applica il filtro di ricerca se presente**
+                var searchText = txtRicerca.Text.Trim().ToLower();
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    query = query.Where(c =>
+                        c.RagSoc.ToLower().Contains(searchText) ||
+                        c.CodiceFiscale.ToLower().Contains(searchText) ||
+                        c.PartitaIva.ToLower().Contains(searchText) ||
+                        c.Indirizzi.Any(ind => ind.Predefinito && (ind.Indirizzo.ToLower().Contains(searchText) || ind.Comune.ToLower().Contains(searchText))) ||
+                        c.Contatti.Any(cont => cont.Predefinito && (cont.Telefono.ToLower().Contains(searchText) || cont.Email.ToLower().Contains(searchText)))
+                    );
+                }
                 // Esegui la query per ottenere i clienti con i dati inclusi
-                var clienti = await query.ToListAsync(); 
+                var clienti = await query.ToListAsync(cancellationToken); 
 
                 // Prepara i dati per la DataGridView, includendo indirizzo e contatto predefiniti
                 var clientiViewModel = clienti.Select(c => new
@@ -214,78 +245,79 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async void txtRicerca_TextChanged(object sender, EventArgs e)
         {
-            try
+            _searchTimer.Stop(); // Resetta il timer ad ogni battitura
+            _searchTimer.Start(); // Riavvia il timer
+            //try
+            //{
+            //    var searchText = txtRicerca.Text.Trim().ToLower(); // Converti a minuscolo per ricerca case-insensitive
+            //    var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
+            //    bool showTestData = configurazione?.DatiTest ?? false;
+
+            //    IQueryable<Cliente> query = _clienteRepository.AsQueryable();
+            //    // Includi Indirizzi e Contatti per poterli usare nel filtro di ricerca
+            //    query = query.Include(c => c.Indirizzi)
+            //                 .Include(c => c.Contatti);
+
+            //    if (!showTestData)                
+            //        query = query.Where(c => c.IsTestData == false);               
+            //    if (!string.IsNullOrEmpty(searchText))
+            //    {
+            //        // Filtra per RagSoc, Indirizzo o Comune predefiniti, Telefono o Email predefiniti
+            //        query = query.Where(c =>
+            //            c.RagSoc.ToLower().Contains(searchText) ||
+            //            c.Indirizzi.Any(ind => ind.Predefinito && (ind.Indirizzo.ToLower().Contains(searchText) || ind.Comune.ToLower().Contains(searchText))) ||
+            //            c.Contatti.Any(cont => cont.Predefinito && (cont.Telefono.ToLower().Contains(searchText) || cont.Email.ToLower().Contains(searchText)))
+            //        );
+            //    }
+            //    var filteredClienti = await query.ToListAsync();
+
+            //    var clientiViewModel = filteredClienti.Select(c => new
+            //    {
+            //        c.Id,
+            //        c.RagSoc,
+            //        c.PartitaIva,
+            //        c.CodiceFiscale,
+            //        TelefonoPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Telefono ?? "N/D",
+            //        EmailPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Email ?? "N/D",
+            //        IndirizzoCompleto = c.Indirizzi.FirstOrDefault(ind => ind.Predefinito) != null ?
+            //                            $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Indirizzo}, " +
+            //                            $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Comune} - " +
+            //                            $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} "
+            //                            : "N/D",
+            //        c.IsTestData // Manteniamo questa proprietà per la logica interna, ma la colonna sarà nascosta
+            //    }).ToList();
+
+            //    dataGridViewClienti.DataSource = clientiViewModel;
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Errore durante la ricerca: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+        }
+
+        /// <summary>
+        /// Questo metodo viene chiamato quando il timer di ricerca scatta.
+        /// Indica che l'utente ha smesso di digitare per un po', quindi eseguiamo la ricerca.
+        /// </summary>
+        private async void SearchTimer_Tick(object? sender, EventArgs e)
+        {
+            _searchTimer.Stop(); // Ferma il timer per evitare che scatti di nuovo immediatamente
+            await LoadClientiAsync(); // Esegui la ricerca effettiva
+        }
+
+        // **Aggiungi Dispose per pulire il CancellationTokenSource e il Timer**
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
             {
-                var searchText = txtRicerca.Text.Trim().ToLower(); // Converti a minuscolo per ricerca case-insensitive
-                var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
-                bool showTestData = configurazione?.DatiTest ?? false;
-
-                IQueryable<Cliente> query = _clienteRepository.AsQueryable();
-                // Includi Indirizzi e Contatti per poterli usare nel filtro di ricerca
-                query = query.Include(c => c.Indirizzi)
-                             .Include(c => c.Contatti);
-
-                if (!showTestData)                
-                    query = query.Where(c => c.IsTestData == false);               
-                if (!string.IsNullOrEmpty(searchText))
-                {
-                    // Filtra per RagSoc, Indirizzo o Comune predefiniti, Telefono o Email predefiniti
-                    query = query.Where(c =>
-                        c.RagSoc.ToLower().Contains(searchText) ||
-                        c.Indirizzi.Any(ind => ind.Predefinito && (ind.Indirizzo.ToLower().Contains(searchText) || ind.Comune.ToLower().Contains(searchText))) ||
-                        c.Contatti.Any(cont => cont.Predefinito && (cont.Telefono.ToLower().Contains(searchText) || cont.Email.ToLower().Contains(searchText)))
-                    );
-                }
-                var filteredClienti = await query.ToListAsync();
-
-                var clientiViewModel = filteredClienti.Select(c => new
-                {
-                    c.Id,
-                    c.RagSoc,
-                    c.PartitaIva,
-                    c.CodiceFiscale,
-                    TelefonoPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Telefono ?? "N/D",
-                    EmailPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Email ?? "N/D",
-                    IndirizzoCompleto = c.Indirizzi.FirstOrDefault(ind => ind.Predefinito) != null ?
-                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Indirizzo}, " +
-                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Comune} - " +
-                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} "
-                                        : "N/D",
-                    c.IsTestData // Manteniamo questa proprietà per la logica interna, ma la colonna sarà nascosta
-                }).ToList();
-
-                dataGridViewClienti.DataSource = clientiViewModel;
-
-                //var searchText = txtRicerca.Text.Trim();
-                //var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
-                //bool showTestData = configurazione?.DatiTest ?? false;
-
-                //IEnumerable<Cliente> filteredClienti;
-
-                //if (string.IsNullOrEmpty(searchText))
-                //{
-                //    if (showTestData)
-                //    {
-                //        filteredClienti = await _clienteRepository.GetAllAsync();
-                //    }
-                //    else
-                //    {
-                //        filteredClienti = await _clienteRepository.FindAsync(c => c.IsTestData == false);
-                //    }
-                //}
-                //else
-                //{
-                //    // Filtra per RagSoc, Indirizzo o Comune
-                //    filteredClienti = await _clienteRepository.FindAsync(c =>
-                //        (c.RagSoc.Contains(searchText)) &&
-                //        (showTestData || c.IsTestData == false)); // Applica il filtro IsTestData se non si vogliono i dati di test
-                //}
-                //dataGridViewClienti.DataSource = filteredClienti.ToList();
+                components.Dispose();
             }
-            catch (Exception ex)
+            if (disposing)
             {
-                MessageBox.Show($"Errore durante la ricerca: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _searchTimer?.Dispose(); // Assicurati di disporre il timer
+                _cancellationTokenSource?.Dispose(); // Assicurati di disporre il CancellationTokenSource
             }
+            base.Dispose(disposing);
         }
 
         // Codice generato dal designer per ClientiListForm
@@ -300,14 +332,14 @@ namespace FormulariRif_G.Forms
         ///  Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing && (components != null))
+        //    {
+        //        components.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
 
         /// <summary>
         ///  Required method for Designer support - do not modify
