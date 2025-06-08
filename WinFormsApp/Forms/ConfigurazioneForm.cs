@@ -442,7 +442,7 @@ namespace FormulariRif_G.Forms
                     var clienteContattoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteContatto>>();
                     var clienteIndirizzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>(); // Nuovo repository
 
-                    for (int i = 0; i < 10; i++)
+                    for (int i = 0; i < 1000; i++)
                     {
                         var cliente = new Cliente
                         {

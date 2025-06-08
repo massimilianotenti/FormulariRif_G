@@ -1,10 +1,11 @@
 ﻿// File: Forms/ClientiListForm.cs
 // Questo form visualizza un elenco di clienti, permette la ricerca e le operazioni CRUD.
 // Ora considera il flag "DatiTest" dalla configurazione per visualizzare i dati di test.
-using Microsoft.Extensions.DependencyInjection;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System.Linq; // Per l'estensione Where
+using Microsoft.EntityFrameworkCore; // Necessario per il metodo Include
 
 namespace FormulariRif_G.Forms
 {
@@ -42,33 +43,44 @@ namespace FormulariRif_G.Forms
                 var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
                 bool showTestData = configurazione?.DatiTest ?? false;
 
-                IEnumerable<Cliente> clienti;
-                if (showTestData)
-                {
-                    clienti = await _clienteRepository.GetAllAsync(); // Carica tutti i clienti (reali + test)
-                }
-                else
-                {
-                    clienti = await _clienteRepository.FindAsync(c => c.IsTestData == false); // Carica solo i clienti non di test
-                }
+                IQueryable<Cliente> query = _clienteRepository.AsQueryable(); 
+                // Includi Indirizzi e Contatti per poter accedere ai dati di navigazione
+                query = query.Include(c => c.Indirizzi)
+                             .Include(c => c.Contatti);
+                if (!showTestData)
+                    // Carica solo i clienti non di test                
+                    query = query.Where(c => c.IsTestData == false);
+                // Esegui la query per ottenere i clienti con i dati inclusi
+                var clienti = await query.ToListAsync(); 
 
-                dataGridViewClienti.DataSource = clienti.ToList();
+                // Prepara i dati per la DataGridView, includendo indirizzo e contatto predefiniti
+                var clientiViewModel = clienti.Select(c => new
+                {
+                    c.Id,
+                    c.RagSoc,                    
+                    c.PartitaIva,
+                    c.CodiceFiscale,
+                    TelefonoPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Telefono ?? "N/D",
+                    EmailPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Email ?? "N/D",
+                    IndirizzoCompleto = c.Indirizzi.FirstOrDefault(ind => ind.Predefinito) != null ?
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Indirizzo}, " +
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Comune} - " +
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} " 
+                                        : "N/D",
+                    c.IsTestData // Manteniamo questa proprietà per la logica interna, ma la colonna sarà nascosta
+                }).ToList();
+
+                dataGridViewClienti.DataSource = clientiViewModel.ToList();
                 // Nasconde la colonna Id per una migliore visualizzazione, ma la mantiene accessibile per le operazioni
                 dataGridViewClienti.Columns["Id"].Visible = false;
                 // Nasconde le colonne di navigazione 
-                if (dataGridViewClienti.Columns.Contains("Contatti"))
-                {
-                    dataGridViewClienti.Columns["Contatti"].Visible = false;
-                }
-                if (dataGridViewClienti.Columns.Contains("Indirizzi"))
-                {
+                if (dataGridViewClienti.Columns.Contains("Contatti"))                
+                    dataGridViewClienti.Columns["Contatti"].Visible = false;                
+                if (dataGridViewClienti.Columns.Contains("Indirizzi"))                
                     dataGridViewClienti.Columns["Indirizzi"].Visible = false;
-                }
                 // Nasconde la colonna IsTestData (sebbene utile per il debug, non è per l'utente finale)
-                if (dataGridViewClienti.Columns.Contains("IsTestData"))
-                {
-                    dataGridViewClienti.Columns["IsTestData"].Visible = false;
-                }              
+                if (dataGridViewClienti.Columns.Contains("IsTestData"))                
+                    dataGridViewClienti.Columns["IsTestData"].Visible = false;                              
             }
             catch (Exception ex)
             {
@@ -101,7 +113,8 @@ namespace FormulariRif_G.Forms
         {
             if (dataGridViewClienti.SelectedRows.Count > 0)
             {
-                var selectedCliente = dataGridViewClienti.SelectedRows[0].DataBoundItem as Cliente;
+                var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;                
+                var selectedCliente = await _clienteRepository.GetByIdAsync(selectedId);
                 if (selectedCliente != null)
                 {
                     using (var detailForm = _serviceProvider.GetRequiredService<ClientiDetailForm>())
@@ -128,7 +141,9 @@ namespace FormulariRif_G.Forms
         {
             if (dataGridViewClienti.SelectedRows.Count > 0)
             {
-                var selectedCliente = dataGridViewClienti.SelectedRows[0].DataBoundItem as Cliente;
+                var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;
+                var selectedCliente = await _clienteRepository.GetByIdAsync(selectedId);
+                //var selectedCliente = dataGridViewClienti.SelectedRows[0].DataBoundItem as Cliente;
                 if (selectedCliente != null)
                 {
                     var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare il cliente '{selectedCliente.RagSoc}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -158,11 +173,16 @@ namespace FormulariRif_G.Forms
         /// Gestisce il click sul pulsante "Dettagli".
         /// Apre il form di dettaglio in modalità sola lettura per il cliente selezionato.
         /// </summary>
-        private void btnDettagli_Click(object sender, EventArgs e)
+        private async void btnDettagli_Click(object sender, EventArgs e)
         {
             if (dataGridViewClienti.SelectedRows.Count > 0)
             {
-                var selectedCliente = dataGridViewClienti.SelectedRows[0].DataBoundItem as Cliente;
+                // Recupera l'ID del cliente dalla riga selezionata (assumendo che Id sia una colonna nel DTO anonimo)
+                // Usiamo Cells["Id"].Value perché DataBoundItem è ora un tipo anonimo.
+                var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;
+
+                // Carica il cliente completo dal repository, includendo le entità correlate
+                var selectedCliente = await _clienteRepository.GetByIdAsync(selectedId);
                 if (selectedCliente != null)
                 {
                     using (var detailForm = _serviceProvider.GetRequiredService<ClientiDetailForm>())
@@ -196,31 +216,71 @@ namespace FormulariRif_G.Forms
         {
             try
             {
-                var searchText = txtRicerca.Text.Trim();
+                var searchText = txtRicerca.Text.Trim().ToLower(); // Converti a minuscolo per ricerca case-insensitive
                 var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
                 bool showTestData = configurazione?.DatiTest ?? false;
 
-                IEnumerable<Cliente> filteredClienti;
+                IQueryable<Cliente> query = _clienteRepository.AsQueryable();
+                // Includi Indirizzi e Contatti per poterli usare nel filtro di ricerca
+                query = query.Include(c => c.Indirizzi)
+                             .Include(c => c.Contatti);
 
-                if (string.IsNullOrEmpty(searchText))
+                if (!showTestData)                
+                    query = query.Where(c => c.IsTestData == false);               
+                if (!string.IsNullOrEmpty(searchText))
                 {
-                    if (showTestData)
-                    {
-                        filteredClienti = await _clienteRepository.GetAllAsync();
-                    }
-                    else
-                    {
-                        filteredClienti = await _clienteRepository.FindAsync(c => c.IsTestData == false);
-                    }
+                    // Filtra per RagSoc, Indirizzo o Comune predefiniti, Telefono o Email predefiniti
+                    query = query.Where(c =>
+                        c.RagSoc.ToLower().Contains(searchText) ||
+                        c.Indirizzi.Any(ind => ind.Predefinito && (ind.Indirizzo.ToLower().Contains(searchText) || ind.Comune.ToLower().Contains(searchText))) ||
+                        c.Contatti.Any(cont => cont.Predefinito && (cont.Telefono.ToLower().Contains(searchText) || cont.Email.ToLower().Contains(searchText)))
+                    );
                 }
-                else
+                var filteredClienti = await query.ToListAsync();
+
+                var clientiViewModel = filteredClienti.Select(c => new
                 {
-                    // Filtra per RagSoc, Indirizzo o Comune
-                    filteredClienti = await _clienteRepository.FindAsync(c =>
-                        (c.RagSoc.Contains(searchText)) &&
-                        (showTestData || c.IsTestData == false)); // Applica il filtro IsTestData se non si vogliono i dati di test
-                }
-                dataGridViewClienti.DataSource = filteredClienti.ToList();
+                    c.Id,
+                    c.RagSoc,
+                    c.PartitaIva,
+                    c.CodiceFiscale,
+                    TelefonoPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Telefono ?? "N/D",
+                    EmailPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Email ?? "N/D",
+                    IndirizzoCompleto = c.Indirizzi.FirstOrDefault(ind => ind.Predefinito) != null ?
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Indirizzo}, " +
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Comune} - " +
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} "
+                                        : "N/D",
+                    c.IsTestData // Manteniamo questa proprietà per la logica interna, ma la colonna sarà nascosta
+                }).ToList();
+
+                dataGridViewClienti.DataSource = clientiViewModel;
+
+                //var searchText = txtRicerca.Text.Trim();
+                //var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
+                //bool showTestData = configurazione?.DatiTest ?? false;
+
+                //IEnumerable<Cliente> filteredClienti;
+
+                //if (string.IsNullOrEmpty(searchText))
+                //{
+                //    if (showTestData)
+                //    {
+                //        filteredClienti = await _clienteRepository.GetAllAsync();
+                //    }
+                //    else
+                //    {
+                //        filteredClienti = await _clienteRepository.FindAsync(c => c.IsTestData == false);
+                //    }
+                //}
+                //else
+                //{
+                //    // Filtra per RagSoc, Indirizzo o Comune
+                //    filteredClienti = await _clienteRepository.FindAsync(c =>
+                //        (c.RagSoc.Contains(searchText)) &&
+                //        (showTestData || c.IsTestData == false)); // Applica il filtro IsTestData se non si vogliono i dati di test
+                //}
+                //dataGridViewClienti.DataSource = filteredClienti.ToList();
             }
             catch (Exception ex)
             {

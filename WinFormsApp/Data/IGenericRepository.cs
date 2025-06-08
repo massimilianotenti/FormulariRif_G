@@ -101,5 +101,10 @@ namespace FormulariRif_G.Data
         {
             await _context.SaveChangesAsync();
         }
+
+        public IQueryable<T> AsQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
     }
 }
