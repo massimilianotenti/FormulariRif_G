@@ -155,12 +155,12 @@ namespace FormulariRif_G
                             existingConfig = new Configurazione
                             {
                                 DatiTest = false,
-                                RagSoc = "Azienda Standard",
+                                RagSoc1 = "Azienda Standard",
                                 Indirizzo = "Via Roma 1",
                                 Comune = "Milano",
                                 Cap = 20100,
                                 Email = "info@azienda.com",
-                                PartitaIva = "01234567890", // Valori di default per i nuovi campi
+                                PartitaIva = "01234567890", 
                                 CodiceFiscale = "RSSMRA80A01H501Z",
                                 NumeroIscrizioneAlbo = "ABC/123",
                                 DataIscrizioneAlbo = DateTime.Now

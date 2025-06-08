@@ -36,7 +36,7 @@ namespace FormulariRif_G.Forms
                 txtContatto.Text = _currentContatto.Contatto;
                 txtTelefono.Text = _currentContatto.Telefono;
                 txtEmail.Text = _currentContatto.Email;
-                chkPredefinito.Checked = _currentContatto.Predefinito ?? false;
+                chkPredefinito.Checked = _currentContatto.Predefinito;
             }
             else
             {

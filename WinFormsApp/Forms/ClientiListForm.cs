@@ -11,8 +11,9 @@ namespace FormulariRif_G.Forms
     public partial class ClientiListForm : Form
     {
         private readonly IGenericRepository<Cliente> _clienteRepository;
-        private readonly IGenericRepository<Configurazione> _configurazioneRepository; // Nuova dipendenza
-        private readonly IServiceProvider _serviceProvider; // Per risolvere i form di dettaglio
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository; 
+        // Per risolvere i form di dettaglio
+        private readonly IServiceProvider _serviceProvider; 
 
         public ClientiListForm(IGenericRepository<Cliente> clienteRepository,
                                  IGenericRepository<Configurazione> configurazioneRepository, // Aggiunta la dipendenza
@@ -54,16 +55,20 @@ namespace FormulariRif_G.Forms
                 dataGridViewClienti.DataSource = clienti.ToList();
                 // Nasconde la colonna Id per una migliore visualizzazione, ma la mantiene accessibile per le operazioni
                 dataGridViewClienti.Columns["Id"].Visible = false;
-                // Nasconde la colonna di navigazione Contatti
+                // Nasconde le colonne di navigazione 
                 if (dataGridViewClienti.Columns.Contains("Contatti"))
                 {
                     dataGridViewClienti.Columns["Contatti"].Visible = false;
+                }
+                if (dataGridViewClienti.Columns.Contains("Indirizzi"))
+                {
+                    dataGridViewClienti.Columns["Indirizzi"].Visible = false;
                 }
                 // Nasconde la colonna IsTestData (sebbene utile per il debug, non è per l'utente finale)
                 if (dataGridViewClienti.Columns.Contains("IsTestData"))
                 {
                     dataGridViewClienti.Columns["IsTestData"].Visible = false;
-                }
+                }              
             }
             catch (Exception ex)
             {

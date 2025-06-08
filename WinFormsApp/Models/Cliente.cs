@@ -8,22 +8,23 @@ namespace FormulariRif_G.Models
     [Table("clienti")] // Mappa la classe alla tabella 'clienti' nel database
     public class Cliente
     {
-        [Key] // Specifica che Id è la chiave primaria
+        [Key] 
         public int Id { get; set; }
 
-        [Required] // Campo obbligatorio
-        [StringLength(255)] // Limita la lunghezza della stringa
-        [Column("rag_soc")] // Mappa alla colonna 'rag_soc'
+        [Required] 
+        [StringLength(255)] 
+        [Column("rag_soc")] 
         public string RagSoc { get; set; } = string.Empty;
 
-        // Rimosse le proprietà Indirizzo, Comune, Cap da qui.
-        // Saranno gestite nella nuova tabella ClienteIndirizzo.
+        [StringLength(20)]
+        [Column("partita_iva")]
+        public string? PartitaIva { get; set; }
 
-        [StringLength(16)] // Aggiunto Codice Fiscale
+        [StringLength(16)] 
         [Column("codice_fiscale")]
         public string? CodiceFiscale { get; set; }
 
-        [Column("is_test_data")] // Indica se il record è stato generato per test
+        [Column("is_test_data")] 
         public bool IsTestData { get; set; }
 
         // Proprietà di navigazione per i contatti associati a questo cliente

@@ -2,8 +2,10 @@
 // Questo form gestisce il processo di autenticazione dell'utente.
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
-using FormulariRif_G.Utils; // Per CurrentUser, PasswordHasher
-using Microsoft.Extensions.DependencyInjection; // Per IServiceProvider
+// Per CurrentUser, PasswordHasher
+using FormulariRif_G.Utils;
+// Per IServiceProvider
+using Microsoft.Extensions.DependencyInjection; 
 
 namespace FormulariRif_G.Forms
 {
@@ -19,11 +21,25 @@ namespace FormulariRif_G.Forms
             _serviceProvider = serviceProvider;
         }
 
+        private void txtPassword_KeyPress(object sender, KeyPressEventArgs e)
+        {            
+            if (e.KeyChar == (char)Keys.Enter)
+            {         
+                e.Handled = true;
+
+                string username = txtUsername.Text.Trim();
+                string password = txtPassword.Text;
+                
+                if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))                                
+                    DoLogin(username, password);
+            }
+        }
+
         /// <summary>
         /// Gestisce il click sul pulsante "Login".
         /// Tenta di autenticare l'utente.
         /// </summary>
-        private async void btnLogin_Click(object sender, EventArgs e)
+        private void btnLogin_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
             string password = txtPassword.Text;
@@ -34,6 +50,11 @@ namespace FormulariRif_G.Forms
                 return;
             }
 
+            DoLogin(username, password);
+        }
+
+        private async void DoLogin(string username, string password)
+        {
             try
             {
                 // Cerca l'utente per nome utente
@@ -47,10 +68,12 @@ namespace FormulariRif_G.Forms
                     if (isPasswordValid)
                     {
                         // Autenticazione riuscita
-                        CurrentUser.SetLoggedInUser(user); // Imposta l'utente corrente
+                        // Imposta l'utente corrente
+                        CurrentUser.SetLoggedInUser(user);
                         MessageBox.Show($"Benvenuto, {user.NomeUtente}!", "Login Riuscito", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        this.DialogResult = DialogResult.OK; // Segnala successo al Program.cs
-                        this.Close(); // Chiudi il form di login
+                        // Segnala successo al Program.cs
+                        this.DialogResult = DialogResult.OK; 
+                        this.Close(); 
                     }
                     else
                     {
@@ -74,8 +97,10 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void btnEsci_Click(object sender, EventArgs e)
         {
-            this.DialogResult = DialogResult.Cancel; // Segnala annullamento al Program.cs
-            this.Close(); // Chiudi il form di login
+            // Segnala annullamento al Program.cs
+            // Chiudi il form di login
+            this.DialogResult = DialogResult.Cancel; 
+            this.Close(); 
         }
 
         // Codice generato dal designer per LoginForm
@@ -105,86 +130,94 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblUsername = new System.Windows.Forms.Label();
-            this.txtUsername = new System.Windows.Forms.TextBox();
-            this.lblPassword = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
-            this.btnLogin = new System.Windows.Forms.Button();
-            this.btnEsci = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            //
+            lblUsername = new Label();
+            txtUsername = new TextBox();
+            lblPassword = new Label();
+            txtPassword = new TextBox();
+            btnLogin = new Button();
+            btnEsci = new Button();
+            SuspendLayout();
+            // 
             // lblUsername
-            //
-            this.lblUsername.AutoSize = true;
-            this.lblUsername.Location = new System.Drawing.Point(50, 50);
-            this.lblUsername.Name = "lblUsername";
-            this.lblUsername.Size = new System.Drawing.Size(63, 15);
-            this.lblUsername.TabIndex = 0;
-            this.lblUsername.Text = "Username:";
-            //
+            // 
+            lblUsername.AutoSize = true;
+            lblUsername.Location = new Point(93, 107);
+            lblUsername.Margin = new Padding(6, 0, 6, 0);
+            lblUsername.Name = "lblUsername";
+            lblUsername.Size = new Size(126, 32);
+            lblUsername.TabIndex = 0;
+            lblUsername.Text = "Username:";
+            // 
             // txtUsername
-            //
-            this.txtUsername.Location = new System.Drawing.Point(130, 47);
-            this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(150, 23);
-            this.txtUsername.TabIndex = 1;
-            //
+            // 
+            txtUsername.Location = new Point(241, 100);
+            txtUsername.Margin = new Padding(6, 6, 6, 6);
+            txtUsername.Name = "txtUsername";
+            txtUsername.Size = new Size(275, 39);
+            txtUsername.TabIndex = 1;
+            // 
             // lblPassword
-            //
-            this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(50, 90);
-            this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(60, 15);
-            this.lblPassword.TabIndex = 2;
-            this.lblPassword.Text = "Password:";
-            //
+            // 
+            lblPassword.AutoSize = true;
+            lblPassword.Location = new Point(93, 192);
+            lblPassword.Margin = new Padding(6, 0, 6, 0);
+            lblPassword.Name = "lblPassword";
+            lblPassword.Size = new Size(116, 32);
+            lblPassword.TabIndex = 2;
+            lblPassword.Text = "Password:";
+            // 
             // txtPassword
-            //
-            this.txtPassword.Location = new System.Drawing.Point(130, 87);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(150, 23);
-            this.txtPassword.TabIndex = 3;
-            this.txtPassword.UseSystemPasswordChar = true; // Nasconde i caratteri della password
-            //
+            // 
+            txtPassword.Location = new Point(241, 186);
+            txtPassword.Margin = new Padding(6, 6, 6, 6);
+            txtPassword.Name = "txtPassword";
+            txtPassword.Size = new Size(275, 39);
+            txtPassword.TabIndex = 3;
+            txtPassword.UseSystemPasswordChar = true;            
+            txtPassword.KeyPress += txtPassword_KeyPress;
+            // 
             // btnLogin
-            //
-            this.btnLogin.Location = new System.Drawing.Point(130, 140);
-            this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(70, 30);
-            this.btnLogin.TabIndex = 4;
-            this.btnLogin.Text = "Login";
-            this.btnLogin.UseVisualStyleBackColor = true;
-            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
-            //
+            // 
+            btnLogin.Location = new Point(241, 299);
+            btnLogin.Margin = new Padding(6, 6, 6, 6);
+            btnLogin.Name = "btnLogin";
+            btnLogin.Size = new Size(130, 64);
+            btnLogin.TabIndex = 4;
+            btnLogin.Text = "Login";
+            btnLogin.UseVisualStyleBackColor = true;
+            btnLogin.Click += btnLogin_Click;
+            // 
             // btnEsci
-            //
-            this.btnEsci.Location = new System.Drawing.Point(210, 140);
-            this.btnEsci.Name = "btnEsci";
-            this.btnEsci.Size = new System.Drawing.Size(70, 30);
-            this.btnEsci.TabIndex = 5;
-            this.btnEsci.Text = "Esci";
-            this.btnEsci.UseVisualStyleBackColor = true;
-            this.btnEsci.Click += new System.EventHandler(this.btnEsci_Click);
-            //
+            // 
+            btnEsci.Location = new Point(390, 299);
+            btnEsci.Margin = new Padding(6, 6, 6, 6);
+            btnEsci.Name = "btnEsci";
+            btnEsci.Size = new Size(130, 64);
+            btnEsci.TabIndex = 5;
+            btnEsci.Text = "Esci";
+            btnEsci.UseVisualStyleBackColor = true;
+            btnEsci.Click += btnEsci_Click;
+            // 
             // LoginForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(334, 211);
-            this.Controls.Add(this.btnEsci);
-            this.Controls.Add(this.btnLogin);
-            this.Controls.Add(this.txtPassword);
-            this.Controls.Add(this.lblPassword);
-            this.Controls.Add(this.txtUsername);
-            this.Controls.Add(this.lblUsername);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "LoginForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Login";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(620, 450);
+            Controls.Add(btnEsci);
+            Controls.Add(btnLogin);
+            Controls.Add(txtPassword);
+            Controls.Add(lblPassword);
+            Controls.Add(txtUsername);
+            Controls.Add(lblUsername);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
+            Margin = new Padding(6, 6, 6, 6);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "LoginForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Login";
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -196,5 +229,9 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Button btnEsci;
 
         #endregion
+
+        
+
+       
     }
 }

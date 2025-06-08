@@ -16,6 +16,23 @@ namespace FormulariRif_G.Forms
     public partial class ConfigurazioneForm : Form
     {
         private readonly IConfiguration _configuration;
+        private TabControl tabControl1;
+        private TabPage tabPage1;
+        private TabPage tabPage2;
+        private TabPage tabPage3;
+        private TabPage tabPage4;
+        private TextBox txtDestNumIscr;
+        private Label label1;
+        private TextBox txtDestD;
+        private TextBox txtDestR;
+        private Label label5;
+        private TextBox txtDestTipoR2;
+        private Label label4;
+        private TextBox txtDestTipoR1;
+        private Label label3;
+        private TextBox txtDestAutoCom;
+        private Label label2;
+        public TextBox txtRagSoc2;
         private readonly IServiceProvider _serviceProvider;
 
         // Proprietà per esporre i dati di configurazione dell'applicazione
@@ -98,35 +115,54 @@ namespace FormulariRif_G.Forms
                 var loadedConfig = configs.FirstOrDefault();
 
                 if (loadedConfig != null)
-                {
-                    // Aggiorna l'oggetto AppConfigData con i dati dal DB
+                {                    
                     AppConfigData = loadedConfig;
+                    //Dati azienda
                     chkDatiTest.Checked = AppConfigData.DatiTest ?? false;
-                    txtRagSoc.Text = AppConfigData.RagSoc;
+                    txtRagSoc1.Text = AppConfigData.RagSoc1;
+                    txtRagSoc2.Text = AppConfigData.RagSoc2;
                     txtIndirizzo.Text = AppConfigData.Indirizzo;
                     txtComune.Text = AppConfigData.Comune;
                     numCap.Value = AppConfigData.Cap;
-                    txtEmail.Text = AppConfigData.Email;
-                    // Carica i nuovi campi
+                    txtEmail.Text = AppConfigData.Email;                 
                     txtPartitaIva.Text = AppConfigData.PartitaIva;
                     txtCodiceFiscale.Text = AppConfigData.CodiceFiscale;
-                    txtNumeroIscrizioneAlbo.Text = AppConfigData.NumeroIscrizioneAlbo;
-                    dtpDataIscrizioneAlbo.Value = AppConfigData.DataIscrizioneAlbo ?? DateTime.Now; // Imposta la data o la data corrente
+                    // Destinatario
+                    txtDestNumIscr.Text = AppConfigData.DestNumeroIscrizioneAlbo;
+                    txtDestR.Text = AppConfigData.DestR;
+                    txtDestD.Text = AppConfigData.DestD;
+                    txtDestAutoCom.Text = AppConfigData.DestAutoComunic;
+                    txtDestTipoR1.Text = AppConfigData.DestTipo1;
+                    txtDestTipoR2.Text = AppConfigData.DestTipo1;
+                    // Trasportatore
+                    txtNumeroIscrizioneAlbo.Text = AppConfigData.NumeroIscrizioneAlbo;                    
+                    if(AppConfigData.DataIscrizioneAlbo.HasValue)                   
+                        dtpDataIscrizioneAlbo.Value = AppConfigData.DataIscrizioneAlbo.Value;                   
+                    else
+                        dtpDataIscrizioneAlbo.Text = string.Empty;
                 }
                 else
                 {
                     // Se non esiste una configurazione nel DB, i campi rimangono vuoti (o con i valori predefiniti di AppConfigData)
                     chkDatiTest.Checked = false;
-                    txtRagSoc.Text = string.Empty;
+                    txtRagSoc1.Text = string.Empty;
+                    txtRagSoc2.Text = string.Empty;
                     txtIndirizzo.Text = string.Empty;
                     txtComune.Text = string.Empty;
                     numCap.Value = 0;
-                    txtEmail.Text = string.Empty;
-                    // Inizializza i nuovi campi
+                    txtEmail.Text = string.Empty;                    
                     txtPartitaIva.Text = string.Empty;
                     txtCodiceFiscale.Text = string.Empty;
+
+                    txtDestNumIscr.Text = string.Empty;
+                    txtDestR.Text = string.Empty;
+                    txtDestD.Text = string.Empty;
+                    txtDestAutoCom.Text = string.Empty;
+                    txtDestTipoR1.Text = string.Empty;
+                    txtDestTipoR2.Text = string.Empty;
+
                     txtNumeroIscrizioneAlbo.Text = string.Empty;
-                    dtpDataIscrizioneAlbo.Value = DateTime.Now;
+                    dtpDataIscrizioneAlbo.Text = string.Empty;
                 }
             }
             catch (Exception ex)
@@ -159,18 +195,28 @@ namespace FormulariRif_G.Forms
 
             // 3. Popola l'oggetto AppConfigData con i valori attuali dei controlli
             AppConfigData.DatiTest = chkDatiTest.Checked;
-            AppConfigData.RagSoc = txtRagSoc.Text.Trim();
+            AppConfigData.RagSoc1 = txtRagSoc1.Text.Trim();
+            AppConfigData.RagSoc2 = txtRagSoc2.Text.Trim();
             AppConfigData.Indirizzo = txtIndirizzo.Text.Trim();
             AppConfigData.Comune = txtComune.Text.Trim();
             AppConfigData.Cap = (int)numCap.Value;
-            AppConfigData.Email = txtEmail.Text.Trim();
-            // Salva i nuovi campi
+            AppConfigData.Email = txtEmail.Text.Trim();            
             AppConfigData.PartitaIva = txtPartitaIva.Text.Trim();
             AppConfigData.CodiceFiscale = txtCodiceFiscale.Text.Trim();
+
+            AppConfigData.DestNumeroIscrizioneAlbo= txtDestNumIscr.Text.Trim();
+            AppConfigData.DestR = txtDestR.Text.Trim();
+            AppConfigData.DestD = txtDestD.Text.Trim();
+            AppConfigData.DestAutoComunic= txtDestAutoCom.Text.Trim();
+            AppConfigData.DestTipo1 = txtDestTipoR1.Text.Trim();
+            AppConfigData.DestTipo1 = txtDestTipoR2.Text.Trim();
+
             AppConfigData.NumeroIscrizioneAlbo = txtNumeroIscrizioneAlbo.Text.Trim();
-            AppConfigData.DataIscrizioneAlbo = dtpDataIscrizioneAlbo.Value;
-
-
+            if(dtpDataIscrizioneAlbo.Value == null || dtpDataIscrizioneAlbo.Value == DateTime.MinValue)            
+                AppConfigData.DataIscrizioneAlbo = null;             
+            else
+                AppConfigData.DataIscrizioneAlbo = dtpDataIscrizioneAlbo.Value;
+            
             try
             {
                 // Risolvi il repository per Configurazione
@@ -186,14 +232,21 @@ namespace FormulariRif_G.Forms
                 {
                     // Se esiste, aggiorna l'entità esistente con i nuovi valori
                     existingConfig.DatiTest = AppConfigData.DatiTest;
-                    existingConfig.RagSoc = AppConfigData.RagSoc;
+                    existingConfig.RagSoc1 = AppConfigData.RagSoc1;
                     existingConfig.Indirizzo = AppConfigData.Indirizzo;
                     existingConfig.Comune = AppConfigData.Comune;
                     existingConfig.Cap = AppConfigData.Cap;
-                    existingConfig.Email = AppConfigData.Email;
-                    // Aggiorna i nuovi campi
+                    existingConfig.Email = AppConfigData.Email;                    
                     existingConfig.PartitaIva = AppConfigData.PartitaIva;
                     existingConfig.CodiceFiscale = AppConfigData.CodiceFiscale;
+
+                    existingConfig.DestNumeroIscrizioneAlbo = AppConfigData.DestNumeroIscrizioneAlbo;
+                    existingConfig.DestR = AppConfigData.DestR;
+                    existingConfig.DestD = AppConfigData.DestD;
+                    existingConfig.DestAutoComunic = AppConfigData.DestAutoComunic;
+                    existingConfig.DestTipo1 = AppConfigData.DestTipo1;
+                    existingConfig.DestTipo2 = AppConfigData.DestTipo1;
+
                     existingConfig.NumeroIscrizioneAlbo = AppConfigData.NumeroIscrizioneAlbo;
                     existingConfig.DataIscrizioneAlbo = AppConfigData.DataIscrizioneAlbo;
 
@@ -333,44 +386,43 @@ namespace FormulariRif_G.Forms
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(txtRagSoc.Text))
+            if (string.IsNullOrWhiteSpace(txtRagSoc1.Text))
             {
                 MessageBox.Show("Ragione Sociale (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtRagSoc.Focus();
+                txtRagSoc1.Focus();
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(txtIndirizzo.Text))
-            {
-                MessageBox.Show("Indirizzo (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtIndirizzo.Focus();
-                return false;
-            }
+            //if (string.IsNullOrWhiteSpace(txtIndirizzo.Text))
+            //{
+            //    MessageBox.Show("Indirizzo (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    txtIndirizzo.Focus();
+            //    return false;
+            //}
             if (numCap.Value == 0)
             {
                 MessageBox.Show("CAP (Configurazione) è un campo obbligatorio e non può essere 0.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 numCap.Focus();
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(txtEmail.Text))
-            {
-                MessageBox.Show("Email (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtEmail.Focus();
-                return false;
-            }
-            // Nuova validazione per i campi aggiunti
-            if (string.IsNullOrWhiteSpace(txtPartitaIva.Text))
-            {
-                MessageBox.Show("Partita IVA è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtPartitaIva.Focus();
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(txtCodiceFiscale.Text))
-            {
-                MessageBox.Show("Codice Fiscale è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtCodiceFiscale.Focus();
-                return false;
-            }
-            // NumeroIscrizioneAlbo e DataIscrizioneAlbo non sono obbligatori per default, ma puoi aggiungerli se necessario.
+            //if (string.IsNullOrWhiteSpace(txtEmail.Text))
+            //{
+            //    MessageBox.Show("Email (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    txtEmail.Focus();
+            //    return false;
+            //}
+            //// Nuova validazione per i campi aggiunti
+            //if (string.IsNullOrWhiteSpace(txtPartitaIva.Text))
+            //{
+            //    MessageBox.Show("Partita IVA è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    txtPartitaIva.Focus();
+            //    return false;
+            //}
+            //if (string.IsNullOrWhiteSpace(txtCodiceFiscale.Text))
+            //{
+            //    MessageBox.Show("Codice Fiscale è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    txtCodiceFiscale.Focus();
+            //    return false;
+            //}            
 
             return true;
         }
@@ -471,7 +523,6 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            groupBoxDbConnection = new GroupBox();
             btnTestConnessione = new Button();
             txtDbPassword = new TextBox();
             lblDbPassword = new Label();
@@ -481,7 +532,6 @@ namespace FormulariRif_G.Forms
             lblDatabaseName = new Label();
             txtServerName = new TextBox();
             lblServerName = new Label();
-            groupBoxAppSettings = new GroupBox();
             dtpDataIscrizioneAlbo = new DateTimePicker();
             lblDataIscrizioneAlbo = new Label();
             txtNumeroIscrizioneAlbo = new TextBox();
@@ -498,41 +548,43 @@ namespace FormulariRif_G.Forms
             lblComune = new Label();
             txtIndirizzo = new TextBox();
             lblIndirizzo = new Label();
-            txtRagSoc = new TextBox();
+            txtRagSoc1 = new TextBox();
             lblRagSoc = new Label();
             chkDatiTest = new CheckBox();
             btnSalvaConfigurazione = new Button();
             btnGeneraDatiTest = new Button();
-            groupBoxDbConnection.SuspendLayout();
-            groupBoxAppSettings.SuspendLayout();
+            tabControl1 = new TabControl();
+            tabPage1 = new TabPage();
+            tabPage2 = new TabPage();
+            tabPage3 = new TabPage();
+            txtDestD = new TextBox();
+            txtDestR = new TextBox();
+            label5 = new Label();
+            txtDestTipoR2 = new TextBox();
+            label4 = new Label();
+            txtDestTipoR1 = new TextBox();
+            label3 = new Label();
+            txtDestAutoCom = new TextBox();
+            label2 = new Label();
+            txtDestNumIscr = new TextBox();
+            label1 = new Label();
+            tabPage4 = new TabPage();
+            txtRagSoc2 = new TextBox();
             ((System.ComponentModel.ISupportInitialize)numCap).BeginInit();
+            tabControl1.SuspendLayout();
+            tabPage1.SuspendLayout();
+            tabPage2.SuspendLayout();
+            tabPage3.SuspendLayout();
+            tabPage4.SuspendLayout();
             SuspendLayout();
-            // 
-            // groupBoxDbConnection
-            // 
-            groupBoxDbConnection.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            groupBoxDbConnection.Controls.Add(btnTestConnessione);
-            groupBoxDbConnection.Controls.Add(txtDbPassword);
-            groupBoxDbConnection.Controls.Add(lblDbPassword);
-            groupBoxDbConnection.Controls.Add(txtDbUsername);
-            groupBoxDbConnection.Controls.Add(lblDbUsername);
-            groupBoxDbConnection.Controls.Add(txtDatabaseName);
-            groupBoxDbConnection.Controls.Add(lblDatabaseName);
-            groupBoxDbConnection.Controls.Add(txtServerName);
-            groupBoxDbConnection.Controls.Add(lblServerName);
-            groupBoxDbConnection.Location = new Point(12, 12);
-            groupBoxDbConnection.Name = "groupBoxDbConnection";
-            groupBoxDbConnection.Size = new Size(460, 180);
-            groupBoxDbConnection.TabIndex = 0;
-            groupBoxDbConnection.TabStop = false;
-            groupBoxDbConnection.Text = "Connessione Database";
             // 
             // btnTestConnessione
             // 
             btnTestConnessione.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnTestConnessione.Location = new Point(345, 140);
+            btnTestConnessione.Location = new Point(659, 277);
+            btnTestConnessione.Margin = new Padding(6);
             btnTestConnessione.Name = "btnTestConnessione";
-            btnTestConnessione.Size = new Size(95, 23);
+            btnTestConnessione.Size = new Size(176, 49);
             btnTestConnessione.TabIndex = 8;
             btnTestConnessione.Text = "Test Connessione";
             btnTestConnessione.UseVisualStyleBackColor = true;
@@ -541,271 +593,268 @@ namespace FormulariRif_G.Forms
             // txtDbPassword
             // 
             txtDbPassword.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDbPassword.Location = new Point(120, 140);
+            txtDbPassword.Location = new Point(245, 277);
+            txtDbPassword.Margin = new Padding(6);
             txtDbPassword.Name = "txtDbPassword";
-            txtDbPassword.Size = new Size(219, 23);
+            txtDbPassword.Size = new Size(399, 39);
             txtDbPassword.TabIndex = 7;
             txtDbPassword.UseSystemPasswordChar = true;
             // 
             // lblDbPassword
             // 
             lblDbPassword.AutoSize = true;
-            lblDbPassword.Location = new Point(15, 143);
+            lblDbPassword.Location = new Point(50, 283);
+            lblDbPassword.Margin = new Padding(6, 0, 6, 0);
             lblDbPassword.Name = "lblDbPassword";
-            lblDbPassword.Size = new Size(86, 15);
+            lblDbPassword.Size = new Size(168, 32);
             lblDbPassword.TabIndex = 6;
             lblDbPassword.Text = "Password (DB):";
             // 
             // txtDbUsername
             // 
             txtDbUsername.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDbUsername.Location = new Point(120, 105);
+            txtDbUsername.Location = new Point(245, 202);
+            txtDbUsername.Margin = new Padding(6);
             txtDbUsername.Name = "txtDbUsername";
-            txtDbUsername.Size = new Size(320, 23);
+            txtDbUsername.Size = new Size(587, 39);
             txtDbUsername.TabIndex = 5;
             // 
             // lblDbUsername
             // 
             lblDbUsername.AutoSize = true;
-            lblDbUsername.Location = new Point(15, 108);
+            lblDbUsername.Location = new Point(50, 208);
+            lblDbUsername.Margin = new Padding(6, 0, 6, 0);
             lblDbUsername.Name = "lblDbUsername";
-            lblDbUsername.Size = new Size(89, 15);
+            lblDbUsername.Size = new Size(178, 32);
             lblDbUsername.TabIndex = 4;
             lblDbUsername.Text = "Username (DB):";
             // 
             // txtDatabaseName
             // 
             txtDatabaseName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDatabaseName.Location = new Point(120, 70);
+            txtDatabaseName.Location = new Point(245, 127);
+            txtDatabaseName.Margin = new Padding(6);
             txtDatabaseName.Name = "txtDatabaseName";
-            txtDatabaseName.Size = new Size(320, 23);
+            txtDatabaseName.Size = new Size(587, 39);
             txtDatabaseName.TabIndex = 3;
             // 
             // lblDatabaseName
             // 
             lblDatabaseName.AutoSize = true;
-            lblDatabaseName.Location = new Point(15, 73);
+            lblDatabaseName.Location = new Point(50, 134);
+            lblDatabaseName.Margin = new Padding(6, 0, 6, 0);
             lblDatabaseName.Name = "lblDatabaseName";
-            lblDatabaseName.Size = new Size(94, 15);
+            lblDatabaseName.Size = new Size(190, 32);
             lblDatabaseName.TabIndex = 2;
             lblDatabaseName.Text = "Nome Database:";
             // 
             // txtServerName
             // 
             txtServerName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtServerName.Location = new Point(120, 35);
+            txtServerName.Location = new Point(245, 53);
+            txtServerName.Margin = new Padding(6);
             txtServerName.Name = "txtServerName";
-            txtServerName.Size = new Size(320, 23);
+            txtServerName.Size = new Size(587, 39);
             txtServerName.TabIndex = 1;
             // 
             // lblServerName
             // 
             lblServerName.AutoSize = true;
-            lblServerName.Location = new Point(15, 38);
+            lblServerName.Location = new Point(50, 59);
+            lblServerName.Margin = new Padding(6, 0, 6, 0);
             lblServerName.Name = "lblServerName";
-            lblServerName.Size = new Size(78, 15);
+            lblServerName.Size = new Size(159, 32);
             lblServerName.TabIndex = 0;
             lblServerName.Text = "Nome Server:";
             // 
-            // groupBoxAppSettings
-            // 
-            groupBoxAppSettings.Controls.Add(dtpDataIscrizioneAlbo);
-            groupBoxAppSettings.Controls.Add(lblDataIscrizioneAlbo);
-            groupBoxAppSettings.Controls.Add(txtNumeroIscrizioneAlbo);
-            groupBoxAppSettings.Controls.Add(lblNumeroIscrizioneAlbo);
-            groupBoxAppSettings.Controls.Add(txtCodiceFiscale);
-            groupBoxAppSettings.Controls.Add(lblCodiceFiscale);
-            groupBoxAppSettings.Controls.Add(txtPartitaIva);
-            groupBoxAppSettings.Controls.Add(lblPartitaIva);
-            groupBoxAppSettings.Controls.Add(txtEmail);
-            groupBoxAppSettings.Controls.Add(lblEmail);
-            groupBoxAppSettings.Controls.Add(numCap);
-            groupBoxAppSettings.Controls.Add(lblCap);
-            groupBoxAppSettings.Controls.Add(txtComune);
-            groupBoxAppSettings.Controls.Add(lblComune);
-            groupBoxAppSettings.Controls.Add(txtIndirizzo);
-            groupBoxAppSettings.Controls.Add(lblIndirizzo);
-            groupBoxAppSettings.Controls.Add(txtRagSoc);
-            groupBoxAppSettings.Controls.Add(lblRagSoc);
-            groupBoxAppSettings.Controls.Add(chkDatiTest);
-            groupBoxAppSettings.Location = new Point(12, 200);
-            groupBoxAppSettings.Name = "groupBoxAppSettings";
-            groupBoxAppSettings.Size = new Size(460, 386);
-            groupBoxAppSettings.TabIndex = 1;
-            groupBoxAppSettings.TabStop = false;
-            groupBoxAppSettings.Text = "Configurazione Applicazione";
-            // 
             // dtpDataIscrizioneAlbo
             // 
-            dtpDataIscrizioneAlbo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             dtpDataIscrizioneAlbo.Format = DateTimePickerFormat.Short;
-            dtpDataIscrizioneAlbo.Location = new Point(120, 309);
+            dtpDataIscrizioneAlbo.Location = new Point(246, 130);
+            dtpDataIscrizioneAlbo.Margin = new Padding(6);
             dtpDataIscrizioneAlbo.Name = "dtpDataIscrizioneAlbo";
-            dtpDataIscrizioneAlbo.Size = new Size(320, 23);
+            dtpDataIscrizioneAlbo.Size = new Size(591, 39);
             dtpDataIscrizioneAlbo.TabIndex = 18;
             // 
             // lblDataIscrizioneAlbo
             // 
             lblDataIscrizioneAlbo.AutoSize = true;
-            lblDataIscrizioneAlbo.Location = new Point(15, 312);
+            lblDataIscrizioneAlbo.Location = new Point(51, 137);
+            lblDataIscrizioneAlbo.Margin = new Padding(6, 0, 6, 0);
             lblDataIscrizioneAlbo.Name = "lblDataIscrizioneAlbo";
-            lblDataIscrizioneAlbo.Size = new Size(82, 15);
+            lblDataIscrizioneAlbo.Size = new Size(163, 32);
             lblDataIscrizioneAlbo.TabIndex = 17;
             lblDataIscrizioneAlbo.Text = "Data Isc. Albo:";
             // 
             // txtNumeroIscrizioneAlbo
             // 
-            txtNumeroIscrizioneAlbo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtNumeroIscrizioneAlbo.Location = new Point(120, 274);
+            txtNumeroIscrizioneAlbo.Location = new Point(246, 56);
+            txtNumeroIscrizioneAlbo.Margin = new Padding(6);
             txtNumeroIscrizioneAlbo.Name = "txtNumeroIscrizioneAlbo";
-            txtNumeroIscrizioneAlbo.Size = new Size(320, 23);
+            txtNumeroIscrizioneAlbo.Size = new Size(591, 39);
             txtNumeroIscrizioneAlbo.TabIndex = 16;
             // 
             // lblNumeroIscrizioneAlbo
             // 
             lblNumeroIscrizioneAlbo.AutoSize = true;
-            lblNumeroIscrizioneAlbo.Location = new Point(15, 277);
+            lblNumeroIscrizioneAlbo.Location = new Point(51, 62);
+            lblNumeroIscrizioneAlbo.Margin = new Padding(6, 0, 6, 0);
             lblNumeroIscrizioneAlbo.Name = "lblNumeroIscrizioneAlbo";
-            lblNumeroIscrizioneAlbo.Size = new Size(88, 15);
+            lblNumeroIscrizioneAlbo.Size = new Size(172, 32);
             lblNumeroIscrizioneAlbo.TabIndex = 15;
             lblNumeroIscrizioneAlbo.Text = "Num. Isc. Albo:";
             // 
             // txtCodiceFiscale
             // 
             txtCodiceFiscale.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtCodiceFiscale.Location = new Point(120, 239);
+            txtCodiceFiscale.Location = new Point(245, 558);
+            txtCodiceFiscale.Margin = new Padding(6);
             txtCodiceFiscale.Name = "txtCodiceFiscale";
-            txtCodiceFiscale.Size = new Size(320, 23);
+            txtCodiceFiscale.Size = new Size(591, 39);
             txtCodiceFiscale.TabIndex = 14;
             // 
             // lblCodiceFiscale
             // 
             lblCodiceFiscale.AutoSize = true;
-            lblCodiceFiscale.Location = new Point(15, 242);
+            lblCodiceFiscale.Location = new Point(50, 564);
+            lblCodiceFiscale.Margin = new Padding(6, 0, 6, 0);
             lblCodiceFiscale.Name = "lblCodiceFiscale";
-            lblCodiceFiscale.Size = new Size(85, 15);
+            lblCodiceFiscale.Size = new Size(169, 32);
             lblCodiceFiscale.TabIndex = 13;
             lblCodiceFiscale.Text = "Codice Fiscale:";
             // 
             // txtPartitaIva
             // 
             txtPartitaIva.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtPartitaIva.Location = new Point(120, 204);
+            txtPartitaIva.Location = new Point(245, 483);
+            txtPartitaIva.Margin = new Padding(6);
             txtPartitaIva.Name = "txtPartitaIva";
-            txtPartitaIva.Size = new Size(320, 23);
+            txtPartitaIva.Size = new Size(591, 39);
             txtPartitaIva.TabIndex = 12;
             // 
             // lblPartitaIva
             // 
             lblPartitaIva.AutoSize = true;
-            lblPartitaIva.Location = new Point(15, 207);
+            lblPartitaIva.Location = new Point(50, 490);
+            lblPartitaIva.Margin = new Padding(6, 0, 6, 0);
             lblPartitaIva.Name = "lblPartitaIva";
-            lblPartitaIva.Size = new Size(64, 15);
+            lblPartitaIva.Size = new Size(127, 32);
             lblPartitaIva.TabIndex = 11;
             lblPartitaIva.Text = "Partita IVA:";
             // 
             // txtEmail
             // 
             txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtEmail.Location = new Point(120, 169);
+            txtEmail.Location = new Point(245, 409);
+            txtEmail.Margin = new Padding(6);
             txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(320, 23);
+            txtEmail.Size = new Size(591, 39);
             txtEmail.TabIndex = 10;
             // 
             // lblEmail
             // 
             lblEmail.AutoSize = true;
-            lblEmail.Location = new Point(15, 172);
+            lblEmail.Location = new Point(50, 415);
+            lblEmail.Margin = new Padding(6, 0, 6, 0);
             lblEmail.Name = "lblEmail";
-            lblEmail.Size = new Size(44, 15);
+            lblEmail.Size = new Size(86, 32);
             lblEmail.TabIndex = 9;
             lblEmail.Text = "E-mail:";
             // 
             // numCap
             // 
             numCap.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            numCap.Location = new Point(120, 134);
+            numCap.Location = new Point(245, 334);
+            numCap.Margin = new Padding(6);
             numCap.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
             numCap.Name = "numCap";
-            numCap.Size = new Size(120, 23);
+            numCap.Size = new Size(223, 39);
             numCap.TabIndex = 8;
             // 
             // lblCap
             // 
             lblCap.AutoSize = true;
-            lblCap.Location = new Point(15, 136);
+            lblCap.Location = new Point(51, 307);
+            lblCap.Margin = new Padding(6, 0, 6, 0);
             lblCap.Name = "lblCap";
-            lblCap.Size = new Size(33, 15);
+            lblCap.Size = new Size(62, 32);
             lblCap.TabIndex = 7;
             lblCap.Text = "CAP:";
             // 
             // txtComune
             // 
             txtComune.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtComune.Location = new Point(120, 99);
+            txtComune.Location = new Point(245, 259);
+            txtComune.Margin = new Padding(6);
             txtComune.Name = "txtComune";
-            txtComune.Size = new Size(320, 23);
+            txtComune.Size = new Size(591, 39);
             txtComune.TabIndex = 6;
             // 
             // lblComune
             // 
             lblComune.AutoSize = true;
-            lblComune.Location = new Point(15, 102);
+            lblComune.Location = new Point(50, 266);
+            lblComune.Margin = new Padding(6, 0, 6, 0);
             lblComune.Name = "lblComune";
-            lblComune.Size = new Size(56, 15);
+            lblComune.Size = new Size(110, 32);
             lblComune.TabIndex = 5;
             lblComune.Text = "Comune:";
             // 
             // txtIndirizzo
             // 
             txtIndirizzo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtIndirizzo.Location = new Point(120, 64);
+            txtIndirizzo.Location = new Point(245, 185);
+            txtIndirizzo.Margin = new Padding(6);
             txtIndirizzo.Name = "txtIndirizzo";
-            txtIndirizzo.Size = new Size(320, 23);
+            txtIndirizzo.Size = new Size(591, 39);
             txtIndirizzo.TabIndex = 4;
             // 
             // lblIndirizzo
             // 
             lblIndirizzo.AutoSize = true;
-            lblIndirizzo.Location = new Point(15, 67);
+            lblIndirizzo.Location = new Point(50, 191);
+            lblIndirizzo.Margin = new Padding(6, 0, 6, 0);
             lblIndirizzo.Name = "lblIndirizzo";
-            lblIndirizzo.Size = new Size(54, 15);
+            lblIndirizzo.Size = new Size(109, 32);
             lblIndirizzo.TabIndex = 3;
             lblIndirizzo.Text = "Indirizzo:";
             // 
-            // txtRagSoc
+            // txtRagSoc1
             // 
-            txtRagSoc.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRagSoc.Location = new Point(120, 29);
-            txtRagSoc.Name = "txtRagSoc";
-            txtRagSoc.Size = new Size(320, 23);
-            txtRagSoc.TabIndex = 2;
+            txtRagSoc1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtRagSoc1.Location = new Point(245, 50);
+            txtRagSoc1.Margin = new Padding(6);
+            txtRagSoc1.Name = "txtRagSoc1";
+            txtRagSoc1.Size = new Size(591, 39);
+            txtRagSoc1.TabIndex = 2;
             // 
             // lblRagSoc
             // 
             lblRagSoc.AutoSize = true;
-            lblRagSoc.Location = new Point(15, 32);
+            lblRagSoc.Location = new Point(50, 56);
+            lblRagSoc.Margin = new Padding(6, 0, 6, 0);
             lblRagSoc.Name = "lblRagSoc";
-            lblRagSoc.Size = new Size(93, 15);
+            lblRagSoc.Size = new Size(188, 32);
             lblRagSoc.TabIndex = 1;
             lblRagSoc.Text = "Ragione Sociale:";
             // 
             // chkDatiTest
             // 
             chkDatiTest.AutoSize = true;
-            chkDatiTest.Location = new Point(15, 344);
+            chkDatiTest.Location = new Point(40, 771);
+            chkDatiTest.Margin = new Padding(6);
             chkDatiTest.Name = "chkDatiTest";
-            chkDatiTest.Size = new Size(108, 19);
+            chkDatiTest.Size = new Size(212, 36);
             chkDatiTest.TabIndex = 0;
             chkDatiTest.Text = "Abilita Dati Test";
             chkDatiTest.UseVisualStyleBackColor = true;
             // 
             // btnSalvaConfigurazione
             // 
-            btnSalvaConfigurazione.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnSalvaConfigurazione.Location = new Point(322, 598);
+            btnSalvaConfigurazione.Location = new Point(641, 819);
+            btnSalvaConfigurazione.Margin = new Padding(6);
             btnSalvaConfigurazione.Name = "btnSalvaConfigurazione";
-            btnSalvaConfigurazione.Size = new Size(150, 30);
+            btnSalvaConfigurazione.Size = new Size(279, 64);
             btnSalvaConfigurazione.TabIndex = 2;
             btnSalvaConfigurazione.Text = "Salva Configurazione";
             btnSalvaConfigurazione.UseVisualStyleBackColor = true;
@@ -813,40 +862,230 @@ namespace FormulariRif_G.Forms
             // 
             // btnGeneraDatiTest
             // 
-            btnGeneraDatiTest.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnGeneraDatiTest.Location = new Point(12, 598);
+            btnGeneraDatiTest.Location = new Point(23, 819);
+            btnGeneraDatiTest.Margin = new Padding(6);
             btnGeneraDatiTest.Name = "btnGeneraDatiTest";
-            btnGeneraDatiTest.Size = new Size(150, 30);
+            btnGeneraDatiTest.Size = new Size(279, 64);
             btnGeneraDatiTest.TabIndex = 3;
             btnGeneraDatiTest.Text = "Genera Dati Test";
             btnGeneraDatiTest.UseVisualStyleBackColor = true;
             btnGeneraDatiTest.Click += btnGeneraDatiTest_Click;
             // 
+            // tabControl1
+            // 
+            tabControl1.Controls.Add(tabPage1);
+            tabControl1.Controls.Add(tabPage2);
+            tabControl1.Controls.Add(tabPage3);
+            tabControl1.Controls.Add(tabPage4);
+            tabControl1.Location = new Point(23, 12);
+            tabControl1.Name = "tabControl1";
+            tabControl1.SelectedIndex = 0;
+            tabControl1.Size = new Size(905, 728);
+            tabControl1.TabIndex = 4;
+            // 
+            // tabPage1
+            // 
+            tabPage1.Controls.Add(btnTestConnessione);
+            tabPage1.Controls.Add(txtServerName);
+            tabPage1.Controls.Add(txtDbPassword);
+            tabPage1.Controls.Add(lblServerName);
+            tabPage1.Controls.Add(lblDbPassword);
+            tabPage1.Controls.Add(lblDatabaseName);
+            tabPage1.Controls.Add(txtDbUsername);
+            tabPage1.Controls.Add(txtDatabaseName);
+            tabPage1.Controls.Add(lblDbUsername);
+            tabPage1.Location = new Point(8, 46);
+            tabPage1.Name = "tabPage1";
+            tabPage1.Padding = new Padding(3);
+            tabPage1.Size = new Size(889, 674);
+            tabPage1.TabIndex = 0;
+            tabPage1.Text = "Configurazione Database";
+            tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // tabPage2
+            // 
+            tabPage2.Controls.Add(txtRagSoc2);
+            tabPage2.Controls.Add(txtRagSoc1);
+            tabPage2.Controls.Add(lblRagSoc);
+            tabPage2.Controls.Add(lblIndirizzo);
+            tabPage2.Controls.Add(txtCodiceFiscale);
+            tabPage2.Controls.Add(txtIndirizzo);
+            tabPage2.Controls.Add(lblCodiceFiscale);
+            tabPage2.Controls.Add(lblComune);
+            tabPage2.Controls.Add(txtPartitaIva);
+            tabPage2.Controls.Add(txtComune);
+            tabPage2.Controls.Add(lblPartitaIva);
+            tabPage2.Controls.Add(lblCap);
+            tabPage2.Controls.Add(txtEmail);
+            tabPage2.Controls.Add(numCap);
+            tabPage2.Controls.Add(lblEmail);
+            tabPage2.Location = new Point(8, 46);
+            tabPage2.Name = "tabPage2";
+            tabPage2.Padding = new Padding(3);
+            tabPage2.Size = new Size(889, 674);
+            tabPage2.TabIndex = 1;
+            tabPage2.Text = "Dati Azienda";
+            tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // tabPage3
+            // 
+            tabPage3.Controls.Add(txtDestD);
+            tabPage3.Controls.Add(txtDestR);
+            tabPage3.Controls.Add(label5);
+            tabPage3.Controls.Add(txtDestTipoR2);
+            tabPage3.Controls.Add(label4);
+            tabPage3.Controls.Add(txtDestTipoR1);
+            tabPage3.Controls.Add(label3);
+            tabPage3.Controls.Add(txtDestAutoCom);
+            tabPage3.Controls.Add(label2);
+            tabPage3.Controls.Add(txtDestNumIscr);
+            tabPage3.Controls.Add(label1);
+            tabPage3.Location = new Point(8, 46);
+            tabPage3.Name = "tabPage3";
+            tabPage3.Size = new Size(889, 674);
+            tabPage3.TabIndex = 2;
+            tabPage3.Text = "Destinatario";
+            tabPage3.UseVisualStyleBackColor = true;
+            // 
+            // txtDestD
+            // 
+            txtDestD.Location = new Point(427, 125);
+            txtDestD.Name = "txtDestD";
+            txtDestD.Size = new Size(146, 39);
+            txtDestD.TabIndex = 10;
+            // 
+            // txtDestR
+            // 
+            txtDestR.Location = new Point(247, 125);
+            txtDestR.Name = "txtDestR";
+            txtDestR.Size = new Size(146, 39);
+            txtDestR.TabIndex = 9;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(52, 129);
+            label5.Name = "label5";
+            label5.Size = new Size(175, 32);
+            label5.TabIndex = 8;
+            label5.Text = "Destinaz. R e D";
+            // 
+            // txtDestTipoR2
+            // 
+            txtDestTipoR2.Location = new Point(247, 342);
+            txtDestTipoR2.Name = "txtDestTipoR2";
+            txtDestTipoR2.Size = new Size(587, 39);
+            txtDestTipoR2.TabIndex = 7;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(52, 346);
+            label4.Name = "label4";
+            label4.Size = new Size(134, 32);
+            label4.TabIndex = 6;
+            label4.Text = "Tipo Riga 2";
+            // 
+            // txtDestTipoR1
+            // 
+            txtDestTipoR1.Location = new Point(247, 269);
+            txtDestTipoR1.Name = "txtDestTipoR1";
+            txtDestTipoR1.Size = new Size(587, 39);
+            txtDestTipoR1.TabIndex = 5;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(52, 273);
+            label3.Name = "label3";
+            label3.Size = new Size(134, 32);
+            label3.TabIndex = 4;
+            label3.Text = "Tipo Riga 1";
+            // 
+            // txtDestAutoCom
+            // 
+            txtDestAutoCom.Location = new Point(247, 198);
+            txtDestAutoCom.Name = "txtDestAutoCom";
+            txtDestAutoCom.Size = new Size(587, 39);
+            txtDestAutoCom.TabIndex = 3;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(52, 202);
+            label2.Name = "label2";
+            label2.Size = new Size(186, 32);
+            label2.TabIndex = 2;
+            label2.Text = "Aut. Comunicaz.";
+            // 
+            // txtDestNumIscr
+            // 
+            txtDestNumIscr.Location = new Point(247, 58);
+            txtDestNumIscr.Name = "txtDestNumIscr";
+            txtDestNumIscr.Size = new Size(587, 39);
+            txtDestNumIscr.TabIndex = 1;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(52, 62);
+            label1.Name = "label1";
+            label1.Size = new Size(175, 32);
+            label1.TabIndex = 0;
+            label1.Text = "Num. Iscr. Albo";
+            // 
+            // tabPage4
+            // 
+            tabPage4.Controls.Add(dtpDataIscrizioneAlbo);
+            tabPage4.Controls.Add(txtNumeroIscrizioneAlbo);
+            tabPage4.Controls.Add(lblNumeroIscrizioneAlbo);
+            tabPage4.Controls.Add(lblDataIscrizioneAlbo);
+            tabPage4.Location = new Point(8, 46);
+            tabPage4.Name = "tabPage4";
+            tabPage4.Size = new Size(889, 674);
+            tabPage4.TabIndex = 3;
+            tabPage4.Text = "Trasportatore";
+            tabPage4.UseVisualStyleBackColor = true;
+            // 
+            // txtRagSoc2
+            // 
+            txtRagSoc2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtRagSoc2.Location = new Point(245, 117);
+            txtRagSoc2.Margin = new Padding(6);
+            txtRagSoc2.Name = "txtRagSoc2";
+            txtRagSoc2.Size = new Size(591, 39);
+            txtRagSoc2.TabIndex = 16;
+            // 
             // ConfigurazioneForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(484, 639);
+            ClientSize = new Size(973, 938);
+            Controls.Add(tabControl1);
             Controls.Add(btnGeneraDatiTest);
             Controls.Add(btnSalvaConfigurazione);
-            Controls.Add(groupBoxAppSettings);
-            Controls.Add(groupBoxDbConnection);
+            Controls.Add(chkDatiTest);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ConfigurazioneForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Configurazione Applicazione";
-            groupBoxDbConnection.ResumeLayout(false);
-            groupBoxDbConnection.PerformLayout();
-            groupBoxAppSettings.ResumeLayout(false);
-            groupBoxAppSettings.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numCap).EndInit();
+            tabControl1.ResumeLayout(false);
+            tabPage1.ResumeLayout(false);
+            tabPage1.PerformLayout();
+            tabPage2.ResumeLayout(false);
+            tabPage2.PerformLayout();
+            tabPage3.ResumeLayout(false);
+            tabPage3.PerformLayout();
+            tabPage4.ResumeLayout(false);
+            tabPage4.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
 
         }
-
-        private System.Windows.Forms.GroupBox groupBoxDbConnection;
         private System.Windows.Forms.Button btnTestConnessione;
         private System.Windows.Forms.TextBox txtDbPassword;
         private System.Windows.Forms.Label lblDbPassword;
@@ -856,7 +1095,6 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label lblDatabaseName;
         private System.Windows.Forms.TextBox txtServerName;
         private System.Windows.Forms.Label lblServerName;
-        private System.Windows.Forms.GroupBox groupBoxAppSettings;
         public System.Windows.Forms.TextBox txtEmail;
         private System.Windows.Forms.Label lblEmail;
         public System.Windows.Forms.NumericUpDown numCap;
@@ -865,7 +1103,7 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label lblComune;
         public System.Windows.Forms.TextBox txtIndirizzo;
         private System.Windows.Forms.Label lblIndirizzo;
-        public System.Windows.Forms.TextBox txtRagSoc;
+        public System.Windows.Forms.TextBox txtRagSoc1;
         private System.Windows.Forms.Label lblRagSoc;
         public System.Windows.Forms.CheckBox chkDatiTest;
         private System.Windows.Forms.Button btnSalvaConfigurazione;

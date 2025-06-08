@@ -17,6 +17,8 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<ClienteContatto> _clienteContattoRepository;
         private readonly IServiceProvider _serviceProvider;
         private Cliente? _currentCliente;
+        private TextBox txtPIVA;
+        private Label label1;
         private bool _isReadOnly;
 
         public ClientiDetailForm(IGenericRepository<Cliente> clienteRepository,
@@ -67,12 +69,14 @@ namespace FormulariRif_G.Forms
             if (_currentCliente != null)
             {
                 txtRagSoc.Text = _currentCliente.RagSoc;
+                txtPIVA.Text = _currentCliente.PartitaIva;
                 txtCodiceFiscale.Text = _currentCliente.CodiceFiscale;
             }
             else
             {
                 // Inizializza i campi per un nuovo cliente
                 txtRagSoc.Text = string.Empty;
+                txtPIVA.Text = string.Empty;
                 txtCodiceFiscale.Text = string.Empty;
             }
         }
@@ -149,6 +153,7 @@ namespace FormulariRif_G.Forms
         private void SetFormState()
         {
             txtRagSoc.ReadOnly = _isReadOnly;
+            txtPIVA.ReadOnly = _isReadOnly;
             txtCodiceFiscale.ReadOnly = _isReadOnly;
             btnSalva.Visible = !_isReadOnly;
 
@@ -178,6 +183,7 @@ namespace FormulariRif_G.Forms
             }
 
             _currentCliente.RagSoc = txtRagSoc.Text.Trim();
+            _currentCliente.PartitaIva = txtPIVA.Text.Trim();
             _currentCliente.CodiceFiscale = txtCodiceFiscale.Text.Trim();
 
             try
@@ -457,226 +463,261 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblRagSoc = new System.Windows.Forms.Label();
-            this.txtRagSoc = new System.Windows.Forms.TextBox();
-            this.btnSalva = new System.Windows.Forms.Button();
-            this.lblCodiceFiscale = new System.Windows.Forms.Label();
-            this.txtCodiceFiscale = new System.Windows.Forms.TextBox();
-            this.groupBoxIndirizzi = new System.Windows.Forms.GroupBox();
-            this.btnEliminaIndirizzo = new System.Windows.Forms.Button();
-            this.btnModificaIndirizzo = new System.Windows.Forms.Button();
-            this.btnNuovoIndirizzo = new System.Windows.Forms.Button();
-            this.dataGridViewIndirizzi = new System.Windows.Forms.DataGridView();
-            this.groupBoxContatti = new System.Windows.Forms.GroupBox();
-            this.btnEliminaContatto = new System.Windows.Forms.Button();
-            this.btnModificaContatto = new System.Windows.Forms.Button();
-            this.btnNuovoContatto = new System.Windows.Forms.Button();
-            this.dataGridViewContatti = new System.Windows.Forms.DataGridView();
-            this.groupBoxIndirizzi.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewIndirizzi)).BeginInit();
-            this.groupBoxContatti.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewContatti)).BeginInit();
-            this.SuspendLayout();
-            //
+            lblRagSoc = new Label();
+            txtRagSoc = new TextBox();
+            btnSalva = new Button();
+            lblCodiceFiscale = new Label();
+            txtCodiceFiscale = new TextBox();
+            groupBoxIndirizzi = new GroupBox();
+            btnEliminaIndirizzo = new Button();
+            btnModificaIndirizzo = new Button();
+            btnNuovoIndirizzo = new Button();
+            dataGridViewIndirizzi = new DataGridView();
+            groupBoxContatti = new GroupBox();
+            btnEliminaContatto = new Button();
+            btnModificaContatto = new Button();
+            btnNuovoContatto = new Button();
+            dataGridViewContatti = new DataGridView();
+            txtPIVA = new TextBox();
+            label1 = new Label();
+            groupBoxIndirizzi.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewIndirizzi).BeginInit();
+            groupBoxContatti.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewContatti).BeginInit();
+            SuspendLayout();
+            // 
             // lblRagSoc
-            //
-            this.lblRagSoc.AutoSize = true;
-            this.lblRagSoc.Location = new System.Drawing.Point(20, 30);
-            this.lblRagSoc.Name = "lblRagSoc";
-            this.lblRagSoc.Size = new System.Drawing.Size(95, 15);
-            this.lblRagSoc.TabIndex = 0;
-            this.lblRagSoc.Text = "Ragione Sociale:";
-            //
+            // 
+            lblRagSoc.AutoSize = true;
+            lblRagSoc.Location = new Point(37, 64);
+            lblRagSoc.Margin = new Padding(6, 0, 6, 0);
+            lblRagSoc.Name = "lblRagSoc";
+            lblRagSoc.Size = new Size(188, 32);
+            lblRagSoc.TabIndex = 0;
+            lblRagSoc.Text = "Ragione Sociale:";
+            // 
             // txtRagSoc
-            //
-            this.txtRagSoc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtRagSoc.Location = new System.Drawing.Point(120, 27);
-            this.txtRagSoc.Name = "txtRagSoc";
-            this.txtRagSoc.Size = new System.Drawing.Size(350, 23);
-            this.txtRagSoc.TabIndex = 1;
-            //
+            // 
+            txtRagSoc.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtRagSoc.Location = new Point(223, 58);
+            txtRagSoc.Margin = new Padding(6, 6, 6, 6);
+            txtRagSoc.Name = "txtRagSoc";
+            txtRagSoc.Size = new Size(647, 39);
+            txtRagSoc.TabIndex = 1;
+            // 
             // btnSalva
-            //
-            this.btnSalva.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSalva.Location = new System.Drawing.Point(700, 580);
-            this.btnSalva.Name = "btnSalva";
-            this.btnSalva.Size = new System.Drawing.Size(75, 30);
-            this.btnSalva.TabIndex = 2;
-            this.btnSalva.Text = "Salva";
-            this.btnSalva.UseVisualStyleBackColor = true;
-            this.btnSalva.Click += new System.EventHandler(this.btnSalva_Click);
-            //
+            // 
+            btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSalva.Location = new Point(1300, 1237);
+            btnSalva.Margin = new Padding(6, 6, 6, 6);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(139, 64);
+            btnSalva.TabIndex = 2;
+            btnSalva.Text = "Salva";
+            btnSalva.UseVisualStyleBackColor = true;
+            btnSalva.Click += btnSalva_Click;
+            // 
             // lblCodiceFiscale
-            //
-            this.lblCodiceFiscale.AutoSize = true;
-            this.lblCodiceFiscale.Location = new System.Drawing.Point(20, 70);
-            this.lblCodiceFiscale.Name = "lblCodiceFiscale";
-            this.lblCodiceFiscale.Size = new System.Drawing.Size(83, 15);
-            this.lblCodiceFiscale.TabIndex = 3;
-            this.lblCodiceFiscale.Text = "Codice Fiscale:";
-            //
+            // 
+            lblCodiceFiscale.AutoSize = true;
+            lblCodiceFiscale.Location = new Point(37, 169);
+            lblCodiceFiscale.Margin = new Padding(6, 0, 6, 0);
+            lblCodiceFiscale.Name = "lblCodiceFiscale";
+            lblCodiceFiscale.Size = new Size(169, 32);
+            lblCodiceFiscale.TabIndex = 3;
+            lblCodiceFiscale.Text = "Codice Fiscale:";
+            // 
             // txtCodiceFiscale
-            //
-            this.txtCodiceFiscale.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtCodiceFiscale.Location = new System.Drawing.Point(120, 67);
-            this.txtCodiceFiscale.Name = "txtCodiceFiscale";
-            this.txtCodiceFiscale.Size = new System.Drawing.Size(350, 23);
-            this.txtCodiceFiscale.TabIndex = 4;
-            //
+            // 
+            txtCodiceFiscale.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtCodiceFiscale.Location = new Point(223, 163);
+            txtCodiceFiscale.Margin = new Padding(6, 6, 6, 6);
+            txtCodiceFiscale.Name = "txtCodiceFiscale";
+            txtCodiceFiscale.Size = new Size(647, 39);
+            txtCodiceFiscale.TabIndex = 4;
+            // 
             // groupBoxIndirizzi
-            //
-            this.groupBoxIndirizzi.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBoxIndirizzi.Controls.Add(this.btnEliminaIndirizzo);
-            this.groupBoxIndirizzi.Controls.Add(this.btnModificaIndirizzo);
-            this.groupBoxIndirizzi.Controls.Add(this.btnNuovoIndirizzo);
-            this.groupBoxIndirizzi.Controls.Add(this.dataGridViewIndirizzi);
-            this.groupBoxIndirizzi.Location = new System.Drawing.Point(12, 110);
-            this.groupBoxIndirizzi.Name = "groupBoxIndirizzi";
-            this.groupBoxIndirizzi.Size = new System.Drawing.Size(760, 220);
-            this.groupBoxIndirizzi.TabIndex = 5;
-            this.groupBoxIndirizzi.TabStop = false;
-            this.groupBoxIndirizzi.Text = "Indirizzi";
-            //
+            // 
+            groupBoxIndirizzi.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBoxIndirizzi.Controls.Add(btnEliminaIndirizzo);
+            groupBoxIndirizzi.Controls.Add(btnModificaIndirizzo);
+            groupBoxIndirizzi.Controls.Add(btnNuovoIndirizzo);
+            groupBoxIndirizzi.Controls.Add(dataGridViewIndirizzi);
+            groupBoxIndirizzi.Location = new Point(22, 235);
+            groupBoxIndirizzi.Margin = new Padding(6, 6, 6, 6);
+            groupBoxIndirizzi.Name = "groupBoxIndirizzi";
+            groupBoxIndirizzi.Padding = new Padding(6, 6, 6, 6);
+            groupBoxIndirizzi.Size = new Size(1411, 469);
+            groupBoxIndirizzi.TabIndex = 5;
+            groupBoxIndirizzi.TabStop = false;
+            groupBoxIndirizzi.Text = "Indirizzi";
+            // 
             // btnEliminaIndirizzo
-            //
-            this.btnEliminaIndirizzo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnEliminaIndirizzo.Location = new System.Drawing.Point(174, 180);
-            this.btnEliminaIndirizzo.Name = "btnEliminaIndirizzo";
-            this.btnEliminaIndirizzo.Size = new System.Drawing.Size(75, 30);
-            this.btnEliminaIndirizzo.TabIndex = 3;
-            this.btnEliminaIndirizzo.Text = "Elimina";
-            this.btnEliminaIndirizzo.UseVisualStyleBackColor = true;
-            this.btnEliminaIndirizzo.Click += new System.EventHandler(this.btnEliminaIndirizzo_Click);
-            //
+            // 
+            btnEliminaIndirizzo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnEliminaIndirizzo.Location = new Point(323, 384);
+            btnEliminaIndirizzo.Margin = new Padding(6, 6, 6, 6);
+            btnEliminaIndirizzo.Name = "btnEliminaIndirizzo";
+            btnEliminaIndirizzo.Size = new Size(139, 64);
+            btnEliminaIndirizzo.TabIndex = 3;
+            btnEliminaIndirizzo.Text = "Elimina";
+            btnEliminaIndirizzo.UseVisualStyleBackColor = true;
+            btnEliminaIndirizzo.Click += btnEliminaIndirizzo_Click;
+            // 
             // btnModificaIndirizzo
-            //
-            this.btnModificaIndirizzo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnModificaIndirizzo.Location = new System.Drawing.Point(93, 180);
-            this.btnModificaIndirizzo.Name = "btnModificaIndirizzo";
-            this.btnModificaIndirizzo.Size = new System.Drawing.Size(75, 30);
-            this.btnModificaIndirizzo.TabIndex = 2;
-            this.btnModificaIndirizzo.Text = "Modifica";
-            this.btnModificaIndirizzo.UseVisualStyleBackColor = true;
-            this.btnModificaIndirizzo.Click += new System.EventHandler(this.btnModificaIndirizzo_Click);
-            //
+            // 
+            btnModificaIndirizzo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnModificaIndirizzo.Location = new Point(173, 384);
+            btnModificaIndirizzo.Margin = new Padding(6, 6, 6, 6);
+            btnModificaIndirizzo.Name = "btnModificaIndirizzo";
+            btnModificaIndirizzo.Size = new Size(139, 64);
+            btnModificaIndirizzo.TabIndex = 2;
+            btnModificaIndirizzo.Text = "Modifica";
+            btnModificaIndirizzo.UseVisualStyleBackColor = true;
+            btnModificaIndirizzo.Click += btnModificaIndirizzo_Click;
+            // 
             // btnNuovoIndirizzo
-            //
-            this.btnNuovoIndirizzo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnNuovoIndirizzo.Location = new System.Drawing.Point(12, 180);
-            this.btnNuovoIndirizzo.Name = "btnNuovoIndirizzo";
-            this.btnNuovoIndirizzo.Size = new System.Drawing.Size(75, 30);
-            this.btnNuovoIndirizzo.TabIndex = 1;
-            this.btnNuovoIndirizzo.Text = "Nuovo";
-            this.btnNuovoIndirizzo.UseVisualStyleBackColor = true;
-            this.btnNuovoIndirizzo.Click += new System.EventHandler(this.btnNuovoIndirizzo_Click);
-            //
+            // 
+            btnNuovoIndirizzo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnNuovoIndirizzo.Location = new Point(22, 384);
+            btnNuovoIndirizzo.Margin = new Padding(6, 6, 6, 6);
+            btnNuovoIndirizzo.Name = "btnNuovoIndirizzo";
+            btnNuovoIndirizzo.Size = new Size(139, 64);
+            btnNuovoIndirizzo.TabIndex = 1;
+            btnNuovoIndirizzo.Text = "Nuovo";
+            btnNuovoIndirizzo.UseVisualStyleBackColor = true;
+            btnNuovoIndirizzo.Click += btnNuovoIndirizzo_Click;
+            // 
             // dataGridViewIndirizzi
-            //
-            this.dataGridViewIndirizzi.AllowUserToAddRows = false;
-            this.dataGridViewIndirizzi.AllowUserToDeleteRows = false;
-            this.dataGridViewIndirizzi.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridViewIndirizzi.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewIndirizzi.Location = new System.Drawing.Point(12, 22);
-            this.dataGridViewIndirizzi.MultiSelect = false;
-            this.dataGridViewIndirizzi.Name = "dataGridViewIndirizzi";
-            this.dataGridViewIndirizzi.ReadOnly = true;
-            this.dataGridViewIndirizzi.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewIndirizzi.Size = new System.Drawing.Size(736, 150);
-            this.dataGridViewIndirizzi.TabIndex = 0;
-            //
+            // 
+            dataGridViewIndirizzi.AllowUserToAddRows = false;
+            dataGridViewIndirizzi.AllowUserToDeleteRows = false;
+            dataGridViewIndirizzi.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewIndirizzi.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewIndirizzi.Location = new Point(22, 47);
+            dataGridViewIndirizzi.Margin = new Padding(6, 6, 6, 6);
+            dataGridViewIndirizzi.MultiSelect = false;
+            dataGridViewIndirizzi.Name = "dataGridViewIndirizzi";
+            dataGridViewIndirizzi.ReadOnly = true;
+            dataGridViewIndirizzi.RowHeadersWidth = 82;
+            dataGridViewIndirizzi.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewIndirizzi.Size = new Size(1367, 320);
+            dataGridViewIndirizzi.TabIndex = 0;
+            // 
             // groupBoxContatti
-            //
-            this.groupBoxContatti.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.groupBoxContatti.Controls.Add(this.btnEliminaContatto);
-            this.groupBoxContatti.Controls.Add(this.btnModificaContatto);
-            this.groupBoxContatti.Controls.Add(this.btnNuovoContatto);
-            this.groupBoxContatti.Controls.Add(this.dataGridViewContatti);
-            this.groupBoxContatti.Location = new System.Drawing.Point(12, 340);
-            this.groupBoxContatti.Name = "groupBoxContatti";
-            this.groupBoxContatti.Size = new System.Drawing.Size(760, 220);
-            this.groupBoxContatti.TabIndex = 6;
-            this.groupBoxContatti.TabStop = false;
-            this.groupBoxContatti.Text = "Contatti";
-            //
+            // 
+            groupBoxContatti.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            groupBoxContatti.Controls.Add(btnEliminaContatto);
+            groupBoxContatti.Controls.Add(btnModificaContatto);
+            groupBoxContatti.Controls.Add(btnNuovoContatto);
+            groupBoxContatti.Controls.Add(dataGridViewContatti);
+            groupBoxContatti.Location = new Point(22, 725);
+            groupBoxContatti.Margin = new Padding(6, 6, 6, 6);
+            groupBoxContatti.Name = "groupBoxContatti";
+            groupBoxContatti.Padding = new Padding(6, 6, 6, 6);
+            groupBoxContatti.Size = new Size(1411, 469);
+            groupBoxContatti.TabIndex = 6;
+            groupBoxContatti.TabStop = false;
+            groupBoxContatti.Text = "Contatti";
+            // 
             // btnEliminaContatto
-            //
-            this.btnEliminaContatto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnEliminaContatto.Location = new System.Drawing.Point(174, 180);
-            this.btnEliminaContatto.Name = "btnEliminaContatto";
-            this.btnEliminaContatto.Size = new System.Drawing.Size(75, 30);
-            this.btnEliminaContatto.TabIndex = 3;
-            this.btnEliminaContatto.Text = "Elimina";
-            this.btnEliminaContatto.UseVisualStyleBackColor = true;
-            this.btnEliminaContatto.Click += new System.EventHandler(this.btnEliminaContatto_Click);
-            //
+            // 
+            btnEliminaContatto.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnEliminaContatto.Location = new Point(323, 384);
+            btnEliminaContatto.Margin = new Padding(6, 6, 6, 6);
+            btnEliminaContatto.Name = "btnEliminaContatto";
+            btnEliminaContatto.Size = new Size(139, 64);
+            btnEliminaContatto.TabIndex = 3;
+            btnEliminaContatto.Text = "Elimina";
+            btnEliminaContatto.UseVisualStyleBackColor = true;
+            btnEliminaContatto.Click += btnEliminaContatto_Click;
+            // 
             // btnModificaContatto
-            //
-            this.btnModificaContatto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnModificaContatto.Location = new System.Drawing.Point(93, 180);
-            this.btnModificaContatto.Name = "btnModificaContatto";
-            this.btnModificaContatto.Size = new System.Drawing.Size(75, 30);
-            this.btnModificaContatto.TabIndex = 2;
-            this.btnModificaContatto.Text = "Modifica";
-            this.btnModificaContatto.UseVisualStyleBackColor = true;
-            this.btnModificaContatto.Click += new System.EventHandler(this.btnModificaContatto_Click);
-            //
+            // 
+            btnModificaContatto.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnModificaContatto.Location = new Point(173, 384);
+            btnModificaContatto.Margin = new Padding(6, 6, 6, 6);
+            btnModificaContatto.Name = "btnModificaContatto";
+            btnModificaContatto.Size = new Size(139, 64);
+            btnModificaContatto.TabIndex = 2;
+            btnModificaContatto.Text = "Modifica";
+            btnModificaContatto.UseVisualStyleBackColor = true;
+            btnModificaContatto.Click += btnModificaContatto_Click;
+            // 
             // btnNuovoContatto
-            //
-            this.btnNuovoContatto.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnNuovoContatto.Location = new System.Drawing.Point(12, 180);
-            this.btnNuovoContatto.Name = "btnNuovoContatto";
-            this.btnNuovoContatto.Size = new System.Drawing.Size(75, 30);
-            this.btnNuovoContatto.TabIndex = 1;
-            this.btnNuovoContatto.Text = "Nuovo";
-            this.btnNuovoContatto.UseVisualStyleBackColor = true;
-            this.btnNuovoContatto.Click += new System.EventHandler(this.btnNuovoContatto_Click);
-            //
+            // 
+            btnNuovoContatto.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnNuovoContatto.Location = new Point(22, 384);
+            btnNuovoContatto.Margin = new Padding(6, 6, 6, 6);
+            btnNuovoContatto.Name = "btnNuovoContatto";
+            btnNuovoContatto.Size = new Size(139, 64);
+            btnNuovoContatto.TabIndex = 1;
+            btnNuovoContatto.Text = "Nuovo";
+            btnNuovoContatto.UseVisualStyleBackColor = true;
+            btnNuovoContatto.Click += btnNuovoContatto_Click;
+            // 
             // dataGridViewContatti
-            //
-            this.dataGridViewContatti.AllowUserToAddRows = false;
-            this.dataGridViewContatti.AllowUserToDeleteRows = false;
-            this.dataGridViewContatti.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridViewContatti.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewContatti.Location = new System.Drawing.Point(12, 22);
-            this.dataGridViewContatti.MultiSelect = false;
-            this.dataGridViewContatti.Name = "dataGridViewContatti";
-            this.dataGridViewContatti.ReadOnly = true;
-            this.dataGridViewContatti.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewContatti.Size = new System.Drawing.Size(736, 150);
-            this.dataGridViewContatti.TabIndex = 0;
-            //
+            // 
+            dataGridViewContatti.AllowUserToAddRows = false;
+            dataGridViewContatti.AllowUserToDeleteRows = false;
+            dataGridViewContatti.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewContatti.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewContatti.Location = new Point(22, 47);
+            dataGridViewContatti.Margin = new Padding(6, 6, 6, 6);
+            dataGridViewContatti.MultiSelect = false;
+            dataGridViewContatti.Name = "dataGridViewContatti";
+            dataGridViewContatti.ReadOnly = true;
+            dataGridViewContatti.RowHeadersWidth = 82;
+            dataGridViewContatti.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewContatti.Size = new Size(1367, 320);
+            dataGridViewContatti.TabIndex = 0;
+            // 
+            // txtPIVA
+            // 
+            txtPIVA.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtPIVA.Location = new Point(223, 109);
+            txtPIVA.Margin = new Padding(6);
+            txtPIVA.Name = "txtPIVA";
+            txtPIVA.Size = new Size(647, 39);
+            txtPIVA.TabIndex = 8;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(37, 115);
+            label1.Margin = new Padding(6, 0, 6, 0);
+            label1.Name = "label1";
+            label1.Size = new Size(79, 32);
+            label1.TabIndex = 7;
+            label1.Text = "P. IVA:";
+            // 
             // ClientiDetailForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 621);
-            this.Controls.Add(this.groupBoxContatti);
-            this.Controls.Add(this.groupBoxIndirizzi);
-            this.Controls.Add(this.txtCodiceFiscale);
-            this.Controls.Add(this.lblCodiceFiscale);
-            this.Controls.Add(this.btnSalva);
-            this.Controls.Add(this.txtRagSoc);
-            this.Controls.Add(this.lblRagSoc);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "ClientiDetailForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Dettagli Cliente";
-            this.groupBoxIndirizzi.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewIndirizzi)).EndInit();
-            this.groupBoxContatti.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewContatti)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1456, 1325);
+            Controls.Add(txtPIVA);
+            Controls.Add(label1);
+            Controls.Add(groupBoxContatti);
+            Controls.Add(groupBoxIndirizzi);
+            Controls.Add(txtCodiceFiscale);
+            Controls.Add(lblCodiceFiscale);
+            Controls.Add(btnSalva);
+            Controls.Add(txtRagSoc);
+            Controls.Add(lblRagSoc);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(6, 6, 6, 6);
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "ClientiDetailForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Dettagli Cliente";
+            groupBoxIndirizzi.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewIndirizzi).EndInit();
+            groupBoxContatti.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)dataGridViewContatti).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

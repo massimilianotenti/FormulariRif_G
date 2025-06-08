@@ -5,14 +5,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormulariRif_G.Models
 {
-    [Table("clienti_indirizzi")] // Mappa la classe alla tabella 'clienti_indirizzi' nel database
+    // Mappa la classe alla tabella 'clienti_indirizzi' nel database
+    [Table("clienti_indirizzi")] 
     public class ClienteIndirizzo
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        [Column("id_cli")] // Chiave esterna per Cliente
+        [Column("id_cli")] 
         public int IdCli { get; set; }
 
         [Required]
@@ -28,12 +29,11 @@ namespace FormulariRif_G.Models
         [Required]
         [Column("cap")]
         public int Cap { get; set; }
-
-        [Required]
-        [Column("predefinito")] // Indica se è l'indirizzo predefinito per il cliente
+        
+        [Column("predefinito")] 
         public bool Predefinito { get; set; }
 
-        [Column("is_test_data")] // Indica se il record è stato generato per test
+        [Column("is_test_data")] 
         public bool IsTestData { get; set; }
 
         // Proprietà di navigazione per il cliente associato
