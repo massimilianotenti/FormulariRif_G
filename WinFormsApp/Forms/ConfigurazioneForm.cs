@@ -2,14 +2,15 @@
 // Questo form permette di configurare la stringa di connessione al database,
 // le credenziali (criptate) e i dati della tabella di configurazione dell'applicazione.
 // Include anche la funzionalità per generare dati di test.
-using Microsoft.Extensions.Configuration;
-using Microsoft.Data.SqlClient;
-using System.Text.Json;
+using Faker;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
 using FormulariRif_G.Utils;
-using Faker;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Text.Json;
 
 namespace FormulariRif_G.Forms
 {
@@ -34,6 +35,7 @@ namespace FormulariRif_G.Forms
         private Label label2;
         public TextBox txtRagSoc2;
         private readonly IServiceProvider _serviceProvider;
+        private static readonly Random _random = new Random();
 
         // Proprietà per esporre i dati di configurazione dell'applicazione
         public Configurazione AppConfigData { get; private set; }
@@ -133,7 +135,7 @@ namespace FormulariRif_G.Forms
                     txtDestD.Text = AppConfigData.DestD;
                     txtDestAutoCom.Text = AppConfigData.DestAutoComunic;
                     txtDestTipoR1.Text = AppConfigData.DestTipo1;
-                    txtDestTipoR2.Text = AppConfigData.DestTipo1;
+                    txtDestTipoR2.Text = AppConfigData.DestTipo2;
                     // Trasportatore
                     txtNumeroIscrizioneAlbo.Text = AppConfigData.NumeroIscrizioneAlbo;                    
                     if(AppConfigData.DataIscrizioneAlbo.HasValue)                   
@@ -209,7 +211,7 @@ namespace FormulariRif_G.Forms
             AppConfigData.DestD = txtDestD.Text.Trim();
             AppConfigData.DestAutoComunic= txtDestAutoCom.Text.Trim();
             AppConfigData.DestTipo1 = txtDestTipoR1.Text.Trim();
-            AppConfigData.DestTipo1 = txtDestTipoR2.Text.Trim();
+            AppConfigData.DestTipo2 = txtDestTipoR2.Text.Trim();
 
             AppConfigData.NumeroIscrizioneAlbo = txtNumeroIscrizioneAlbo.Text.Trim();
             if(dtpDataIscrizioneAlbo.Value == null || dtpDataIscrizioneAlbo.Value == DateTime.MinValue)            
@@ -245,7 +247,7 @@ namespace FormulariRif_G.Forms
                     existingConfig.DestD = AppConfigData.DestD;
                     existingConfig.DestAutoComunic = AppConfigData.DestAutoComunic;
                     existingConfig.DestTipo1 = AppConfigData.DestTipo1;
-                    existingConfig.DestTipo2 = AppConfigData.DestTipo1;
+                    existingConfig.DestTipo2 = AppConfigData.DestTipo2;
 
                     existingConfig.NumeroIscrizioneAlbo = AppConfigData.NumeroIscrizioneAlbo;
                     existingConfig.DataIscrizioneAlbo = AppConfigData.DataIscrizioneAlbo;
@@ -392,37 +394,12 @@ namespace FormulariRif_G.Forms
                 txtRagSoc1.Focus();
                 return false;
             }
-            //if (string.IsNullOrWhiteSpace(txtIndirizzo.Text))
-            //{
-            //    MessageBox.Show("Indirizzo (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    txtIndirizzo.Focus();
-            //    return false;
-            //}
             if (numCap.Value == 0)
             {
                 MessageBox.Show("CAP (Configurazione) è un campo obbligatorio e non può essere 0.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 numCap.Focus();
                 return false;
-            }
-            //if (string.IsNullOrWhiteSpace(txtEmail.Text))
-            //{
-            //    MessageBox.Show("Email (Configurazione) è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    txtEmail.Focus();
-            //    return false;
-            //}
-            //// Nuova validazione per i campi aggiunti
-            //if (string.IsNullOrWhiteSpace(txtPartitaIva.Text))
-            //{
-            //    MessageBox.Show("Partita IVA è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    txtPartitaIva.Focus();
-            //    return false;
-            //}
-            //if (string.IsNullOrWhiteSpace(txtCodiceFiscale.Text))
-            //{
-            //    MessageBox.Show("Codice Fiscale è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    txtCodiceFiscale.Focus();
-            //    return false;
-            //}            
+            }            
 
             return true;
         }
@@ -440,14 +417,15 @@ namespace FormulariRif_G.Forms
                 {
                     var clienteRepo = _serviceProvider.GetRequiredService<IGenericRepository<Cliente>>();
                     var clienteContattoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteContatto>>();
-                    var clienteIndirizzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>(); // Nuovo repository
+                    var clienteIndirizzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>(); // Nuovo repository                    
 
-                    for (int i = 0; i < 1000; i++)
+                    for (int i = 0; i < 5000; i++)
                     {
                         var cliente = new Cliente
                         {
                             RagSoc = Faker.Company.Name(),
-                            CodiceFiscale = Faker.Identification.SocialSecurityNumber(), // Aggiunto Codice Fiscale
+                            CodiceFiscale = Faker.Identification.SocialSecurityNumber(),          
+                            PartitaIva = GeneratePartitaIva(),
                             IsTestData = true
                         };
                         await clienteRepo.AddAsync(cliente);
@@ -495,6 +473,21 @@ namespace FormulariRif_G.Forms
                     MessageBox.Show($"Errore durante la generazione dei dati di test: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private static string GeneratePartitaIva()
+        {
+            // Una Partita IVA italiana ha 11 cifre.
+            // Questo genererà un numero di 11 cifre, ma senza un checksum valido.
+            return GenerateDigits(11);
+        }
+
+        // Genera un numero generico di N cifre come stringa
+        private static string GenerateDigits(int length)
+        {
+            const string digits = "0123456789";
+            return new string(Enumerable.Repeat(digits, length)
+              .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
 
         #region Windows Form Designer generated code

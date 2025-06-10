@@ -2,31 +2,36 @@
 // Questo form permette di inserire o modificare un singolo formulario rifiuti.
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
-using Microsoft.Extensions.DependencyInjection;
+using FormulariRif_G.Utils;
 using Microsoft.EntityFrameworkCore; // Per l'include delle proprietà di navigazione
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Configuration;
 using System.Linq;
 
 namespace FormulariRif_G.Forms
 {
     public partial class FormulariRifiutiDetailForm : Form
     {
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository;
         private readonly IGenericRepository<FormularioRifiuti> _formularioRifiutiRepository;
         private readonly IGenericRepository<Cliente> _clienteRepository;
         private readonly IGenericRepository<ClienteIndirizzo> _clienteIndirizzoRepository;
         private readonly IGenericRepository<Automezzo> _automezzoRepository;
-
         private FormularioRifiuti? _currentFormulario;
 
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
                                          IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository,
-                                         IGenericRepository<Automezzo> automezzoRepository)
+                                         IGenericRepository<Automezzo> automezzoRepository,
+                                         IGenericRepository<Configurazione> configurazioneRepository)
         {
             InitializeComponent();
             _formularioRifiutiRepository = formularioRifiutiRepository;
             _clienteRepository = clienteRepository;
             _clienteIndirizzoRepository = clienteIndirizzoRepository;
             _automezzoRepository = automezzoRepository;
+            _configurazioneRepository = configurazioneRepository;
             this.Load += FormulariRifiutiDetailForm_Load;
             cmbCliente.SelectedIndexChanged += cmbCliente_SelectedIndexChanged;
         }
@@ -56,29 +61,86 @@ namespace FormulariRif_G.Forms
             {
                 dtpData.Value = _currentFormulario.Data;
                 txtNumeroFormulario.Text = _currentFormulario.NumeroFormulario;
-
                 // Seleziona il cliente nella ComboBox
-                cmbCliente.SelectedValue = _currentFormulario.IdCli;
                 // Questo triggererà cmbCliente_SelectedIndexChanged che caricherà gli indirizzi
                 // e selezionerà l'indirizzo predefinito o quello del formulario.
-
-                // Seleziona l'automezzo nella ComboBox
-                cmbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
-
+                cmbCliente.SelectedValue = _currentFormulario.IdCli;
                 // Dopo che cmbCliente_SelectedIndexChanged ha caricato gli indirizzi,
                 // dobbiamo selezionare l'indirizzo specifico del formulario.
                 if (_currentFormulario.IdClienteIndirizzo != 0)
-                {
                     cmbIndirizzo.SelectedValue = _currentFormulario.IdClienteIndirizzo;
+                // Seleziona l'automezzo nella ComboBox
+                cmbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
+                //
+                //Caratteristiche del rifiuto
+                txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty; 
+                txtStatoFisco.Text = _currentFormulario.SatoFisico ?? string.Empty;
+                txtCarattPericolosità.Text = _currentFormulario.CaratteristicheChimiche ?? string.Empty;
+                if(_currentFormulario.Provenienza.HasValue)
+                {
+                    if (_currentFormulario.Provenienza.Value == 1) // Urbano
+                        rbProvUrb.Checked = true;
+                    else if (_currentFormulario.Provenienza.Value == 2) // Speciale
+                        rbProvSpec.Checked = true;
                 }
+                else
+                {
+                    rbProvUrb.Checked = false;
+                    rbProvSpec.Checked = false;
+                }
+                txtDescr.Text = _currentFormulario.Descrizione ?? string.Empty;                
+                if (_currentFormulario.Quantita.HasValue)                
+                    txtQuantita.Text = _currentFormulario.Quantita.Value.ToString("F2"); // Formatta come decimale con 2 cifre                
+                else
+                    txtQuantita.Text = string.Empty;
+                if (_currentFormulario.Kg_Lt.HasValue)
+                {
+                    if (_currentFormulario.Kg_Lt.Value == 1) // Kg
+                        rbKg.Checked = true;
+                    else if (_currentFormulario.Kg_Lt.Value == 2) // Litri
+                        rbLitri.Checked = true;
+                }
+                else
+                {
+                    rbKg.Checked = false;
+                    rbLitri.Checked = false;
+                }
+                if (_currentFormulario.PesoVerificato.HasValue)
+                    ckPesoVerificato.Checked = _currentFormulario.PesoVerificato.Value;
+                else
+                    ckPesoVerificato.Checked = false;                
+                if (_currentFormulario.NumeroColli.HasValue)
+                    txtColli.Text = _currentFormulario.NumeroColli.Value.ToString();
+                else
+                    txtColli.Text = string.Empty;                
+                if (_currentFormulario.AllaRinfusa.HasValue)
+                    ckAllaRinfusa.Checked = _currentFormulario.AllaRinfusa.Value;
+                else
+                    ckAllaRinfusa.Checked = false;
+                txtChimicoFisiche.Text = _currentFormulario.CaratteristicheChimiche ?? string.Empty;
             }
             else
             {
                 dtpData.Value = DateTime.Now;
                 txtNumeroFormulario.Text = string.Empty;
-                cmbCliente.SelectedIndex = -1; // Nessun cliente selezionato
-                cmbIndirizzo.SelectedIndex = -1; // Nessun indirizzo selezionato
-                cmbAutomezzo.SelectedIndex = -1; // Nessun automezzo selezionato
+                cmbCliente.SelectedIndex = -1; 
+                cmbIndirizzo.SelectedIndex = -1; 
+                cmbAutomezzo.SelectedIndex = -1;
+                //
+                //Caratteristiche del rifiuto
+                txtCodiceEER.Text = string.Empty;
+                txtStatoFisco.Text = string.Empty;
+                txtCarattPericolosità.Text = string.Empty;
+                rbProvUrb.Checked = false;
+                rbProvSpec.Checked = false;
+                txtDescr.Text = string.Empty;
+                txtQuantita.Text = string.Empty;
+                rbKg.Checked = false;
+                rbLitri.Checked = false;
+                ckPesoVerificato.Checked = false;
+                txtColli.Text = string.Empty;
+                ckAllaRinfusa.Checked = false;
+                txtChimicoFisiche.Text = string.Empty;
             }
         }
 
@@ -175,6 +237,43 @@ namespace FormulariRif_G.Forms
             _currentFormulario.IdCli = (int)cmbCliente.SelectedValue;
             _currentFormulario.IdClienteIndirizzo = (int)cmbIndirizzo.SelectedValue;
             _currentFormulario.IdAutomezzo = (int)cmbAutomezzo.SelectedValue;
+            //
+            //Caratteristiche del rifiuto
+            _currentFormulario.CodiceEER = txtCodiceEER.Text.Trim();
+            _currentFormulario.SatoFisico = txtStatoFisco.Text.Trim();
+            _currentFormulario.CaratteristicheChimiche = txtCarattPericolosità.Text.Trim();
+            if(rbProvUrb.Checked)            
+                _currentFormulario.Provenienza = 1; // Urbano            
+            else if(rbProvSpec.Checked)            
+                _currentFormulario.Provenienza = 2; // Speciale            
+            else            
+                _currentFormulario.Provenienza = null; // Nessuna selezione                                                       
+            _currentFormulario.Descrizione = txtDescr.Text.Trim();
+            if(!string.IsNullOrWhiteSpace(txtQuantita.Text) && decimal.TryParse(txtQuantita.Text, out decimal quantita))
+                _currentFormulario.Quantita = quantita;
+            else
+                _currentFormulario.Quantita = null;
+            if (rbKg.Checked)
+                _currentFormulario.Kg_Lt = 1; // Kg
+            else if (rbLitri.Checked)
+                _currentFormulario.Kg_Lt = 2; // Litri
+            else
+                _currentFormulario.Kg_Lt = null; // Nessuna selezione
+            
+            if(ckPesoVerificato.Checked)
+                _currentFormulario.PesoVerificato = true;
+            else
+                _currentFormulario.PesoVerificato = false;
+
+            if (!string.IsNullOrWhiteSpace(txtColli.Text) && decimal.TryParse(txtColli.Text, out decimal numColli))
+                _currentFormulario.NumeroColli = (int)numColli;
+            else
+                _currentFormulario.NumeroColli = null;
+            if (ckAllaRinfusa.Checked)
+                _currentFormulario.AllaRinfusa = true;
+            else
+                _currentFormulario.AllaRinfusa = false;
+            _currentFormulario.CaratteristicheChimiche = txtChimicoFisiche.Text.Trim();
 
             try
             {
@@ -230,6 +329,97 @@ namespace FormulariRif_G.Forms
             return true;
         }
 
+        private async void btStampa_Click(object sender, EventArgs e)
+        {
+            var AppConfigData = await _configurazioneRepository.GetAllAsync();
+            var conf = AppConfigData.FirstOrDefault(); // Prendi il primo record di configurazione, se esiste
+
+            //if (AppConfigData == null)
+            //{
+            //    //Dati azienda
+
+            
+            //     AppConfigData.Comune;
+            //     AppConfigData.Cap;
+            //     AppConfigData.Email;
+            //     AppConfigData.PartitaIva;
+            
+            //    // Destinatario
+            
+            //    AppConfigData.DestR;
+            //    AppConfigData.DestD;
+            //    AppConfigData.DestAutoComunic;
+            //    AppConfigData.DestTipo1;
+            //    AppConfigData.DestTipo1;
+            //    // Trasportatore
+            //     AppConfigData.NumeroIscrizioneAlbo;
+            //    AppConfigData.DataIscrizioneAlbo.Value;                
+            //}
+
+
+            // Prepara i dati in un dizionario, mappando i nomi dei campi PDF ai valori
+            //var datiFormulario = new Dictionary<string, string>
+            //{
+            //    { "Data_Emissione", dtpData.Value.ToString("dd/MM/yyyy") },
+            //    { "Cli_Rag_Soc", conf.RagSoc1 + 
+            //                    (string.IsNullOrEmpty(conf.RagSoc2) ? "" : " " + conf.RagSoc2) + 
+            //                    (string.IsNullOrEmpty(conf.Comune) ? "" : " " + conf.Comune) },
+            //    { "Cli_Ind",  (string.IsNullOrEmpty(conf.Indirizzo) ? "" : " " + conf.Indirizzo) },
+            //    { "Cli_Cod_Fisc", (string.IsNullOrEmpty(conf.CodiceFiscale) ? "" : " " + conf.CodiceFiscale)  },
+            //    { "Cli_Iscrizione_Albo", (string.IsNullOrEmpty(conf.DestNumeroIscrizioneAlbo) ? "" : " " + conf.DestNumeroIscrizioneAlbo)  },
+            //    { "Cli_Auto_Comunic",  },
+            //    { "Cli_Tipo",  },
+            //    { "Dest_Rag_Soc",  },
+            //    { "Dest_Indirizzo",  },
+            //    { "Dest_Cod_Fisc",  },
+            //    { "Dest_Iscrizione_Albo",  },
+            //    { "Dest_R",  },
+            //    { "Dest_D",  },
+            //    { "Dest_Auto_Comunic",  },
+            //    { "Dest_Tipo1",  },
+            //    { "Dest_Tipo2",  },                                
+            //    { "Automezzo", cmbAutomezzo.SelectedItem?.ToString() ?? string.Empty },
+            //    { "Codice_EER", txtCodiceEER.Text.Trim() },
+            //    { "Stato_Fisico", txtStatoFisco.Text.Trim() },
+            //    { "Provenienza", rbProvUrb.Checked ? "Urbano" : rbProvSpec.Checked ? "Speciale" : string.Empty },
+            //    { "Caratt_Pericolosita", txtCarattPericolosità.Text.Trim() },
+            //    { "Descrizione", txtDescr.Text.Trim() },
+            //    { "Quantita", txtQuantita.Text.Trim() }
+            //};
+
+            // Definisci i percorsi del template e dell'output
+            // Assicurati che questi percorsi siano corretti per il tuo ambiente!
+            // Potresti mettere il template nella cartella "Resources" o "Templates" del tuo progetto
+            string templatePdfPath = Path.Combine(Application.StartupPath, "Templates", "template_fattura.pdf");
+            // string outputPdfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FattureGenerate", $"Fattura_{clienteEsempio.NumeroFattura}.pdf");
+
+            //try
+            //{
+            //    var filler = new PDFGenerator(templatePdfPath, outputPdfPath);
+            //    bool success = await filler.FillFatturaAsync(datiFormulario);
+
+            //    if (success)
+            //    {
+            //        MessageBox.Show($"Fattura generata con successo in:\n{outputPdfPath}", "Generazione PDF", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //        // Opzionale: Apri il PDF dopo la generazione
+            //        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(outputPdfPath) { UseShellExecute = true });
+            //    }
+            //    else
+            //    {
+            //        MessageBox.Show("Errore durante la generazione della fattura.", "Generazione PDF", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    }
+            //}
+            //catch (FileNotFoundException)
+            //{
+            //    MessageBox.Show($"Errore: Il file template PDF non è stato trovato al percorso:\n{templatePdfPath}\nAssicurati che esista e che il percorso sia corretto.", "Errore File", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Si è verificato un errore inatteso: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+        }
+
+
         // Codice generato dal designer
         #region Windows Form Designer generated code
 
@@ -257,149 +447,423 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblData = new System.Windows.Forms.Label();
-            this.dtpData = new System.Windows.Forms.DateTimePicker();
-            this.lblCliente = new System.Windows.Forms.Label();
-            this.cmbCliente = new System.Windows.Forms.ComboBox();
-            this.lblIndirizzo = new System.Windows.Forms.Label();
-            this.cmbIndirizzo = new System.Windows.Forms.ComboBox();
-            this.lblNumeroFormulario = new System.Windows.Forms.Label();
-            this.txtNumeroFormulario = new System.Windows.Forms.TextBox();
-            this.lblAutomezzo = new System.Windows.Forms.Label();
-            this.cmbAutomezzo = new System.Windows.Forms.ComboBox();
-            this.btnSalva = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            //
+            lblData = new Label();
+            dtpData = new DateTimePicker();
+            lblCliente = new Label();
+            cmbCliente = new ComboBox();
+            lblIndirizzo = new Label();
+            cmbIndirizzo = new ComboBox();
+            lblNumeroFormulario = new Label();
+            txtNumeroFormulario = new TextBox();
+            lblAutomezzo = new Label();
+            cmbAutomezzo = new ComboBox();
+            btnSalva = new Button();
+            btStampa = new Button();
+            grCarattRifiuto = new GroupBox();
+            grAspettoEsteriore = new GroupBox();
+            txtColli = new TextBox();
+            label6 = new Label();
+            ckAllaRinfusa = new CheckBox();
+            txtChimicoFisiche = new TextBox();
+            label7 = new Label();
+            ckPesoVerificato = new CheckBox();
+            grKgLitri = new GroupBox();
+            rbKg = new RadioButton();
+            rbLitri = new RadioButton();
+            txtQuantita = new TextBox();
+            label5 = new Label();
+            txtDescr = new TextBox();
+            label4 = new Label();
+            txtCarattPericolosità = new TextBox();
+            label3 = new Label();
+            grProvenienza = new GroupBox();
+            rbProvUrb = new RadioButton();
+            rbProvSpec = new RadioButton();
+            txtStatoFisco = new TextBox();
+            label2 = new Label();
+            txtCodiceEER = new TextBox();
+            label1 = new Label();
+            grCarattRifiuto.SuspendLayout();
+            grAspettoEsteriore.SuspendLayout();
+            grKgLitri.SuspendLayout();
+            grProvenienza.SuspendLayout();
+            SuspendLayout();
+            // 
             // lblData
-            //
-            this.lblData.AutoSize = true;
-            this.lblData.Location = new System.Drawing.Point(20, 30);
-            this.lblData.Name = "lblData";
-            this.lblData.Size = new System.Drawing.Size(35, 15);
-            this.lblData.TabIndex = 0;
-            this.lblData.Text = "Data:";
-            //
+            // 
+            lblData.AutoSize = true;
+            lblData.Location = new Point(20, 25);
+            lblData.Name = "lblData";
+            lblData.Size = new Size(34, 15);
+            lblData.TabIndex = 0;
+            lblData.Text = "Data:";
+            // 
             // dtpData
-            //
-            this.dtpData.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpData.Location = new System.Drawing.Point(140, 27);
-            this.dtpData.Name = "dtpData";
-            this.dtpData.Size = new System.Drawing.Size(230, 23);
-            this.dtpData.TabIndex = 1;
-            //
+            // 
+            dtpData.Format = DateTimePickerFormat.Short;
+            dtpData.Location = new Point(140, 22);
+            dtpData.Name = "dtpData";
+            dtpData.Size = new Size(230, 23);
+            dtpData.TabIndex = 1;
+            // 
             // lblCliente
-            //
-            this.lblCliente.AutoSize = true;
-            this.lblCliente.Location = new System.Drawing.Point(20, 70);
-            this.lblCliente.Name = "lblCliente";
-            this.lblCliente.Size = new System.Drawing.Size(47, 15);
-            this.lblCliente.TabIndex = 2;
-            this.lblCliente.Text = "Cliente:";
-            //
+            // 
+            lblCliente.AutoSize = true;
+            lblCliente.Location = new Point(20, 57);
+            lblCliente.Name = "lblCliente";
+            lblCliente.Size = new Size(47, 15);
+            lblCliente.TabIndex = 2;
+            lblCliente.Text = "Cliente:";
+            // 
             // cmbCliente
-            //
-            this.cmbCliente.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmbCliente.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbCliente.FormattingEnabled = true;
-            this.cmbCliente.Location = new System.Drawing.Point(140, 67);
-            this.cmbCliente.Name = "cmbCliente";
-            this.cmbCliente.Size = new System.Drawing.Size(230, 23);
-            this.cmbCliente.TabIndex = 3;
-            //
+            // 
+            cmbCliente.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbCliente.FormattingEnabled = true;
+            cmbCliente.Location = new Point(140, 51);
+            cmbCliente.Name = "cmbCliente";
+            cmbCliente.Size = new Size(230, 23);
+            cmbCliente.TabIndex = 3;
+            // 
             // lblIndirizzo
-            //
-            this.lblIndirizzo.AutoSize = true;
-            this.lblIndirizzo.Location = new System.Drawing.Point(20, 110);
-            this.lblIndirizzo.Name = "lblIndirizzo";
-            this.lblIndirizzo.Size = new System.Drawing.Size(57, 15);
-            this.lblIndirizzo.TabIndex = 4;
-            this.lblIndirizzo.Text = "Indirizzo:";
-            //
+            // 
+            lblIndirizzo.AutoSize = true;
+            lblIndirizzo.Location = new Point(489, 60);
+            lblIndirizzo.Name = "lblIndirizzo";
+            lblIndirizzo.Size = new Size(54, 15);
+            lblIndirizzo.TabIndex = 4;
+            lblIndirizzo.Text = "Indirizzo:";
+            // 
             // cmbIndirizzo
-            //
-            this.cmbIndirizzo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmbIndirizzo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbIndirizzo.FormattingEnabled = true;
-            this.cmbIndirizzo.Location = new System.Drawing.Point(140, 107);
-            this.cmbIndirizzo.Name = "cmbIndirizzo";
-            this.cmbIndirizzo.Size = new System.Drawing.Size(230, 23);
-            this.cmbIndirizzo.TabIndex = 5;
-            //
+            // 
+            cmbIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbIndirizzo.FormattingEnabled = true;
+            cmbIndirizzo.Location = new Point(609, 57);
+            cmbIndirizzo.Name = "cmbIndirizzo";
+            cmbIndirizzo.Size = new Size(230, 23);
+            cmbIndirizzo.TabIndex = 5;
+            // 
             // lblNumeroFormulario
-            //
-            this.lblNumeroFormulario.AutoSize = true;
-            this.lblNumeroFormulario.Location = new System.Drawing.Point(20, 150);
-            this.lblNumeroFormulario.Name = "lblNumeroFormulario";
-            this.lblNumeroFormulario.Size = new System.Drawing.Size(107, 15);
-            this.lblNumeroFormulario.TabIndex = 6;
-            this.lblNumeroFormulario.Text = "Numero Formulario:";
-            //
+            // 
+            lblNumeroFormulario.AutoSize = true;
+            lblNumeroFormulario.Location = new Point(489, 28);
+            lblNumeroFormulario.Name = "lblNumeroFormulario";
+            lblNumeroFormulario.Size = new Size(115, 15);
+            lblNumeroFormulario.TabIndex = 6;
+            lblNumeroFormulario.Text = "Numero Formulario:";
+            // 
             // txtNumeroFormulario
-            //
-            this.txtNumeroFormulario.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtNumeroFormulario.Location = new System.Drawing.Point(140, 147);
-            this.txtNumeroFormulario.Name = "txtNumeroFormulario";
-            this.txtNumeroFormulario.Size = new System.Drawing.Size(230, 23);
-            this.txtNumeroFormulario.TabIndex = 7;
-            //
+            // 
+            txtNumeroFormulario.Location = new Point(609, 25);
+            txtNumeroFormulario.Name = "txtNumeroFormulario";
+            txtNumeroFormulario.Size = new Size(230, 23);
+            txtNumeroFormulario.TabIndex = 7;
+            // 
             // lblAutomezzo
-            //
-            this.lblAutomezzo.AutoSize = true;
-            this.lblAutomezzo.Location = new System.Drawing.Point(20, 190);
-            this.lblAutomezzo.Name = "lblAutomezzo";
-            this.lblAutomezzo.Size = new System.Drawing.Size(71, 15);
-            this.lblAutomezzo.TabIndex = 8;
-            this.lblAutomezzo.Text = "Automezzo:";
-            //
+            // 
+            lblAutomezzo.AutoSize = true;
+            lblAutomezzo.Location = new Point(20, 83);
+            lblAutomezzo.Name = "lblAutomezzo";
+            lblAutomezzo.Size = new Size(70, 15);
+            lblAutomezzo.TabIndex = 8;
+            lblAutomezzo.Text = "Automezzo:";
+            // 
             // cmbAutomezzo
-            //
-            this.cmbAutomezzo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cmbAutomezzo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cmbAutomezzo.FormattingEnabled = true;
-            this.cmbAutomezzo.Location = new System.Drawing.Point(140, 187);
-            this.cmbAutomezzo.Name = "cmbAutomezzo";
-            this.cmbAutomezzo.Size = new System.Drawing.Size(230, 23);
-            this.cmbAutomezzo.TabIndex = 9;
-            //
+            // 
+            cmbAutomezzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbAutomezzo.FormattingEnabled = true;
+            cmbAutomezzo.Location = new Point(140, 80);
+            cmbAutomezzo.Name = "cmbAutomezzo";
+            cmbAutomezzo.Size = new Size(230, 23);
+            cmbAutomezzo.TabIndex = 9;
+            // 
             // btnSalva
-            //
-            this.btnSalva.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSalva.Location = new System.Drawing.Point(295, 230);
-            this.btnSalva.Name = "btnSalva";
-            this.btnSalva.Size = new System.Drawing.Size(75, 30);
-            this.btnSalva.TabIndex = 10;
-            this.btnSalva.Text = "Salva";
-            this.btnSalva.UseVisualStyleBackColor = true;
-            this.btnSalva.Click += new System.EventHandler(this.btnSalva_Click);
-            //
+            // 
+            btnSalva.Location = new Point(786, 390);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(75, 30);
+            btnSalva.TabIndex = 10;
+            btnSalva.Text = "Salva";
+            btnSalva.UseVisualStyleBackColor = true;
+            btnSalva.Click += btnSalva_Click;
+            // 
+            // btStampa
+            // 
+            btStampa.Location = new Point(675, 390);
+            btStampa.Name = "btStampa";
+            btStampa.Size = new Size(75, 30);
+            btStampa.TabIndex = 24;
+            btStampa.Text = "Stampa";
+            btStampa.UseVisualStyleBackColor = true;
+            btStampa.Click += btStampa_Click;
+            // 
+            // grCarattRifiuto
+            // 
+            grCarattRifiuto.Controls.Add(grAspettoEsteriore);
+            grCarattRifiuto.Controls.Add(txtChimicoFisiche);
+            grCarattRifiuto.Controls.Add(label7);
+            grCarattRifiuto.Controls.Add(ckPesoVerificato);
+            grCarattRifiuto.Controls.Add(grKgLitri);
+            grCarattRifiuto.Controls.Add(txtQuantita);
+            grCarattRifiuto.Controls.Add(label5);
+            grCarattRifiuto.Controls.Add(txtDescr);
+            grCarattRifiuto.Controls.Add(label4);
+            grCarattRifiuto.Controls.Add(txtCarattPericolosità);
+            grCarattRifiuto.Controls.Add(label3);
+            grCarattRifiuto.Controls.Add(grProvenienza);
+            grCarattRifiuto.Controls.Add(txtStatoFisco);
+            grCarattRifiuto.Controls.Add(label2);
+            grCarattRifiuto.Controls.Add(txtCodiceEER);
+            grCarattRifiuto.Controls.Add(label1);
+            grCarattRifiuto.Location = new Point(20, 127);
+            grCarattRifiuto.Name = "grCarattRifiuto";
+            grCarattRifiuto.Size = new Size(841, 233);
+            grCarattRifiuto.TabIndex = 33;
+            grCarattRifiuto.TabStop = false;
+            grCarattRifiuto.Text = "Caratteristiche del rifiuto";
+            // 
+            // grAspettoEsteriore
+            // 
+            grAspettoEsteriore.Controls.Add(txtColli);
+            grAspettoEsteriore.Controls.Add(label6);
+            grAspettoEsteriore.Controls.Add(ckAllaRinfusa);
+            grAspettoEsteriore.Location = new Point(572, 131);
+            grAspettoEsteriore.Name = "grAspettoEsteriore";
+            grAspettoEsteriore.Size = new Size(249, 48);
+            grAspettoEsteriore.TabIndex = 48;
+            grAspettoEsteriore.TabStop = false;
+            grAspettoEsteriore.Text = "Aspetto esteriore";
+            // 
+            // txtColli
+            // 
+            txtColli.Location = new Point(75, 17);
+            txtColli.Name = "txtColli";
+            txtColli.Size = new Size(76, 23);
+            txtColli.TabIndex = 28;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(11, 20);
+            label6.Name = "label6";
+            label6.Size = new Size(53, 15);
+            label6.TabIndex = 27;
+            label6.Text = "Nr. Colli:";
+            // 
+            // ckAllaRinfusa
+            // 
+            ckAllaRinfusa.AutoSize = true;
+            ckAllaRinfusa.Location = new Point(157, 20);
+            ckAllaRinfusa.Name = "ckAllaRinfusa";
+            ckAllaRinfusa.Size = new Size(88, 19);
+            ckAllaRinfusa.TabIndex = 29;
+            ckAllaRinfusa.Text = "Alla Rinfusa";
+            ckAllaRinfusa.UseVisualStyleBackColor = true;
+            // 
+            // txtChimicoFisiche
+            // 
+            txtChimicoFisiche.Location = new Point(138, 189);
+            txtChimicoFisiche.Name = "txtChimicoFisiche";
+            txtChimicoFisiche.Size = new Size(683, 23);
+            txtChimicoFisiche.TabIndex = 47;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(18, 192);
+            label7.Name = "label7";
+            label7.Size = new Size(111, 15);
+            label7.TabIndex = 46;
+            label7.Text = "Caratt. Chim.-Fisic.:";
+            // 
+            // ckPesoVerificato
+            // 
+            ckPesoVerificato.AutoSize = true;
+            ckPesoVerificato.Location = new Point(454, 150);
+            ckPesoVerificato.Name = "ckPesoVerificato";
+            ckPesoVerificato.Size = new Size(103, 19);
+            ckPesoVerificato.TabIndex = 45;
+            ckPesoVerificato.Text = "Peso verificato";
+            ckPesoVerificato.UseVisualStyleBackColor = true;
+            // 
+            // grKgLitri
+            // 
+            grKgLitri.Controls.Add(rbKg);
+            grKgLitri.Controls.Add(rbLitri);
+            grKgLitri.Location = new Point(311, 136);
+            grKgLitri.Name = "grKgLitri";
+            grKgLitri.Size = new Size(122, 38);
+            grKgLitri.TabIndex = 44;
+            grKgLitri.TabStop = false;
+            // 
+            // rbKg
+            // 
+            rbKg.AutoSize = true;
+            rbKg.Location = new Point(19, 13);
+            rbKg.Name = "rbKg";
+            rbKg.Size = new Size(39, 19);
+            rbKg.TabIndex = 15;
+            rbKg.TabStop = true;
+            rbKg.Text = "Kg";
+            rbKg.UseVisualStyleBackColor = true;
+            // 
+            // rbLitri
+            // 
+            rbLitri.AutoSize = true;
+            rbLitri.Location = new Point(64, 14);
+            rbLitri.Name = "rbLitri";
+            rbLitri.Size = new Size(45, 19);
+            rbLitri.TabIndex = 16;
+            rbLitri.TabStop = true;
+            rbLitri.Text = "Litri";
+            rbLitri.UseVisualStyleBackColor = true;
+            // 
+            // txtQuantita
+            // 
+            txtQuantita.Location = new Point(138, 149);
+            txtQuantita.Name = "txtQuantita";
+            txtQuantita.Size = new Size(163, 23);
+            txtQuantita.TabIndex = 43;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Location = new Point(18, 152);
+            label5.Name = "label5";
+            label5.Size = new Size(56, 15);
+            label5.TabIndex = 42;
+            label5.Text = "Quantità:";
+            // 
+            // txtDescr
+            // 
+            txtDescr.Location = new Point(138, 106);
+            txtDescr.Name = "txtDescr";
+            txtDescr.Size = new Size(683, 23);
+            txtDescr.TabIndex = 41;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(18, 109);
+            label4.Name = "label4";
+            label4.Size = new Size(70, 15);
+            label4.TabIndex = 40;
+            label4.Text = "Descrizione:";
+            // 
+            // txtCarattPericolosità
+            // 
+            txtCarattPericolosità.Location = new Point(591, 69);
+            txtCarattPericolosità.Name = "txtCarattPericolosità";
+            txtCarattPericolosità.Size = new Size(230, 23);
+            txtCarattPericolosità.TabIndex = 39;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(471, 72);
+            label3.Name = "label3";
+            label3.Size = new Size(109, 15);
+            label3.TabIndex = 38;
+            label3.Text = "Caratt. Pericolosità:";
+            // 
+            // grProvenienza
+            // 
+            grProvenienza.Controls.Add(rbProvUrb);
+            grProvenienza.Controls.Add(rbProvSpec);
+            grProvenienza.Location = new Point(591, 21);
+            grProvenienza.Name = "grProvenienza";
+            grProvenienza.Size = new Size(228, 42);
+            grProvenienza.TabIndex = 37;
+            grProvenienza.TabStop = false;
+            grProvenienza.Text = "Provenienza";
+            // 
+            // rbProvUrb
+            // 
+            rbProvUrb.AutoSize = true;
+            rbProvUrb.Location = new Point(19, 15);
+            rbProvUrb.Name = "rbProvUrb";
+            rbProvUrb.Size = new Size(64, 19);
+            rbProvUrb.TabIndex = 15;
+            rbProvUrb.TabStop = true;
+            rbProvUrb.Text = "Urbano";
+            rbProvUrb.UseVisualStyleBackColor = true;
+            // 
+            // rbProvSpec
+            // 
+            rbProvSpec.AutoSize = true;
+            rbProvSpec.Location = new Point(89, 15);
+            rbProvSpec.Name = "rbProvSpec";
+            rbProvSpec.Size = new Size(68, 19);
+            rbProvSpec.TabIndex = 16;
+            rbProvSpec.TabStop = true;
+            rbProvSpec.Text = "Speciale";
+            rbProvSpec.UseVisualStyleBackColor = true;
+            // 
+            // txtStatoFisco
+            // 
+            txtStatoFisco.Location = new Point(357, 69);
+            txtStatoFisco.Name = "txtStatoFisco";
+            txtStatoFisco.Size = new Size(76, 23);
+            txtStatoFisco.TabIndex = 36;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(269, 72);
+            label2.Name = "label2";
+            label2.Size = new Size(70, 15);
+            label2.TabIndex = 35;
+            label2.Text = "Stato Fisico:";
+            // 
+            // txtCodiceEER
+            // 
+            txtCodiceEER.Location = new Point(138, 69);
+            txtCodiceEER.Name = "txtCodiceEER";
+            txtCodiceEER.Size = new Size(115, 23);
+            txtCodiceEER.TabIndex = 34;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(18, 72);
+            label1.Name = "label1";
+            label1.Size = new Size(69, 15);
+            label1.TabIndex = 33;
+            label1.Text = "Codice EER:";
+            // 
             // FormulariRifiutiDetailForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(390, 275);
-            this.Controls.Add(this.btnSalva);
-            this.Controls.Add(this.cmbAutomezzo);
-            this.Controls.Add(this.lblAutomezzo);
-            this.Controls.Add(this.txtNumeroFormulario);
-            this.Controls.Add(this.lblNumeroFormulario);
-            this.Controls.Add(this.cmbIndirizzo);
-            this.Controls.Add(this.lblIndirizzo);
-            this.Controls.Add(this.cmbCliente);
-            this.Controls.Add(this.lblCliente);
-            this.Controls.Add(this.dtpData);
-            this.Controls.Add(this.lblData);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "FormulariRifiutiDetailForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dettagli Formulario Rifiuti";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(893, 457);
+            Controls.Add(grCarattRifiuto);
+            Controls.Add(btStampa);
+            Controls.Add(btnSalva);
+            Controls.Add(cmbAutomezzo);
+            Controls.Add(lblAutomezzo);
+            Controls.Add(txtNumeroFormulario);
+            Controls.Add(lblNumeroFormulario);
+            Controls.Add(cmbIndirizzo);
+            Controls.Add(lblIndirizzo);
+            Controls.Add(cmbCliente);
+            Controls.Add(lblCliente);
+            Controls.Add(dtpData);
+            Controls.Add(lblData);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "FormulariRifiutiDetailForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Dettagli Formulario Rifiuti";
+            grCarattRifiuto.ResumeLayout(false);
+            grCarattRifiuto.PerformLayout();
+            grAspettoEsteriore.ResumeLayout(false);
+            grAspettoEsteriore.PerformLayout();
+            grKgLitri.ResumeLayout(false);
+            grKgLitri.PerformLayout();
+            grProvenienza.ResumeLayout(false);
+            grProvenienza.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
@@ -414,7 +878,34 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label lblAutomezzo;
         private System.Windows.Forms.ComboBox cmbAutomezzo;
         private System.Windows.Forms.Button btnSalva;
+        private System.Windows.Forms.Button btStampa;
+        private System.Windows.Forms.GroupBox grCarattRifiuto;
+        private System.Windows.Forms.GroupBox grAspettoEsteriore;
+        private System.Windows.Forms.TextBox txtColli;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.CheckBox ckAllaRinfusa;
+        private System.Windows.Forms.TextBox txtChimicoFisiche;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox ckPesoVerificato;
+        private System.Windows.Forms.GroupBox grKgLitri;
+        private System.Windows.Forms.RadioButton rbKg;
+        private System.Windows.Forms.RadioButton rbLitri;
+        private System.Windows.Forms.TextBox txtQuantita;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox txtDescr;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.TextBox txtCarattPericolosità;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.GroupBox grProvenienza;
+        private System.Windows.Forms.RadioButton rbProvUrb;
+        private System.Windows.Forms.RadioButton rbProvSpec;
+        private System.Windows.Forms.TextBox txtStatoFisco;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtCodiceEER;
+        private System.Windows.Forms.Label label1;
+
 
         #endregion
+
     }
 }

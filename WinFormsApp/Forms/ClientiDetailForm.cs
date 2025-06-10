@@ -489,29 +489,25 @@ namespace FormulariRif_G.Forms
             // lblRagSoc
             // 
             lblRagSoc.AutoSize = true;
-            lblRagSoc.Location = new Point(37, 64);
-            lblRagSoc.Margin = new Padding(6, 0, 6, 0);
+            lblRagSoc.Location = new Point(20, 30);
             lblRagSoc.Name = "lblRagSoc";
-            lblRagSoc.Size = new Size(188, 32);
+            lblRagSoc.Size = new Size(93, 15);
             lblRagSoc.TabIndex = 0;
             lblRagSoc.Text = "Ragione Sociale:";
             // 
             // txtRagSoc
             // 
             txtRagSoc.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRagSoc.Location = new Point(223, 58);
-            txtRagSoc.Margin = new Padding(6, 6, 6, 6);
+            txtRagSoc.Location = new Point(120, 27);
             txtRagSoc.Name = "txtRagSoc";
-            txtRagSoc.Size = new Size(647, 39);
+            txtRagSoc.Size = new Size(350, 23);
             txtRagSoc.TabIndex = 1;
             // 
             // btnSalva
             // 
-            btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnSalva.Location = new Point(1300, 1237);
-            btnSalva.Margin = new Padding(6, 6, 6, 6);
+            btnSalva.Location = new Point(685, 584);
             btnSalva.Name = "btnSalva";
-            btnSalva.Size = new Size(139, 64);
+            btnSalva.Size = new Size(75, 30);
             btnSalva.TabIndex = 2;
             btnSalva.Text = "Salva";
             btnSalva.UseVisualStyleBackColor = true;
@@ -520,20 +516,18 @@ namespace FormulariRif_G.Forms
             // lblCodiceFiscale
             // 
             lblCodiceFiscale.AutoSize = true;
-            lblCodiceFiscale.Location = new Point(37, 169);
-            lblCodiceFiscale.Margin = new Padding(6, 0, 6, 0);
+            lblCodiceFiscale.Location = new Point(20, 79);
             lblCodiceFiscale.Name = "lblCodiceFiscale";
-            lblCodiceFiscale.Size = new Size(169, 32);
+            lblCodiceFiscale.Size = new Size(85, 15);
             lblCodiceFiscale.TabIndex = 3;
             lblCodiceFiscale.Text = "Codice Fiscale:";
             // 
             // txtCodiceFiscale
             // 
             txtCodiceFiscale.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtCodiceFiscale.Location = new Point(223, 163);
-            txtCodiceFiscale.Margin = new Padding(6, 6, 6, 6);
+            txtCodiceFiscale.Location = new Point(120, 76);
             txtCodiceFiscale.Name = "txtCodiceFiscale";
-            txtCodiceFiscale.Size = new Size(647, 39);
+            txtCodiceFiscale.Size = new Size(350, 23);
             txtCodiceFiscale.TabIndex = 4;
             // 
             // groupBoxIndirizzi
@@ -543,11 +537,9 @@ namespace FormulariRif_G.Forms
             groupBoxIndirizzi.Controls.Add(btnModificaIndirizzo);
             groupBoxIndirizzi.Controls.Add(btnNuovoIndirizzo);
             groupBoxIndirizzi.Controls.Add(dataGridViewIndirizzi);
-            groupBoxIndirizzi.Location = new Point(22, 235);
-            groupBoxIndirizzi.Margin = new Padding(6, 6, 6, 6);
+            groupBoxIndirizzi.Location = new Point(12, 110);
             groupBoxIndirizzi.Name = "groupBoxIndirizzi";
-            groupBoxIndirizzi.Padding = new Padding(6, 6, 6, 6);
-            groupBoxIndirizzi.Size = new Size(1411, 469);
+            groupBoxIndirizzi.Size = new Size(760, 220);
             groupBoxIndirizzi.TabIndex = 5;
             groupBoxIndirizzi.TabStop = false;
             groupBoxIndirizzi.Text = "Indirizzi";
@@ -555,10 +547,9 @@ namespace FormulariRif_G.Forms
             // btnEliminaIndirizzo
             // 
             btnEliminaIndirizzo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnEliminaIndirizzo.Location = new Point(323, 384);
-            btnEliminaIndirizzo.Margin = new Padding(6, 6, 6, 6);
+            btnEliminaIndirizzo.Location = new Point(174, 180);
             btnEliminaIndirizzo.Name = "btnEliminaIndirizzo";
-            btnEliminaIndirizzo.Size = new Size(139, 64);
+            btnEliminaIndirizzo.Size = new Size(75, 30);
             btnEliminaIndirizzo.TabIndex = 3;
             btnEliminaIndirizzo.Text = "Elimina";
             btnEliminaIndirizzo.UseVisualStyleBackColor = true;
@@ -567,10 +558,9 @@ namespace FormulariRif_G.Forms
             // btnModificaIndirizzo
             // 
             btnModificaIndirizzo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnModificaIndirizzo.Location = new Point(173, 384);
-            btnModificaIndirizzo.Margin = new Padding(6, 6, 6, 6);
+            btnModificaIndirizzo.Location = new Point(93, 180);
             btnModificaIndirizzo.Name = "btnModificaIndirizzo";
-            btnModificaIndirizzo.Size = new Size(139, 64);
+            btnModificaIndirizzo.Size = new Size(75, 30);
             btnModificaIndirizzo.TabIndex = 2;
             btnModificaIndirizzo.Text = "Modifica";
             btnModificaIndirizzo.UseVisualStyleBackColor = true;
@@ -579,10 +569,9 @@ namespace FormulariRif_G.Forms
             // btnNuovoIndirizzo
             // 
             btnNuovoIndirizzo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnNuovoIndirizzo.Location = new Point(22, 384);
-            btnNuovoIndirizzo.Margin = new Padding(6, 6, 6, 6);
+            btnNuovoIndirizzo.Location = new Point(12, 180);
             btnNuovoIndirizzo.Name = "btnNuovoIndirizzo";
-            btnNuovoIndirizzo.Size = new Size(139, 64);
+            btnNuovoIndirizzo.Size = new Size(75, 30);
             btnNuovoIndirizzo.TabIndex = 1;
             btnNuovoIndirizzo.Text = "Nuovo";
             btnNuovoIndirizzo.UseVisualStyleBackColor = true;
@@ -594,14 +583,13 @@ namespace FormulariRif_G.Forms
             dataGridViewIndirizzi.AllowUserToDeleteRows = false;
             dataGridViewIndirizzi.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewIndirizzi.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewIndirizzi.Location = new Point(22, 47);
-            dataGridViewIndirizzi.Margin = new Padding(6, 6, 6, 6);
+            dataGridViewIndirizzi.Location = new Point(12, 22);
             dataGridViewIndirizzi.MultiSelect = false;
             dataGridViewIndirizzi.Name = "dataGridViewIndirizzi";
             dataGridViewIndirizzi.ReadOnly = true;
             dataGridViewIndirizzi.RowHeadersWidth = 82;
             dataGridViewIndirizzi.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewIndirizzi.Size = new Size(1367, 320);
+            dataGridViewIndirizzi.Size = new Size(736, 150);
             dataGridViewIndirizzi.TabIndex = 0;
             // 
             // groupBoxContatti
@@ -611,11 +599,9 @@ namespace FormulariRif_G.Forms
             groupBoxContatti.Controls.Add(btnModificaContatto);
             groupBoxContatti.Controls.Add(btnNuovoContatto);
             groupBoxContatti.Controls.Add(dataGridViewContatti);
-            groupBoxContatti.Location = new Point(22, 725);
-            groupBoxContatti.Margin = new Padding(6, 6, 6, 6);
+            groupBoxContatti.Location = new Point(12, 340);
             groupBoxContatti.Name = "groupBoxContatti";
-            groupBoxContatti.Padding = new Padding(6, 6, 6, 6);
-            groupBoxContatti.Size = new Size(1411, 469);
+            groupBoxContatti.Size = new Size(760, 220);
             groupBoxContatti.TabIndex = 6;
             groupBoxContatti.TabStop = false;
             groupBoxContatti.Text = "Contatti";
@@ -623,10 +609,9 @@ namespace FormulariRif_G.Forms
             // btnEliminaContatto
             // 
             btnEliminaContatto.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnEliminaContatto.Location = new Point(323, 384);
-            btnEliminaContatto.Margin = new Padding(6, 6, 6, 6);
+            btnEliminaContatto.Location = new Point(174, 180);
             btnEliminaContatto.Name = "btnEliminaContatto";
-            btnEliminaContatto.Size = new Size(139, 64);
+            btnEliminaContatto.Size = new Size(75, 30);
             btnEliminaContatto.TabIndex = 3;
             btnEliminaContatto.Text = "Elimina";
             btnEliminaContatto.UseVisualStyleBackColor = true;
@@ -635,10 +620,9 @@ namespace FormulariRif_G.Forms
             // btnModificaContatto
             // 
             btnModificaContatto.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnModificaContatto.Location = new Point(173, 384);
-            btnModificaContatto.Margin = new Padding(6, 6, 6, 6);
+            btnModificaContatto.Location = new Point(93, 180);
             btnModificaContatto.Name = "btnModificaContatto";
-            btnModificaContatto.Size = new Size(139, 64);
+            btnModificaContatto.Size = new Size(75, 30);
             btnModificaContatto.TabIndex = 2;
             btnModificaContatto.Text = "Modifica";
             btnModificaContatto.UseVisualStyleBackColor = true;
@@ -647,10 +631,9 @@ namespace FormulariRif_G.Forms
             // btnNuovoContatto
             // 
             btnNuovoContatto.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            btnNuovoContatto.Location = new Point(22, 384);
-            btnNuovoContatto.Margin = new Padding(6, 6, 6, 6);
+            btnNuovoContatto.Location = new Point(12, 180);
             btnNuovoContatto.Name = "btnNuovoContatto";
-            btnNuovoContatto.Size = new Size(139, 64);
+            btnNuovoContatto.Size = new Size(75, 30);
             btnNuovoContatto.TabIndex = 1;
             btnNuovoContatto.Text = "Nuovo";
             btnNuovoContatto.UseVisualStyleBackColor = true;
@@ -662,51 +645,47 @@ namespace FormulariRif_G.Forms
             dataGridViewContatti.AllowUserToDeleteRows = false;
             dataGridViewContatti.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             dataGridViewContatti.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewContatti.Location = new Point(22, 47);
-            dataGridViewContatti.Margin = new Padding(6, 6, 6, 6);
+            dataGridViewContatti.Location = new Point(12, 22);
             dataGridViewContatti.MultiSelect = false;
             dataGridViewContatti.Name = "dataGridViewContatti";
             dataGridViewContatti.ReadOnly = true;
             dataGridViewContatti.RowHeadersWidth = 82;
             dataGridViewContatti.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            dataGridViewContatti.Size = new Size(1367, 320);
+            dataGridViewContatti.Size = new Size(736, 150);
             dataGridViewContatti.TabIndex = 0;
             // 
             // txtPIVA
             // 
             txtPIVA.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtPIVA.Location = new Point(223, 109);
-            txtPIVA.Margin = new Padding(6);
+            txtPIVA.Location = new Point(120, 51);
             txtPIVA.Name = "txtPIVA";
-            txtPIVA.Size = new Size(647, 39);
+            txtPIVA.Size = new Size(350, 23);
             txtPIVA.TabIndex = 8;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(37, 115);
-            label1.Margin = new Padding(6, 0, 6, 0);
+            label1.Location = new Point(20, 54);
             label1.Name = "label1";
-            label1.Size = new Size(79, 32);
+            label1.Size = new Size(40, 15);
             label1.TabIndex = 7;
             label1.Text = "P. IVA:";
             // 
             // ClientiDetailForm
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1456, 1325);
+            ClientSize = new Size(784, 629);
             Controls.Add(txtPIVA);
             Controls.Add(label1);
             Controls.Add(groupBoxContatti);
             Controls.Add(groupBoxIndirizzi);
+            Controls.Add(btnSalva);
             Controls.Add(txtCodiceFiscale);
             Controls.Add(lblCodiceFiscale);
-            Controls.Add(btnSalva);
             Controls.Add(txtRagSoc);
             Controls.Add(lblRagSoc);
             FormBorderStyle = FormBorderStyle.FixedDialog;
-            Margin = new Padding(6, 6, 6, 6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ClientiDetailForm";

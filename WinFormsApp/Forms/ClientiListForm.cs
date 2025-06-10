@@ -245,54 +245,9 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async void txtRicerca_TextChanged(object sender, EventArgs e)
         {
-            _searchTimer.Stop(); // Resetta il timer ad ogni battitura
-            _searchTimer.Start(); // Riavvia il timer
-            //try
-            //{
-            //    var searchText = txtRicerca.Text.Trim().ToLower(); // Converti a minuscolo per ricerca case-insensitive
-            //    var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
-            //    bool showTestData = configurazione?.DatiTest ?? false;
-
-            //    IQueryable<Cliente> query = _clienteRepository.AsQueryable();
-            //    // Includi Indirizzi e Contatti per poterli usare nel filtro di ricerca
-            //    query = query.Include(c => c.Indirizzi)
-            //                 .Include(c => c.Contatti);
-
-            //    if (!showTestData)                
-            //        query = query.Where(c => c.IsTestData == false);               
-            //    if (!string.IsNullOrEmpty(searchText))
-            //    {
-            //        // Filtra per RagSoc, Indirizzo o Comune predefiniti, Telefono o Email predefiniti
-            //        query = query.Where(c =>
-            //            c.RagSoc.ToLower().Contains(searchText) ||
-            //            c.Indirizzi.Any(ind => ind.Predefinito && (ind.Indirizzo.ToLower().Contains(searchText) || ind.Comune.ToLower().Contains(searchText))) ||
-            //            c.Contatti.Any(cont => cont.Predefinito && (cont.Telefono.ToLower().Contains(searchText) || cont.Email.ToLower().Contains(searchText)))
-            //        );
-            //    }
-            //    var filteredClienti = await query.ToListAsync();
-
-            //    var clientiViewModel = filteredClienti.Select(c => new
-            //    {
-            //        c.Id,
-            //        c.RagSoc,
-            //        c.PartitaIva,
-            //        c.CodiceFiscale,
-            //        TelefonoPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Telefono ?? "N/D",
-            //        EmailPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Email ?? "N/D",
-            //        IndirizzoCompleto = c.Indirizzi.FirstOrDefault(ind => ind.Predefinito) != null ?
-            //                            $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Indirizzo}, " +
-            //                            $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Comune} - " +
-            //                            $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} "
-            //                            : "N/D",
-            //        c.IsTestData // Manteniamo questa proprietà per la logica interna, ma la colonna sarà nascosta
-            //    }).ToList();
-
-            //    dataGridViewClienti.DataSource = clientiViewModel;
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show($"Errore durante la ricerca: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //}
+            // Resetta e riavvia il timer ad ogni battitura
+            _searchTimer.Stop(); 
+            _searchTimer.Start();             
         }
 
         /// <summary>
