@@ -455,9 +455,15 @@ namespace FormulariRif_G.Forms
 
                 if (success)
                 {
-                    MessageBox.Show($"Fattura generata con successo in:\n{outputPdfPath}", "Generazione PDF", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    // Opzionale: Apri il PDF dopo la generazione
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(outputPdfPath) { UseShellExecute = true });
+                    // MessageBox.Show($"Formulario generata con successo in:\n{outputPdfPath}", "Generazione PDF", MessageBoxButtons.OK, MessageBoxIcon.Information);                    
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(outputPdfPath) { UseShellExecute = true });
+                    }
+                    catch(Exception openEx)
+                    {
+                        MessageBox.Show($"Impossibile aprire il file PDF. Errore: {openEx.Message}", "Errore Apertura PDF", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                 }
                 else
                 {
