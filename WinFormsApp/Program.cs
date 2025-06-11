@@ -205,7 +205,10 @@ namespace FormulariRif_G
                 .ConfigureServices((context, services) =>
                 {
                     services.AddDbContext<AppDbContext>(options =>
-                        options.UseSqlServer(connectionString));
+                    {
+                        //options.UseLazyLoadingProxies(); // Abilita il lazy loading
+                        options.UseSqlServer(connectionString);
+                    });
 
                     services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 

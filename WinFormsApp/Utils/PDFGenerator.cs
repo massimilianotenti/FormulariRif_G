@@ -37,10 +37,16 @@ namespace FormulariRif_G.Utils
         /// <returns>True se l'operazione è riuscita, false altrimenti.</returns>
         public bool FillFattura(Dictionary<string, string> datiFattura)
         {
-            try
+            //try
+            //{
+
+            if (!File.Exists(_templatePath))
             {
-                // Crea un PdfReader per leggere il template esistente
-                using (var reader = new PdfReader(_templatePath))
+                // Rilanciare un'eccezione specifica per "file non trovato"
+                throw new FileNotFoundException($"Il file template PDF non è stato trovato al percorso: {_templatePath}", _templatePath);
+            }
+            // Crea un PdfReader per leggere il template esistente
+            using (var reader = new PdfReader(_templatePath))
                 {
                     // Crea un PdfWriter per scrivere nel nuovo file di output
                     using (var writer = new PdfWriter(_outputPath))
@@ -77,12 +83,12 @@ namespace FormulariRif_G.Utils
 
                 Console.WriteLine($"PDF compilato salvato in: {_outputPath}");
                 return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Errore durante la compilazione del PDF: {ex.Message}");
-                return false;
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"Errore durante la compilazione del PDF: {ex.Message}");
+            //    return false;
+            //}
         }
 
         /// <summary>
