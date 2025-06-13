@@ -445,7 +445,8 @@ namespace FormulariRif_G.Forms
             // Definisci i percorsi del template e dell'output
             // Assicurati che questi percorsi siano corretti per il tuo ambiente!
             // Potresti mettere il template nella cartella "Resources" o "Templates" del tuo progetto
-            string templatePdfPath = Path.Combine(Application.StartupPath, "Resources", "TemplateFormulario.pdf");
+            //string templatePdfPath = Path.Combine(Application.StartupPath, "Resources", "TemplateFormulario.pdf");
+            string templatePdfPath = Path.Combine(Application.StartupPath, "Resources", "ModuloFormulario.pdf");
             string outputPdfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FormulariStampati", $"Formulario_{_currentFormulario.Id}.pdf");
 
             try

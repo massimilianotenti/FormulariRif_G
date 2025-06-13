@@ -35,6 +35,9 @@
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Resources\ModuloFormulario.pdf">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="Resources\TemplateFormulario.pdf">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -42,7 +45,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Migrations\" />
-	  <Folder Include="Resources\" />
 	</ItemGroup>
 
 </Project>
