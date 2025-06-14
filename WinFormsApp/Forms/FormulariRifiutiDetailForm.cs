@@ -423,7 +423,7 @@ namespace FormulariRif_G.Forms
         }
         private string getDateValore(DateTime? val)
         {
-            return (val.HasValue ? val.Value.ToString("dd/MM/yyyy") : string.Empty);
+            return (val.HasValue ? " " + val.Value.ToString("dd/MM/yyyy") : string.Empty);
         }
 
         private async void btStampa_Click(object sender, EventArgs e)
@@ -455,8 +455,8 @@ namespace FormulariRif_G.Forms
                 { "Dest_R", getStrValore(conf.DestR) },
                 { "Dest_D", getStrValore(conf.DestD) },
                 { "Dest_Auto_Comunic", getStrValore(conf.DestAutoComunic) },
-                { "Dest_Tipo1", getStrValore(conf.DestTipo1) },
-                { "Dest_Tipo2", getStrValore(conf.DestTipo2) },                
+                { "Dest_Tipo1", getStrValore(conf.DestTipo1) + getStrValore(conf.DestTipo2)},
+                //{ "Dest_Tipo2", getStrValore(conf.DestTipo2) },                
                 // Trasportatore
                 { "Trasp_Rag_Soc", conf.RagSoc1 + getStrValore(conf.RagSoc2)},
                 { "Trasp_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
