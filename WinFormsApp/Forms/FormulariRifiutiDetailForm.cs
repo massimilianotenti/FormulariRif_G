@@ -78,7 +78,10 @@ namespace FormulariRif_G.Forms
                 //
                 //Caratteristiche del rifiuto
                 txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;
-                txtStatoFisco.Text = _currentFormulario.SatoFisico ?? string.Empty;
+                if (_currentFormulario.SatoFisico.HasValue)
+                    txtStatoFisco.Text = _currentFormulario.SatoFisico.Value.ToString();
+                else
+                    txtStatoFisco.Text = string.Empty;
                 txtCarattPericolosità.Text = _currentFormulario.CaratteristicheChimiche ?? string.Empty;
                 if (_currentFormulario.Provenienza.HasValue)
                 {
@@ -152,8 +155,8 @@ namespace FormulariRif_G.Forms
             }
             UpdatePrintButtonState();
         }
-        
-        
+
+
         private async void btnSalva_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
@@ -182,7 +185,10 @@ namespace FormulariRif_G.Forms
             //
             //Caratteristiche del rifiuto
             _currentFormulario.CodiceEER = txtCodiceEER.Text.Trim();
-            _currentFormulario.SatoFisico = txtStatoFisco.Text.Trim();
+            if (!string.IsNullOrWhiteSpace(txtStatoFisco.Text) && int.TryParse(txtStatoFisco.Text, out int st_fisico))
+                _currentFormulario.SatoFisico = st_fisico;
+            else
+                _currentFormulario.SatoFisico = null;
             _currentFormulario.CaratteristicheChimiche = txtCarattPericolosità.Text.Trim();
             if (rbProvUrb.Checked)
                 _currentFormulario.Provenienza = 1; // Urbano            
@@ -357,7 +363,17 @@ namespace FormulariRif_G.Forms
                 e.Handled = true;
             }
         }
-                
+
+        private void txtStatoFisco_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            // Allow digits (0-9)
+            // Allow the Backspace key (char.IsControl(e.KeyChar) handles this and other control characters)
+            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
+
         private bool ValidateInput()
         {
             //if (string.IsNullOrWhiteSpace(txtNumeroFormulario.Text))
@@ -393,7 +409,7 @@ namespace FormulariRif_G.Forms
         #region stampa PDF
 
         private void UpdatePrintButtonState()
-        {   
+        {
             btStampa.Enabled = _isFormularioSaved;
         }
 
@@ -414,32 +430,51 @@ namespace FormulariRif_G.Forms
             var cliente = await _clienteRepository.GetByIdAsync(_currentFormulario.IdCli);
             var indirizzo = await _clienteIndirizzoRepository.GetByIdAsync(_currentFormulario.IdClienteIndirizzo);
 
+            var mezzo = await _automezzoRepository.GetByIdAsync(_currentFormulario.IdAutomezzo);
+
             // Prepara i dati in un dizionario, mappando i nomi dei campi PDF ai valori
             var datiFormulario = new Dictionary<string, string>
            {
                 { "Data_Emissione", dtpData.Value.ToString("dd/MM/yyyy") },
+                // Produttore
                 { "Cli_Rag_Soc", cliente.RagSoc.Trim() },
                 { "Cli_Ind", getStrValore(indirizzo.Indirizzo) + getIntValore(indirizzo.Cap) + getStrValore(indirizzo.Comune) },
                 { "Cli_Cod_Fisc", getStrValore(cliente.CodiceFiscale) },
                 { "Cli_Iscrizione_Albo", "" },
                 { "Cli_Auto_Comunic", "" },
                 { "Cli_Tipo", "" },
+                // Destinatario
                 { "Dest_Rag_Soc",  conf.RagSoc1 + getStrValore(conf.RagSoc2)},
-                { "Dest_Indirizzo", getStrValore(conf.Indirizzo) +getIntValore(conf.Cap) + getStrValore(conf.Comune) },
+                { "Dest_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
                 { "Dest_Cod_Fisc", getStrValore(conf.CodiceFiscale) },
                 { "Dest_Iscrizione_Albo", getStrValore(conf.DestNumeroIscrizioneAlbo) },
                 { "Dest_R", getStrValore(conf.DestR) },
                 { "Dest_D", getStrValore(conf.DestD) },
                 { "Dest_Auto_Comunic", getStrValore(conf.DestAutoComunic) },
                 { "Dest_Tipo1", getStrValore(conf.DestTipo1) },
-                { "Dest_Tipo2", getStrValore(conf.DestTipo2) },
-                { "Automezzo", cmbAutomezzo.SelectedItem?.ToString() ?? string.Empty },
+                { "Dest_Tipo2", getStrValore(conf.DestTipo2) },                
+                // Trasportatore
+                { "Trasp_Rag_Soc", conf.RagSoc1 + getStrValore(conf.RagSoc2)},
+                { "Trasp_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
+                { "Trasp_Cod_Fisc", getStrValore(conf.CodiceFiscale) },
+                { "Trasp_Iscrizione_Albo", "" },
+                // Caratteristiche rifiuto
                 { "Codice_EER", txtCodiceEER.Text.Trim() },
                 { "Stato_Fisico", txtStatoFisco.Text.Trim() },
-                { "Provenienza", rbProvUrb.Checked ? "Urbano" : rbProvSpec.Checked ? "Speciale" : string.Empty },
+                { "Urbano", rbProvUrb.Checked ? "X" : string.Empty },
+                { "Speciale", rbProvSpec.Checked ? "X" : string.Empty },
                 { "Caratt_Pericolosita", txtCarattPericolosità.Text.Trim() },
                 { "Descrizione", txtDescr.Text.Trim() },
-                { "Quantita", txtQuantita.Text.Trim() }
+                { "Quantita", txtQuantita.Text.Trim() },
+                { "kg", rbKg.Checked ? "X" : string.Empty},
+                { "lt", rbLitri.Checked ? "X" : string.Empty },
+                { "Peso_Verificato", ckPesoVerificato.Checked ? "X" : string.Empty },
+                { "Colli", txtColli.Text.Trim() },
+                { "Rinfusa", ckAllaRinfusa.Checked ? "X" : string.Empty },
+                { "Caratteristiche", txtChimicoFisiche.Text.Trim() },
+                // Trasporto
+                { "Automezzo", mezzo.Targa ?? string.Empty }
+
            };
 
             // Definisci i percorsi del template e dell'output
@@ -461,7 +496,7 @@ namespace FormulariRif_G.Forms
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(outputPdfPath) { UseShellExecute = true });
                     }
-                    catch(Exception openEx)
+                    catch (Exception openEx)
                     {
                         MessageBox.Show($"Impossibile aprire il file PDF. Errore: {openEx.Message}", "Errore Apertura PDF", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     }
@@ -488,7 +523,7 @@ namespace FormulariRif_G.Forms
                     }
                 }
                 MessageBox.Show(errorMessage, "Errore I/O Dettagliato", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }            
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Si è verificato un errore inatteso: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -890,6 +925,7 @@ namespace FormulariRif_G.Forms
             txtStatoFisco.Name = "txtStatoFisco";
             txtStatoFisco.Size = new Size(76, 23);
             txtStatoFisco.TabIndex = 36;
+            txtStatoFisco.KeyPress += txtStatoFisco_KeyPress;
             // 
             // label2
             // 
@@ -993,6 +1029,7 @@ namespace FormulariRif_G.Forms
 
 
         #endregion
+
 
         
     }
