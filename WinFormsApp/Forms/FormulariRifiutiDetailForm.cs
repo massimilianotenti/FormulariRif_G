@@ -237,7 +237,7 @@ namespace FormulariRif_G.Forms
                 MessageBox.Show("Formulario salvato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.DialogResult = DialogResult.OK;
                 _isFormularioSaved = true;
-                this.Close();
+                //this.Close();
             }
             catch (Exception ex)
             {

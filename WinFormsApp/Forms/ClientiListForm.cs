@@ -31,7 +31,7 @@ namespace FormulariRif_G.Forms
             _clienteRepository = clienteRepository;
             _configurazioneRepository = configurazioneRepository;
             _serviceProvider = serviceProvider;
-            this.Load += ClientiListForm_Load; // Carica i dati all'avvio del form
+            this.Load += ClientiListForm_Load; 
 
             // **Inizializza il timer per il debouncing**
             _searchTimer = new System.Windows.Forms.Timer();
