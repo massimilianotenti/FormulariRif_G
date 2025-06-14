@@ -130,78 +130,78 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblDescrizione = new System.Windows.Forms.Label();
-            this.txtDescrizione = new System.Windows.Forms.TextBox();
-            this.lblTarga = new System.Windows.Forms.Label();
-            this.txtTarga = new System.Windows.Forms.TextBox();
-            this.btnSalva = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            //
+            lblDescrizione = new Label();
+            txtDescrizione = new TextBox();
+            lblTarga = new Label();
+            txtTarga = new TextBox();
+            btnSalva = new Button();
+            SuspendLayout();
+            // 
             // lblDescrizione
-            //
-            this.lblDescrizione.AutoSize = true;
-            this.lblDescrizione.Location = new System.Drawing.Point(20, 30);
-            this.lblDescrizione.Name = "lblDescrizione";
-            this.lblDescrizione.Size = new System.Drawing.Size(71, 15);
-            this.lblDescrizione.TabIndex = 0;
-            this.lblDescrizione.Text = "Descrizione:";
-            //
+            // 
+            lblDescrizione.AutoSize = true;
+            lblDescrizione.Location = new Point(20, 30);
+            lblDescrizione.Name = "lblDescrizione";
+            lblDescrizione.Size = new Size(70, 15);
+            lblDescrizione.TabIndex = 0;
+            lblDescrizione.Text = "Descrizione:";
+            // 
             // txtDescrizione
-            //
-            this.txtDescrizione.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDescrizione.Location = new System.Drawing.Point(100, 27);
-            this.txtDescrizione.Name = "txtDescrizione";
-            this.txtDescrizione.Size = new System.Drawing.Size(270, 23);
-            this.txtDescrizione.TabIndex = 1;
-            //
+            // 
+            txtDescrizione.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtDescrizione.Location = new Point(100, 27);
+            txtDescrizione.MaxLength = 255;
+            txtDescrizione.Name = "txtDescrizione";
+            txtDescrizione.Size = new Size(270, 23);
+            txtDescrizione.TabIndex = 1;
+            // 
             // lblTarga
-            //
-            this.lblTarga.AutoSize = true;
-            this.lblTarga.Location = new System.Drawing.Point(20, 70);
-            this.lblTarga.Name = "lblTarga";
-            this.lblTarga.Size = new System.Drawing.Size(40, 15);
-            this.lblTarga.TabIndex = 2;
-            this.lblTarga.Text = "Targa:";
-            //
+            // 
+            lblTarga.AutoSize = true;
+            lblTarga.Location = new Point(20, 70);
+            lblTarga.Name = "lblTarga";
+            lblTarga.Size = new Size(39, 15);
+            lblTarga.TabIndex = 2;
+            lblTarga.Text = "Targa:";
+            // 
             // txtTarga
-            //
-            this.txtTarga.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTarga.Location = new System.Drawing.Point(100, 67);
-            this.txtTarga.Name = "txtTarga";
-            this.txtTarga.Size = new System.Drawing.Size(270, 23);
-            this.txtTarga.TabIndex = 3;
-            //
+            // 
+            txtTarga.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtTarga.Location = new Point(100, 67);
+            txtTarga.MaxLength = 20;
+            txtTarga.Name = "txtTarga";
+            txtTarga.Size = new Size(270, 23);
+            txtTarga.TabIndex = 3;
+            // 
             // btnSalva
-            //
-            this.btnSalva.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSalva.Location = new System.Drawing.Point(295, 110);
-            this.btnSalva.Name = "btnSalva";
-            this.btnSalva.Size = new System.Drawing.Size(75, 30);
-            this.btnSalva.TabIndex = 4;
-            this.btnSalva.Text = "Salva";
-            this.btnSalva.UseVisualStyleBackColor = true;
-            this.btnSalva.Click += new System.EventHandler(this.btnSalva_Click);
-            //
+            // 
+            btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSalva.Location = new Point(295, 110);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(75, 30);
+            btnSalva.TabIndex = 4;
+            btnSalva.Text = "Salva";
+            btnSalva.UseVisualStyleBackColor = true;
+            btnSalva.Click += btnSalva_Click;
+            // 
             // AutomezziDetailForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(390, 150);
-            this.Controls.Add(this.btnSalva);
-            this.Controls.Add(this.txtTarga);
-            this.Controls.Add(this.lblTarga);
-            this.Controls.Add(this.txtDescrizione);
-            this.Controls.Add(this.lblDescrizione);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "AutomezziDetailForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dettagli Automezzo";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(390, 150);
+            Controls.Add(btnSalva);
+            Controls.Add(txtTarga);
+            Controls.Add(lblTarga);
+            Controls.Add(txtDescrizione);
+            Controls.Add(lblDescrizione);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "AutomezziDetailForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Dettagli Automezzo";
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

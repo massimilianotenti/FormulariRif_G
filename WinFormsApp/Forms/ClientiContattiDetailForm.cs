@@ -137,112 +137,112 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblContatto = new System.Windows.Forms.Label();
-            this.txtContatto = new System.Windows.Forms.TextBox();
-            this.lblTelefono = new System.Windows.Forms.Label();
-            this.txtTelefono = new System.Windows.Forms.TextBox();
-            this.lblEmail = new System.Windows.Forms.Label();
-            this.txtEmail = new System.Windows.Forms.TextBox();
-            this.chkPredefinito = new System.Windows.Forms.CheckBox();
-            this.btnSalva = new System.Windows.Forms.Button();
-            this.SuspendLayout();
-            //
+            lblContatto = new Label();
+            txtContatto = new TextBox();
+            lblTelefono = new Label();
+            txtTelefono = new TextBox();
+            lblEmail = new Label();
+            txtEmail = new TextBox();
+            chkPredefinito = new CheckBox();
+            btnSalva = new Button();
+            SuspendLayout();
+            // 
             // lblContatto
-            //
-            this.lblContatto.AutoSize = true;
-            this.lblContatto.Location = new System.Drawing.Point(20, 30);
-            this.lblContatto.Name = "lblContatto";
-            this.lblContatto.Size = new System.Drawing.Size(59, 15);
-            this.lblContatto.TabIndex = 0;
-            this.lblContatto.Text = "Contatto:";
-            //
+            // 
+            lblContatto.AutoSize = true;
+            lblContatto.Location = new Point(20, 30);
+            lblContatto.Name = "lblContatto";
+            lblContatto.Size = new Size(57, 15);
+            lblContatto.TabIndex = 0;
+            lblContatto.Text = "Contatto:";
+            // 
             // txtContatto
-            //
-            this.txtContatto.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtContatto.Location = new System.Drawing.Point(100, 27);
-            this.txtContatto.Name = "txtContatto";
-            this.txtContatto.Size = new System.Drawing.Size(270, 23);
-            this.txtContatto.TabIndex = 1;
-            //
+            // 
+            txtContatto.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtContatto.Location = new Point(100, 27);
+            txtContatto.MaxLength = 100;
+            txtContatto.Name = "txtContatto";
+            txtContatto.Size = new Size(270, 23);
+            txtContatto.TabIndex = 1;
+            // 
             // lblTelefono
-            //
-            this.lblTelefono.AutoSize = true;
-            this.lblTelefono.Location = new System.Drawing.Point(20, 70);
-            this.lblTelefono.Name = "lblTelefono";
-            this.lblTelefono.Size = new System.Drawing.Size(54, 15);
-            this.lblTelefono.TabIndex = 2;
-            this.lblTelefono.Text = "Telefono:";
-            //
+            // 
+            lblTelefono.AutoSize = true;
+            lblTelefono.Location = new Point(20, 70);
+            lblTelefono.Name = "lblTelefono";
+            lblTelefono.Size = new Size(56, 15);
+            lblTelefono.TabIndex = 2;
+            lblTelefono.Text = "Telefono:";
+            // 
             // txtTelefono
-            //
-            this.txtTelefono.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTelefono.Location = new System.Drawing.Point(100, 67);
-            this.txtTelefono.Name = "txtTelefono";
-            this.txtTelefono.Size = new System.Drawing.Size(270, 23);
-            this.txtTelefono.TabIndex = 3;
-            //
+            // 
+            txtTelefono.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtTelefono.Location = new Point(100, 67);
+            txtTelefono.MaxLength = 50;
+            txtTelefono.Name = "txtTelefono";
+            txtTelefono.Size = new Size(270, 23);
+            txtTelefono.TabIndex = 3;
+            // 
             // lblEmail
-            //
-            this.lblEmail.AutoSize = true;
-            this.lblEmail.Location = new System.Drawing.Point(20, 110);
-            this.lblEmail.Name = "lblEmail";
-            this.lblEmail.Size = new System.Drawing.Size(44, 15);
-            this.lblEmail.TabIndex = 4;
-            this.lblEmail.Text = "E-mail:";
-            //
+            // 
+            lblEmail.AutoSize = true;
+            lblEmail.Location = new Point(20, 110);
+            lblEmail.Name = "lblEmail";
+            lblEmail.Size = new Size(44, 15);
+            lblEmail.TabIndex = 4;
+            lblEmail.Text = "E-mail:";
+            // 
             // txtEmail
-            //
-            this.txtEmail.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEmail.Location = new System.Drawing.Point(100, 107);
-            this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(270, 23);
-            this.txtEmail.TabIndex = 5;
-            //
+            // 
+            txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtEmail.Location = new Point(100, 107);
+            txtEmail.MaxLength = 50;
+            txtEmail.Name = "txtEmail";
+            txtEmail.Size = new Size(270, 23);
+            txtEmail.TabIndex = 5;
+            // 
             // chkPredefinito
-            //
-            this.chkPredefinito.AutoSize = true;
-            this.chkPredefinito.Location = new System.Drawing.Point(20, 145);
-            this.chkPredefinito.Name = "chkPredefinito";
-            this.chkPredefinito.Size = new System.Drawing.Size(86, 19);
-            this.chkPredefinito.TabIndex = 6;
-            this.chkPredefinito.Text = "Predefinito";
-            this.chkPredefinito.UseVisualStyleBackColor = true;
-            //
+            // 
+            chkPredefinito.AutoSize = true;
+            chkPredefinito.Location = new Point(20, 145);
+            chkPredefinito.Name = "chkPredefinito";
+            chkPredefinito.Size = new Size(84, 19);
+            chkPredefinito.TabIndex = 6;
+            chkPredefinito.Text = "Predefinito";
+            chkPredefinito.UseVisualStyleBackColor = true;
+            // 
             // btnSalva
-            //
-            this.btnSalva.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSalva.Location = new System.Drawing.Point(295, 170);
-            this.btnSalva.Name = "btnSalva";
-            this.btnSalva.Size = new System.Drawing.Size(75, 30);
-            this.btnSalva.TabIndex = 7;
-            this.btnSalva.Text = "Salva";
-            this.btnSalva.UseVisualStyleBackColor = true;
-            this.btnSalva.Click += new System.EventHandler(this.btnSalva_Click);
-            //
+            // 
+            btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSalva.Location = new Point(295, 170);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(75, 30);
+            btnSalva.TabIndex = 7;
+            btnSalva.Text = "Salva";
+            btnSalva.UseVisualStyleBackColor = true;
+            btnSalva.Click += btnSalva_Click;
+            // 
             // ClientiContattiDetailForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(390, 215);
-            this.Controls.Add(this.btnSalva);
-            this.Controls.Add(this.chkPredefinito);
-            this.Controls.Add(this.txtEmail);
-            this.Controls.Add(this.lblEmail);
-            this.Controls.Add(this.txtTelefono);
-            this.Controls.Add(this.lblTelefono);
-            this.Controls.Add(this.txtContatto);
-            this.Controls.Add(this.lblContatto);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "ClientiContattiDetailForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dettagli Contatto Cliente";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(390, 215);
+            Controls.Add(btnSalva);
+            Controls.Add(chkPredefinito);
+            Controls.Add(txtEmail);
+            Controls.Add(lblEmail);
+            Controls.Add(txtTelefono);
+            Controls.Add(lblTelefono);
+            Controls.Add(txtContatto);
+            Controls.Add(lblContatto);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "ClientiContattiDetailForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Dettagli Contatto Cliente";
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

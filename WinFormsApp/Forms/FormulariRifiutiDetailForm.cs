@@ -421,6 +421,10 @@ namespace FormulariRif_G.Forms
         {
             return (val == 0 ? "" : " " + val.ToString());
         }
+        private string getDateValore(DateTime? val)
+        {
+            return (val.HasValue ? val.Value.ToString("dd/MM/yyyy") : string.Empty);
+        }
 
         private async void btStampa_Click(object sender, EventArgs e)
         {
@@ -440,9 +444,9 @@ namespace FormulariRif_G.Forms
                 { "Cli_Rag_Soc", cliente.RagSoc.Trim() },
                 { "Cli_Ind", getStrValore(indirizzo.Indirizzo) + getIntValore(indirizzo.Cap) + getStrValore(indirizzo.Comune) },
                 { "Cli_Cod_Fisc", getStrValore(cliente.CodiceFiscale) },
-                { "Cli_Iscrizione_Albo", "" },
-                { "Cli_Auto_Comunic", "" },
-                { "Cli_Tipo", "" },
+                { "Cli_Iscrizione_Albo", getStrValore(cliente.Iscrizione_Albo) },
+                { "Cli_Auto_Comunic", getStrValore(cliente.Auto_Comunicazione) },
+                { "Cli_Tipo", getStrValore(cliente.Tipo) },
                 // Destinatario
                 { "Dest_Rag_Soc",  conf.RagSoc1 + getStrValore(conf.RagSoc2)},
                 { "Dest_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
@@ -457,7 +461,7 @@ namespace FormulariRif_G.Forms
                 { "Trasp_Rag_Soc", conf.RagSoc1 + getStrValore(conf.RagSoc2)},
                 { "Trasp_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
                 { "Trasp_Cod_Fisc", getStrValore(conf.CodiceFiscale) },
-                { "Trasp_Iscrizione_Albo", "" },
+                { "Trasp_Iscrizione_Albo", getStrValore(conf.NumeroIscrizioneAlbo) + getDateValore(conf.DataIscrizioneAlbo) },
                 // Caratteristiche rifiuto
                 { "Codice_EER", txtCodiceEER.Text.Trim() },
                 { "Stato_Fisico", txtStatoFisco.Text.Trim() },
@@ -751,6 +755,7 @@ namespace FormulariRif_G.Forms
             // txtColli
             // 
             txtColli.Location = new Point(75, 17);
+            txtColli.MaxLength = 5;
             txtColli.Name = "txtColli";
             txtColli.Size = new Size(76, 23);
             txtColli.TabIndex = 28;
@@ -837,6 +842,7 @@ namespace FormulariRif_G.Forms
             // txtQuantita
             // 
             txtQuantita.Location = new Point(138, 149);
+            txtQuantita.MaxLength = 12;
             txtQuantita.Name = "txtQuantita";
             txtQuantita.Size = new Size(163, 23);
             txtQuantita.TabIndex = 43;

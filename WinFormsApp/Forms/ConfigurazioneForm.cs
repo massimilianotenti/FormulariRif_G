@@ -549,6 +549,7 @@ namespace FormulariRif_G.Forms
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
             tabPage2 = new TabPage();
+            txtRagSoc2 = new TextBox();
             tabPage3 = new TabPage();
             txtDestD = new TextBox();
             txtDestR = new TextBox();
@@ -562,7 +563,6 @@ namespace FormulariRif_G.Forms
             txtDestNumIscr = new TextBox();
             label1 = new Label();
             tabPage4 = new TabPage();
-            txtRagSoc2 = new TextBox();
             ((System.ComponentModel.ISupportInitialize)numCap).BeginInit();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -574,10 +574,9 @@ namespace FormulariRif_G.Forms
             // btnTestConnessione
             // 
             btnTestConnessione.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnTestConnessione.Location = new Point(659, 277);
-            btnTestConnessione.Margin = new Padding(6);
+            btnTestConnessione.Location = new Point(355, 130);
             btnTestConnessione.Name = "btnTestConnessione";
-            btnTestConnessione.Size = new Size(176, 49);
+            btnTestConnessione.Size = new Size(95, 23);
             btnTestConnessione.TabIndex = 8;
             btnTestConnessione.Text = "Test Connessione";
             btnTestConnessione.UseVisualStyleBackColor = true;
@@ -586,268 +585,251 @@ namespace FormulariRif_G.Forms
             // txtDbPassword
             // 
             txtDbPassword.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDbPassword.Location = new Point(245, 277);
-            txtDbPassword.Margin = new Padding(6);
+            txtDbPassword.Location = new Point(132, 130);
+            txtDbPassword.MaxLength = 20;
             txtDbPassword.Name = "txtDbPassword";
-            txtDbPassword.Size = new Size(399, 39);
+            txtDbPassword.Size = new Size(217, 23);
             txtDbPassword.TabIndex = 7;
             txtDbPassword.UseSystemPasswordChar = true;
             // 
             // lblDbPassword
             // 
             lblDbPassword.AutoSize = true;
-            lblDbPassword.Location = new Point(50, 283);
-            lblDbPassword.Margin = new Padding(6, 0, 6, 0);
+            lblDbPassword.Location = new Point(27, 133);
             lblDbPassword.Name = "lblDbPassword";
-            lblDbPassword.Size = new Size(168, 32);
+            lblDbPassword.Size = new Size(86, 15);
             lblDbPassword.TabIndex = 6;
             lblDbPassword.Text = "Password (DB):";
             // 
             // txtDbUsername
             // 
             txtDbUsername.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDbUsername.Location = new Point(245, 202);
-            txtDbUsername.Margin = new Padding(6);
+            txtDbUsername.Location = new Point(132, 95);
+            txtDbUsername.MaxLength = 50;
             txtDbUsername.Name = "txtDbUsername";
-            txtDbUsername.Size = new Size(587, 39);
+            txtDbUsername.Size = new Size(318, 23);
             txtDbUsername.TabIndex = 5;
             // 
             // lblDbUsername
             // 
             lblDbUsername.AutoSize = true;
-            lblDbUsername.Location = new Point(50, 208);
-            lblDbUsername.Margin = new Padding(6, 0, 6, 0);
+            lblDbUsername.Location = new Point(27, 98);
             lblDbUsername.Name = "lblDbUsername";
-            lblDbUsername.Size = new Size(178, 32);
+            lblDbUsername.Size = new Size(89, 15);
             lblDbUsername.TabIndex = 4;
             lblDbUsername.Text = "Username (DB):";
             // 
             // txtDatabaseName
             // 
             txtDatabaseName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDatabaseName.Location = new Point(245, 127);
-            txtDatabaseName.Margin = new Padding(6);
+            txtDatabaseName.Location = new Point(132, 60);
+            txtDatabaseName.MaxLength = 255;
             txtDatabaseName.Name = "txtDatabaseName";
-            txtDatabaseName.Size = new Size(587, 39);
+            txtDatabaseName.Size = new Size(318, 23);
             txtDatabaseName.TabIndex = 3;
             // 
             // lblDatabaseName
             // 
             lblDatabaseName.AutoSize = true;
-            lblDatabaseName.Location = new Point(50, 134);
-            lblDatabaseName.Margin = new Padding(6, 0, 6, 0);
+            lblDatabaseName.Location = new Point(27, 63);
             lblDatabaseName.Name = "lblDatabaseName";
-            lblDatabaseName.Size = new Size(190, 32);
+            lblDatabaseName.Size = new Size(94, 15);
             lblDatabaseName.TabIndex = 2;
             lblDatabaseName.Text = "Nome Database:";
             // 
             // txtServerName
             // 
             txtServerName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtServerName.Location = new Point(245, 53);
-            txtServerName.Margin = new Padding(6);
+            txtServerName.Location = new Point(132, 25);
+            txtServerName.MaxLength = 255;
             txtServerName.Name = "txtServerName";
-            txtServerName.Size = new Size(587, 39);
+            txtServerName.Size = new Size(318, 23);
             txtServerName.TabIndex = 1;
             // 
             // lblServerName
             // 
             lblServerName.AutoSize = true;
-            lblServerName.Location = new Point(50, 59);
-            lblServerName.Margin = new Padding(6, 0, 6, 0);
+            lblServerName.Location = new Point(27, 28);
             lblServerName.Name = "lblServerName";
-            lblServerName.Size = new Size(159, 32);
+            lblServerName.Size = new Size(78, 15);
             lblServerName.TabIndex = 0;
             lblServerName.Text = "Nome Server:";
             // 
             // dtpDataIscrizioneAlbo
             // 
             dtpDataIscrizioneAlbo.Format = DateTimePickerFormat.Short;
-            dtpDataIscrizioneAlbo.Location = new Point(246, 130);
-            dtpDataIscrizioneAlbo.Margin = new Padding(6);
+            dtpDataIscrizioneAlbo.Location = new Point(132, 61);
             dtpDataIscrizioneAlbo.Name = "dtpDataIscrizioneAlbo";
-            dtpDataIscrizioneAlbo.Size = new Size(591, 39);
+            dtpDataIscrizioneAlbo.Size = new Size(320, 23);
             dtpDataIscrizioneAlbo.TabIndex = 18;
             // 
             // lblDataIscrizioneAlbo
             // 
             lblDataIscrizioneAlbo.AutoSize = true;
-            lblDataIscrizioneAlbo.Location = new Point(51, 137);
-            lblDataIscrizioneAlbo.Margin = new Padding(6, 0, 6, 0);
+            lblDataIscrizioneAlbo.Location = new Point(27, 64);
             lblDataIscrizioneAlbo.Name = "lblDataIscrizioneAlbo";
-            lblDataIscrizioneAlbo.Size = new Size(163, 32);
+            lblDataIscrizioneAlbo.Size = new Size(82, 15);
             lblDataIscrizioneAlbo.TabIndex = 17;
             lblDataIscrizioneAlbo.Text = "Data Isc. Albo:";
             // 
             // txtNumeroIscrizioneAlbo
             // 
-            txtNumeroIscrizioneAlbo.Location = new Point(246, 56);
-            txtNumeroIscrizioneAlbo.Margin = new Padding(6);
+            txtNumeroIscrizioneAlbo.Location = new Point(132, 26);
+            txtNumeroIscrizioneAlbo.MaxLength = 50;
             txtNumeroIscrizioneAlbo.Name = "txtNumeroIscrizioneAlbo";
-            txtNumeroIscrizioneAlbo.Size = new Size(591, 39);
+            txtNumeroIscrizioneAlbo.Size = new Size(320, 23);
             txtNumeroIscrizioneAlbo.TabIndex = 16;
             // 
             // lblNumeroIscrizioneAlbo
             // 
             lblNumeroIscrizioneAlbo.AutoSize = true;
-            lblNumeroIscrizioneAlbo.Location = new Point(51, 62);
-            lblNumeroIscrizioneAlbo.Margin = new Padding(6, 0, 6, 0);
+            lblNumeroIscrizioneAlbo.Location = new Point(27, 29);
             lblNumeroIscrizioneAlbo.Name = "lblNumeroIscrizioneAlbo";
-            lblNumeroIscrizioneAlbo.Size = new Size(172, 32);
+            lblNumeroIscrizioneAlbo.Size = new Size(88, 15);
             lblNumeroIscrizioneAlbo.TabIndex = 15;
             lblNumeroIscrizioneAlbo.Text = "Num. Isc. Albo:";
             // 
             // txtCodiceFiscale
             // 
             txtCodiceFiscale.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtCodiceFiscale.Location = new Point(245, 558);
-            txtCodiceFiscale.Margin = new Padding(6);
+            txtCodiceFiscale.Location = new Point(132, 262);
+            txtCodiceFiscale.MaxLength = 16;
             txtCodiceFiscale.Name = "txtCodiceFiscale";
-            txtCodiceFiscale.Size = new Size(591, 39);
+            txtCodiceFiscale.Size = new Size(320, 23);
             txtCodiceFiscale.TabIndex = 14;
             // 
             // lblCodiceFiscale
             // 
             lblCodiceFiscale.AutoSize = true;
-            lblCodiceFiscale.Location = new Point(50, 564);
-            lblCodiceFiscale.Margin = new Padding(6, 0, 6, 0);
+            lblCodiceFiscale.Location = new Point(27, 264);
             lblCodiceFiscale.Name = "lblCodiceFiscale";
-            lblCodiceFiscale.Size = new Size(169, 32);
+            lblCodiceFiscale.Size = new Size(85, 15);
             lblCodiceFiscale.TabIndex = 13;
             lblCodiceFiscale.Text = "Codice Fiscale:";
             // 
             // txtPartitaIva
             // 
             txtPartitaIva.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtPartitaIva.Location = new Point(245, 483);
-            txtPartitaIva.Margin = new Padding(6);
+            txtPartitaIva.Location = new Point(132, 226);
+            txtPartitaIva.MaxLength = 20;
             txtPartitaIva.Name = "txtPartitaIva";
-            txtPartitaIva.Size = new Size(591, 39);
+            txtPartitaIva.Size = new Size(320, 23);
             txtPartitaIva.TabIndex = 12;
             // 
             // lblPartitaIva
             // 
             lblPartitaIva.AutoSize = true;
-            lblPartitaIva.Location = new Point(50, 490);
-            lblPartitaIva.Margin = new Padding(6, 0, 6, 0);
+            lblPartitaIva.Location = new Point(27, 230);
             lblPartitaIva.Name = "lblPartitaIva";
-            lblPartitaIva.Size = new Size(127, 32);
+            lblPartitaIva.Size = new Size(64, 15);
             lblPartitaIva.TabIndex = 11;
             lblPartitaIva.Text = "Partita IVA:";
             // 
             // txtEmail
             // 
             txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtEmail.Location = new Point(245, 409);
-            txtEmail.Margin = new Padding(6);
+            txtEmail.Location = new Point(132, 192);
+            txtEmail.MaxLength = 100;
             txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(591, 39);
+            txtEmail.Size = new Size(320, 23);
             txtEmail.TabIndex = 10;
             // 
             // lblEmail
             // 
             lblEmail.AutoSize = true;
-            lblEmail.Location = new Point(50, 415);
-            lblEmail.Margin = new Padding(6, 0, 6, 0);
+            lblEmail.Location = new Point(27, 195);
             lblEmail.Name = "lblEmail";
-            lblEmail.Size = new Size(86, 32);
+            lblEmail.Size = new Size(44, 15);
             lblEmail.TabIndex = 9;
             lblEmail.Text = "E-mail:";
             // 
             // numCap
             // 
             numCap.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            numCap.Location = new Point(245, 334);
-            numCap.Margin = new Padding(6);
+            numCap.Location = new Point(132, 157);
             numCap.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
             numCap.Name = "numCap";
-            numCap.Size = new Size(223, 39);
+            numCap.Size = new Size(120, 23);
             numCap.TabIndex = 8;
             // 
             // lblCap
             // 
             lblCap.AutoSize = true;
-            lblCap.Location = new Point(51, 307);
-            lblCap.Margin = new Padding(6, 0, 6, 0);
+            lblCap.Location = new Point(27, 144);
             lblCap.Name = "lblCap";
-            lblCap.Size = new Size(62, 32);
+            lblCap.Size = new Size(33, 15);
             lblCap.TabIndex = 7;
             lblCap.Text = "CAP:";
             // 
             // txtComune
             // 
             txtComune.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtComune.Location = new Point(245, 259);
-            txtComune.Margin = new Padding(6);
+            txtComune.Location = new Point(132, 121);
+            txtComune.MaxLength = 50;
             txtComune.Name = "txtComune";
-            txtComune.Size = new Size(591, 39);
+            txtComune.Size = new Size(320, 23);
             txtComune.TabIndex = 6;
             // 
             // lblComune
             // 
             lblComune.AutoSize = true;
-            lblComune.Location = new Point(50, 266);
-            lblComune.Margin = new Padding(6, 0, 6, 0);
+            lblComune.Location = new Point(27, 125);
             lblComune.Name = "lblComune";
-            lblComune.Size = new Size(110, 32);
+            lblComune.Size = new Size(56, 15);
             lblComune.TabIndex = 5;
             lblComune.Text = "Comune:";
             // 
             // txtIndirizzo
             // 
             txtIndirizzo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtIndirizzo.Location = new Point(245, 185);
-            txtIndirizzo.Margin = new Padding(6);
+            txtIndirizzo.Location = new Point(132, 87);
+            txtIndirizzo.MaxLength = 100;
             txtIndirizzo.Name = "txtIndirizzo";
-            txtIndirizzo.Size = new Size(591, 39);
+            txtIndirizzo.Size = new Size(320, 23);
             txtIndirizzo.TabIndex = 4;
             // 
             // lblIndirizzo
             // 
             lblIndirizzo.AutoSize = true;
-            lblIndirizzo.Location = new Point(50, 191);
-            lblIndirizzo.Margin = new Padding(6, 0, 6, 0);
+            lblIndirizzo.Location = new Point(27, 90);
             lblIndirizzo.Name = "lblIndirizzo";
-            lblIndirizzo.Size = new Size(109, 32);
+            lblIndirizzo.Size = new Size(54, 15);
             lblIndirizzo.TabIndex = 3;
             lblIndirizzo.Text = "Indirizzo:";
             // 
             // txtRagSoc1
             // 
             txtRagSoc1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRagSoc1.Location = new Point(245, 50);
-            txtRagSoc1.Margin = new Padding(6);
+            txtRagSoc1.Location = new Point(132, 23);
+            txtRagSoc1.MaxLength = 255;
             txtRagSoc1.Name = "txtRagSoc1";
-            txtRagSoc1.Size = new Size(591, 39);
+            txtRagSoc1.Size = new Size(320, 23);
             txtRagSoc1.TabIndex = 2;
             // 
             // lblRagSoc
             // 
             lblRagSoc.AutoSize = true;
-            lblRagSoc.Location = new Point(50, 56);
-            lblRagSoc.Margin = new Padding(6, 0, 6, 0);
+            lblRagSoc.Location = new Point(27, 26);
             lblRagSoc.Name = "lblRagSoc";
-            lblRagSoc.Size = new Size(188, 32);
+            lblRagSoc.Size = new Size(93, 15);
             lblRagSoc.TabIndex = 1;
             lblRagSoc.Text = "Ragione Sociale:";
             // 
             // chkDatiTest
             // 
             chkDatiTest.AutoSize = true;
-            chkDatiTest.Location = new Point(40, 771);
-            chkDatiTest.Margin = new Padding(6);
+            chkDatiTest.Location = new Point(22, 361);
             chkDatiTest.Name = "chkDatiTest";
-            chkDatiTest.Size = new Size(212, 36);
+            chkDatiTest.Size = new Size(108, 19);
             chkDatiTest.TabIndex = 0;
             chkDatiTest.Text = "Abilita Dati Test";
             chkDatiTest.UseVisualStyleBackColor = true;
             // 
             // btnSalvaConfigurazione
             // 
-            btnSalvaConfigurazione.Location = new Point(641, 819);
-            btnSalvaConfigurazione.Margin = new Padding(6);
+            btnSalvaConfigurazione.Location = new Point(345, 384);
             btnSalvaConfigurazione.Name = "btnSalvaConfigurazione";
-            btnSalvaConfigurazione.Size = new Size(279, 64);
+            btnSalvaConfigurazione.Size = new Size(150, 30);
             btnSalvaConfigurazione.TabIndex = 2;
             btnSalvaConfigurazione.Text = "Salva Configurazione";
             btnSalvaConfigurazione.UseVisualStyleBackColor = true;
@@ -855,10 +837,9 @@ namespace FormulariRif_G.Forms
             // 
             // btnGeneraDatiTest
             // 
-            btnGeneraDatiTest.Location = new Point(23, 819);
-            btnGeneraDatiTest.Margin = new Padding(6);
+            btnGeneraDatiTest.Location = new Point(12, 384);
             btnGeneraDatiTest.Name = "btnGeneraDatiTest";
-            btnGeneraDatiTest.Size = new Size(279, 64);
+            btnGeneraDatiTest.Size = new Size(150, 30);
             btnGeneraDatiTest.TabIndex = 3;
             btnGeneraDatiTest.Text = "Genera Dati Test";
             btnGeneraDatiTest.UseVisualStyleBackColor = true;
@@ -870,10 +851,11 @@ namespace FormulariRif_G.Forms
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Controls.Add(tabPage3);
             tabControl1.Controls.Add(tabPage4);
-            tabControl1.Location = new Point(23, 12);
+            tabControl1.Location = new Point(12, 6);
+            tabControl1.Margin = new Padding(2, 1, 2, 1);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(905, 728);
+            tabControl1.Size = new Size(487, 341);
             tabControl1.TabIndex = 4;
             // 
             // tabPage1
@@ -887,10 +869,11 @@ namespace FormulariRif_G.Forms
             tabPage1.Controls.Add(txtDbUsername);
             tabPage1.Controls.Add(txtDatabaseName);
             tabPage1.Controls.Add(lblDbUsername);
-            tabPage1.Location = new Point(8, 46);
+            tabPage1.Location = new Point(4, 24);
+            tabPage1.Margin = new Padding(2, 1, 2, 1);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(889, 674);
+            tabPage1.Padding = new Padding(2, 1, 2, 1);
+            tabPage1.Size = new Size(479, 313);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Configurazione Database";
             tabPage1.UseVisualStyleBackColor = true;
@@ -912,13 +895,23 @@ namespace FormulariRif_G.Forms
             tabPage2.Controls.Add(txtEmail);
             tabPage2.Controls.Add(numCap);
             tabPage2.Controls.Add(lblEmail);
-            tabPage2.Location = new Point(8, 46);
+            tabPage2.Location = new Point(4, 24);
+            tabPage2.Margin = new Padding(2, 1, 2, 1);
             tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(889, 674);
+            tabPage2.Padding = new Padding(2, 1, 2, 1);
+            tabPage2.Size = new Size(479, 313);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Dati Azienda";
             tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // txtRagSoc2
+            // 
+            txtRagSoc2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtRagSoc2.Location = new Point(132, 55);
+            txtRagSoc2.MaxLength = 255;
+            txtRagSoc2.Name = "txtRagSoc2";
+            txtRagSoc2.Size = new Size(320, 23);
+            txtRagSoc2.TabIndex = 16;
             // 
             // tabPage3
             // 
@@ -933,97 +926,115 @@ namespace FormulariRif_G.Forms
             tabPage3.Controls.Add(label2);
             tabPage3.Controls.Add(txtDestNumIscr);
             tabPage3.Controls.Add(label1);
-            tabPage3.Location = new Point(8, 46);
+            tabPage3.Location = new Point(4, 24);
+            tabPage3.Margin = new Padding(2, 1, 2, 1);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(889, 674);
+            tabPage3.Size = new Size(479, 313);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Destinatario";
             tabPage3.UseVisualStyleBackColor = true;
             // 
             // txtDestD
             // 
-            txtDestD.Location = new Point(427, 125);
+            txtDestD.Location = new Point(230, 59);
+            txtDestD.Margin = new Padding(2, 1, 2, 1);
+            txtDestD.MaxLength = 3;
             txtDestD.Name = "txtDestD";
-            txtDestD.Size = new Size(146, 39);
+            txtDestD.Size = new Size(80, 23);
             txtDestD.TabIndex = 10;
             // 
             // txtDestR
             // 
-            txtDestR.Location = new Point(247, 125);
+            txtDestR.Location = new Point(133, 59);
+            txtDestR.Margin = new Padding(2, 1, 2, 1);
+            txtDestR.MaxLength = 3;
             txtDestR.Name = "txtDestR";
-            txtDestR.Size = new Size(146, 39);
+            txtDestR.Size = new Size(80, 23);
             txtDestR.TabIndex = 9;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(52, 129);
+            label5.Location = new Point(28, 60);
+            label5.Margin = new Padding(2, 0, 2, 0);
             label5.Name = "label5";
-            label5.Size = new Size(175, 32);
+            label5.Size = new Size(84, 15);
             label5.TabIndex = 8;
             label5.Text = "Destinaz. R e D";
             // 
             // txtDestTipoR2
             // 
-            txtDestTipoR2.Location = new Point(247, 342);
+            txtDestTipoR2.Location = new Point(133, 160);
+            txtDestTipoR2.Margin = new Padding(2, 1, 2, 1);
+            txtDestTipoR2.MaxLength = 50;
             txtDestTipoR2.Name = "txtDestTipoR2";
-            txtDestTipoR2.Size = new Size(587, 39);
+            txtDestTipoR2.Size = new Size(318, 23);
             txtDestTipoR2.TabIndex = 7;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(52, 346);
+            label4.Location = new Point(28, 162);
+            label4.Margin = new Padding(2, 0, 2, 0);
             label4.Name = "label4";
-            label4.Size = new Size(134, 32);
+            label4.Size = new Size(66, 15);
             label4.TabIndex = 6;
             label4.Text = "Tipo Riga 2";
             // 
             // txtDestTipoR1
             // 
-            txtDestTipoR1.Location = new Point(247, 269);
+            txtDestTipoR1.Location = new Point(133, 126);
+            txtDestTipoR1.Margin = new Padding(2, 1, 2, 1);
+            txtDestTipoR1.MaxLength = 50;
             txtDestTipoR1.Name = "txtDestTipoR1";
-            txtDestTipoR1.Size = new Size(587, 39);
+            txtDestTipoR1.Size = new Size(318, 23);
             txtDestTipoR1.TabIndex = 5;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(52, 273);
+            label3.Location = new Point(28, 128);
+            label3.Margin = new Padding(2, 0, 2, 0);
             label3.Name = "label3";
-            label3.Size = new Size(134, 32);
+            label3.Size = new Size(66, 15);
             label3.TabIndex = 4;
             label3.Text = "Tipo Riga 1";
             // 
             // txtDestAutoCom
             // 
-            txtDestAutoCom.Location = new Point(247, 198);
+            txtDestAutoCom.Location = new Point(133, 93);
+            txtDestAutoCom.Margin = new Padding(2, 1, 2, 1);
+            txtDestAutoCom.MaxLength = 30;
             txtDestAutoCom.Name = "txtDestAutoCom";
-            txtDestAutoCom.Size = new Size(587, 39);
+            txtDestAutoCom.Size = new Size(318, 23);
             txtDestAutoCom.TabIndex = 3;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(52, 202);
+            label2.Location = new Point(28, 95);
+            label2.Margin = new Padding(2, 0, 2, 0);
             label2.Name = "label2";
-            label2.Size = new Size(186, 32);
+            label2.Size = new Size(95, 15);
             label2.TabIndex = 2;
             label2.Text = "Aut. Comunicaz.";
             // 
             // txtDestNumIscr
             // 
-            txtDestNumIscr.Location = new Point(247, 58);
+            txtDestNumIscr.Location = new Point(133, 27);
+            txtDestNumIscr.Margin = new Padding(2, 1, 2, 1);
+            txtDestNumIscr.MaxLength = 50;
             txtDestNumIscr.Name = "txtDestNumIscr";
-            txtDestNumIscr.Size = new Size(587, 39);
+            txtDestNumIscr.Size = new Size(318, 23);
             txtDestNumIscr.TabIndex = 1;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(52, 62);
+            label1.Location = new Point(28, 29);
+            label1.Margin = new Padding(2, 0, 2, 0);
             label1.Name = "label1";
-            label1.Size = new Size(175, 32);
+            label1.Size = new Size(89, 15);
             label1.TabIndex = 0;
             label1.Text = "Num. Iscr. Albo";
             // 
@@ -1033,33 +1044,24 @@ namespace FormulariRif_G.Forms
             tabPage4.Controls.Add(txtNumeroIscrizioneAlbo);
             tabPage4.Controls.Add(lblNumeroIscrizioneAlbo);
             tabPage4.Controls.Add(lblDataIscrizioneAlbo);
-            tabPage4.Location = new Point(8, 46);
+            tabPage4.Location = new Point(4, 24);
+            tabPage4.Margin = new Padding(2, 1, 2, 1);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(889, 674);
+            tabPage4.Size = new Size(479, 313);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "Trasportatore";
             tabPage4.UseVisualStyleBackColor = true;
             // 
-            // txtRagSoc2
-            // 
-            txtRagSoc2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRagSoc2.Location = new Point(245, 117);
-            txtRagSoc2.Margin = new Padding(6);
-            txtRagSoc2.Name = "txtRagSoc2";
-            txtRagSoc2.Size = new Size(591, 39);
-            txtRagSoc2.TabIndex = 16;
-            // 
             // ConfigurazioneForm
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(973, 938);
+            ClientSize = new Size(524, 440);
             Controls.Add(tabControl1);
             Controls.Add(btnGeneraDatiTest);
             Controls.Add(btnSalvaConfigurazione);
             Controls.Add(chkDatiTest);
             FormBorderStyle = FormBorderStyle.FixedDialog;
-            Margin = new Padding(6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ConfigurazioneForm";

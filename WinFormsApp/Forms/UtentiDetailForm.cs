@@ -179,138 +179,138 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblNomeUtente = new System.Windows.Forms.Label();
-            this.txtNomeUtente = new System.Windows.Forms.TextBox();
-            this.lblPassword = new System.Windows.Forms.Label();
-            this.txtPassword = new System.Windows.Forms.TextBox();
-            this.lblEmail = new System.Windows.Forms.Label();
-            this.txtEmail = new System.Windows.Forms.TextBox();
-            this.chkAdmin = new System.Windows.Forms.CheckBox();
-            this.btnSalva = new System.Windows.Forms.Button();
-            this.btnAnnulla = new System.Windows.Forms.Button();
-            this.chkMustChangePassword = new System.Windows.Forms.CheckBox();
-            this.SuspendLayout();
-            //
+            lblNomeUtente = new Label();
+            txtNomeUtente = new TextBox();
+            lblPassword = new Label();
+            txtPassword = new TextBox();
+            lblEmail = new Label();
+            txtEmail = new TextBox();
+            chkAdmin = new CheckBox();
+            btnSalva = new Button();
+            btnAnnulla = new Button();
+            chkMustChangePassword = new CheckBox();
+            SuspendLayout();
+            // 
             // lblNomeUtente
-            //
-            this.lblNomeUtente.AutoSize = true;
-            this.lblNomeUtente.Location = new System.Drawing.Point(30, 30);
-            this.lblNomeUtente.Name = "lblNomeUtente";
-            this.lblNomeUtente.Size = new System.Drawing.Size(81, 15);
-            this.lblNomeUtente.TabIndex = 0;
-            this.lblNomeUtente.Text = "Nome Utente:";
-            //
+            // 
+            lblNomeUtente.AutoSize = true;
+            lblNomeUtente.Location = new Point(30, 30);
+            lblNomeUtente.Name = "lblNomeUtente";
+            lblNomeUtente.Size = new Size(81, 15);
+            lblNomeUtente.TabIndex = 0;
+            lblNomeUtente.Text = "Nome Utente:";
+            // 
             // txtNomeUtente
-            //
-            this.txtNomeUtente.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtNomeUtente.Location = new System.Drawing.Point(130, 27);
-            this.txtNomeUtente.Name = "txtNomeUtente";
-            this.txtNomeUtente.Size = new System.Drawing.Size(250, 23);
-            this.txtNomeUtente.TabIndex = 1;
-            //
+            // 
+            txtNomeUtente.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtNomeUtente.Location = new Point(130, 27);
+            txtNomeUtente.MaxLength = 50;
+            txtNomeUtente.Name = "txtNomeUtente";
+            txtNomeUtente.Size = new Size(250, 23);
+            txtNomeUtente.TabIndex = 1;
+            // 
             // lblPassword
-            //
-            this.lblPassword.AutoSize = true;
-            this.lblPassword.Location = new System.Drawing.Point(30, 70);
-            this.lblPassword.Name = "lblPassword";
-            this.lblPassword.Size = new System.Drawing.Size(60, 15);
-            this.lblPassword.TabIndex = 2;
-            this.lblPassword.Text = "Password:";
-            //
+            // 
+            lblPassword.AutoSize = true;
+            lblPassword.Location = new Point(30, 70);
+            lblPassword.Name = "lblPassword";
+            lblPassword.Size = new Size(60, 15);
+            lblPassword.TabIndex = 2;
+            lblPassword.Text = "Password:";
+            // 
             // txtPassword
-            //
-            this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtPassword.Location = new System.Drawing.Point(130, 67);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(250, 23);
-            this.txtPassword.TabIndex = 3;
-            this.txtPassword.UseSystemPasswordChar = true; // Nasconde i caratteri della password
-            //
+            // 
+            txtPassword.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtPassword.Location = new Point(130, 67);
+            txtPassword.MaxLength = 20;
+            txtPassword.Name = "txtPassword";
+            txtPassword.Size = new Size(250, 23);
+            txtPassword.TabIndex = 3;
+            txtPassword.UseSystemPasswordChar = true;
+            // 
             // lblEmail
-            //
-            this.lblEmail.AutoSize = true;
-            this.lblEmail.Location = new System.Drawing.Point(30, 110);
-            this.lblEmail.Name = "lblEmail";
-            this.lblEmail.Size = new System.Drawing.Size(44, 15);
-            this.lblEmail.TabIndex = 6;
-            this.lblEmail.Text = "E-mail:";
-            //
+            // 
+            lblEmail.AutoSize = true;
+            lblEmail.Location = new Point(30, 110);
+            lblEmail.Name = "lblEmail";
+            lblEmail.Size = new Size(44, 15);
+            lblEmail.TabIndex = 6;
+            lblEmail.Text = "E-mail:";
+            // 
             // txtEmail
-            //
-            this.txtEmail.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEmail.Location = new System.Drawing.Point(130, 107);
-            this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(250, 23);
-            this.txtEmail.TabIndex = 7;
-            //
+            // 
+            txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtEmail.Location = new Point(130, 107);
+            txtEmail.MaxLength = 50;
+            txtEmail.Name = "txtEmail";
+            txtEmail.Size = new Size(250, 23);
+            txtEmail.TabIndex = 7;
+            // 
             // chkAdmin
-            //
-            this.chkAdmin.AutoSize = true;
-            this.chkAdmin.Location = new System.Drawing.Point(130, 140);
-            this.chkAdmin.Name = "chkAdmin";
-            this.chkAdmin.Size = new System.Drawing.Size(63, 19);
-            this.chkAdmin.TabIndex = 8;
-            this.chkAdmin.Text = "Admin";
-            this.chkAdmin.UseVisualStyleBackColor = true;
-            //
+            // 
+            chkAdmin.AutoSize = true;
+            chkAdmin.Location = new Point(130, 140);
+            chkAdmin.Name = "chkAdmin";
+            chkAdmin.Size = new Size(62, 19);
+            chkAdmin.TabIndex = 8;
+            chkAdmin.Text = "Admin";
+            chkAdmin.UseVisualStyleBackColor = true;
+            // 
             // btnSalva
-            //
-            this.btnSalva.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSalva.Location = new System.Drawing.Point(224, 220);
-            this.btnSalva.Name = "btnSalva";
-            this.btnSalva.Size = new System.Drawing.Size(75, 30);
-            this.btnSalva.TabIndex = 9;
-            this.btnSalva.Text = "Salva";
-            this.btnSalva.UseVisualStyleBackColor = true;
-            this.btnSalva.Click += new System.EventHandler(this.btnSalva_Click);
-            //
+            // 
+            btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSalva.Location = new Point(224, 220);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(75, 30);
+            btnSalva.TabIndex = 9;
+            btnSalva.Text = "Salva";
+            btnSalva.UseVisualStyleBackColor = true;
+            btnSalva.Click += btnSalva_Click;
+            // 
             // btnAnnulla
-            //
-            this.btnAnnulla.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAnnulla.Location = new System.Drawing.Point(305, 220);
-            this.btnAnnulla.Name = "btnAnnulla";
-            this.btnAnnulla.Size = new System.Drawing.Size(75, 30);
-            this.btnAnnulla.TabIndex = 10;
-            this.btnAnnulla.Text = "Annulla";
-            this.btnAnnulla.UseVisualStyleBackColor = true;
-            this.btnAnnulla.Click += new System.EventHandler(this.btnAnnulla_Click);
-            //
+            // 
+            btnAnnulla.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnAnnulla.Location = new Point(305, 220);
+            btnAnnulla.Name = "btnAnnulla";
+            btnAnnulla.Size = new Size(75, 30);
+            btnAnnulla.TabIndex = 10;
+            btnAnnulla.Text = "Annulla";
+            btnAnnulla.UseVisualStyleBackColor = true;
+            btnAnnulla.Click += btnAnnulla_Click;
+            // 
             // chkMustChangePassword
-            //
-            this.chkMustChangePassword.AutoSize = true;
-            this.chkMustChangePassword.Location = new System.Drawing.Point(130, 165);
-            this.chkMustChangePassword.Name = "chkMustChangePassword";
-            this.chkMustChangePassword.Size = new System.Drawing.Size(149, 19);
-            this.chkMustChangePassword.TabIndex = 11;
-            this.chkMustChangePassword.Text = "Forza cambio password";
-            this.chkMustChangePassword.UseVisualStyleBackColor = true;
-            //
+            // 
+            chkMustChangePassword.AutoSize = true;
+            chkMustChangePassword.Location = new Point(130, 165);
+            chkMustChangePassword.Name = "chkMustChangePassword";
+            chkMustChangePassword.Size = new Size(150, 19);
+            chkMustChangePassword.TabIndex = 11;
+            chkMustChangePassword.Text = "Forza cambio password";
+            chkMustChangePassword.UseVisualStyleBackColor = true;
+            // 
             // UtentiDetailForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(400, 270);
-            this.Controls.Add(this.chkMustChangePassword);
-            this.Controls.Add(this.btnAnnulla);
-            this.Controls.Add(this.btnSalva);
-            this.Controls.Add(this.chkAdmin);
-            this.Controls.Add(this.txtEmail);
-            this.Controls.Add(this.lblEmail);
-            this.Controls.Add(this.txtPassword);
-            this.Controls.Add(this.lblPassword);
-            this.Controls.Add(this.txtNomeUtente);
-            this.Controls.Add(this.lblNomeUtente);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "UtentiDetailForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dettaglio Utente";
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(400, 270);
+            Controls.Add(chkMustChangePassword);
+            Controls.Add(btnAnnulla);
+            Controls.Add(btnSalva);
+            Controls.Add(chkAdmin);
+            Controls.Add(txtEmail);
+            Controls.Add(lblEmail);
+            Controls.Add(txtPassword);
+            Controls.Add(lblPassword);
+            Controls.Add(txtNomeUtente);
+            Controls.Add(lblNomeUtente);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "UtentiDetailForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Dettaglio Utente";
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

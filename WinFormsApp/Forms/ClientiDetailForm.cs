@@ -19,6 +19,12 @@ namespace FormulariRif_G.Forms
         private Cliente? _currentCliente;
         private TextBox txtPIVA;
         private Label label1;
+        private TextBox txtIscrizAlbo;
+        private Label label2;
+        private TextBox txtAutoCom;
+        private Label label3;
+        private TextBox txtTipo;
+        private Label label4;
         private bool _isReadOnly;
 
         public ClientiDetailForm(IGenericRepository<Cliente> clienteRepository,
@@ -71,6 +77,9 @@ namespace FormulariRif_G.Forms
                 txtRagSoc.Text = _currentCliente.RagSoc;
                 txtPIVA.Text = _currentCliente.PartitaIva;
                 txtCodiceFiscale.Text = _currentCliente.CodiceFiscale;
+                txtIscrizAlbo.Text = _currentCliente.Iscrizione_Albo ?? string.Empty;
+                txtAutoCom.Text = _currentCliente.Auto_Comunicazione ?? string.Empty;
+                txtTipo.Text = _currentCliente.Tipo ?? string.Empty;
             }
             else
             {
@@ -78,6 +87,9 @@ namespace FormulariRif_G.Forms
                 txtRagSoc.Text = string.Empty;
                 txtPIVA.Text = string.Empty;
                 txtCodiceFiscale.Text = string.Empty;
+                txtIscrizAlbo.Text = string.Empty;
+                txtAutoCom.Text = string.Empty;
+                txtTipo.Text = string.Empty;
             }
         }
 
@@ -185,6 +197,9 @@ namespace FormulariRif_G.Forms
             _currentCliente.RagSoc = txtRagSoc.Text.Trim();
             _currentCliente.PartitaIva = txtPIVA.Text.Trim();
             _currentCliente.CodiceFiscale = txtCodiceFiscale.Text.Trim();
+            _currentCliente.Iscrizione_Albo = txtIscrizAlbo.Text.Trim();
+            _currentCliente.Auto_Comunicazione = txtAutoCom.Text.Trim();
+            _currentCliente.Tipo = txtTipo.Text.Trim();
 
             try
             {
@@ -480,6 +495,12 @@ namespace FormulariRif_G.Forms
             dataGridViewContatti = new DataGridView();
             txtPIVA = new TextBox();
             label1 = new Label();
+            txtIscrizAlbo = new TextBox();
+            label2 = new Label();
+            txtAutoCom = new TextBox();
+            label3 = new Label();
+            txtTipo = new TextBox();
+            label4 = new Label();
             groupBoxIndirizzi.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewIndirizzi).BeginInit();
             groupBoxContatti.SuspendLayout();
@@ -499,6 +520,7 @@ namespace FormulariRif_G.Forms
             // 
             txtRagSoc.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtRagSoc.Location = new Point(120, 27);
+            txtRagSoc.MaxLength = 50;
             txtRagSoc.Name = "txtRagSoc";
             txtRagSoc.Size = new Size(350, 23);
             txtRagSoc.TabIndex = 1;
@@ -526,8 +548,9 @@ namespace FormulariRif_G.Forms
             // 
             txtCodiceFiscale.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtCodiceFiscale.Location = new Point(120, 76);
+            txtCodiceFiscale.MaxLength = 16;
             txtCodiceFiscale.Name = "txtCodiceFiscale";
-            txtCodiceFiscale.Size = new Size(350, 23);
+            txtCodiceFiscale.Size = new Size(193, 23);
             txtCodiceFiscale.TabIndex = 4;
             // 
             // groupBoxIndirizzi
@@ -658,8 +681,9 @@ namespace FormulariRif_G.Forms
             // 
             txtPIVA.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtPIVA.Location = new Point(120, 51);
+            txtPIVA.MaxLength = 16;
             txtPIVA.Name = "txtPIVA";
-            txtPIVA.Size = new Size(350, 23);
+            txtPIVA.Size = new Size(193, 23);
             txtPIVA.TabIndex = 8;
             // 
             // label1
@@ -671,11 +695,71 @@ namespace FormulariRif_G.Forms
             label1.TabIndex = 7;
             label1.Text = "P. IVA:";
             // 
+            // txtIscrizAlbo
+            // 
+            txtIscrizAlbo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtIscrizAlbo.Location = new Point(567, 30);
+            txtIscrizAlbo.MaxLength = 50;
+            txtIscrizAlbo.Name = "txtIscrizAlbo";
+            txtIscrizAlbo.Size = new Size(193, 23);
+            txtIscrizAlbo.TabIndex = 10;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(485, 33);
+            label2.Name = "label2";
+            label2.Size = new Size(67, 15);
+            label2.TabIndex = 9;
+            label2.Text = "Iscriz. Albo:";
+            // 
+            // txtAutoCom
+            // 
+            txtAutoCom.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtAutoCom.Location = new Point(567, 54);
+            txtAutoCom.MaxLength = 50;
+            txtAutoCom.Name = "txtAutoCom";
+            txtAutoCom.Size = new Size(193, 23);
+            txtAutoCom.TabIndex = 12;
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(485, 57);
+            label3.Name = "label3";
+            label3.Size = new Size(75, 15);
+            label3.TabIndex = 11;
+            label3.Text = "Auto Comu.:";
+            // 
+            // txtTipo
+            // 
+            txtTipo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtTipo.Location = new Point(567, 79);
+            txtTipo.MaxLength = 50;
+            txtTipo.Name = "txtTipo";
+            txtTipo.Size = new Size(193, 23);
+            txtTipo.TabIndex = 14;
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Location = new Point(485, 82);
+            label4.Name = "label4";
+            label4.Size = new Size(34, 15);
+            label4.TabIndex = 13;
+            label4.Text = "Tipo:";
+            // 
             // ClientiDetailForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 629);
+            Controls.Add(txtTipo);
+            Controls.Add(label4);
+            Controls.Add(txtAutoCom);
+            Controls.Add(label3);
+            Controls.Add(txtIscrizAlbo);
+            Controls.Add(label2);
             Controls.Add(txtPIVA);
             Controls.Add(label1);
             Controls.Add(groupBoxContatti);

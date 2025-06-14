@@ -24,6 +24,18 @@ namespace FormulariRif_G.Models
         [Column("codice_fiscale")]
         public string? CodiceFiscale { get; set; }
 
+        [StringLength(50)]
+        [Column("iscrizione_albo")]
+        public string? Iscrizione_Albo { get; set; }
+
+        [StringLength(50)]
+        [Column("auto_comunicazione")]
+        public string? Auto_Comunicazione { get; set; }
+
+        [StringLength(50)]
+        [Column("tipo")]
+        public string? Tipo { get; set; }
+
         [Column("is_test_data")] 
         public bool IsTestData { get; set; }
 

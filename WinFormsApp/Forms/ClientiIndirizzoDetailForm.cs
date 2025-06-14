@@ -173,117 +173,113 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblIndirizzo = new System.Windows.Forms.Label();
-            this.txtIndirizzo = new System.Windows.Forms.TextBox();
-            this.lblComune = new System.Windows.Forms.Label();
-            this.txtComune = new System.Windows.Forms.TextBox();
-            this.lblCap = new System.Windows.Forms.Label();
-            this.numCap = new System.Windows.Forms.NumericUpDown();
-            this.chkPredefinito = new System.Windows.Forms.CheckBox();
-            this.btnSalva = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.numCap)).BeginInit();
-            this.SuspendLayout();
-            //
+            lblIndirizzo = new Label();
+            txtIndirizzo = new TextBox();
+            lblComune = new Label();
+            txtComune = new TextBox();
+            lblCap = new Label();
+            numCap = new NumericUpDown();
+            chkPredefinito = new CheckBox();
+            btnSalva = new Button();
+            ((System.ComponentModel.ISupportInitialize)numCap).BeginInit();
+            SuspendLayout();
+            // 
             // lblIndirizzo
-            //
-            this.lblIndirizzo.AutoSize = true;
-            this.lblIndirizzo.Location = new System.Drawing.Point(20, 30);
-            this.lblIndirizzo.Name = "lblIndirizzo";
-            this.lblIndirizzo.Size = new System.Drawing.Size(57, 15);
-            this.lblIndirizzo.TabIndex = 0;
-            this.lblIndirizzo.Text = "Indirizzo:";
-            //
+            // 
+            lblIndirizzo.AutoSize = true;
+            lblIndirizzo.Location = new Point(20, 30);
+            lblIndirizzo.Name = "lblIndirizzo";
+            lblIndirizzo.Size = new Size(54, 15);
+            lblIndirizzo.TabIndex = 0;
+            lblIndirizzo.Text = "Indirizzo:";
+            // 
             // txtIndirizzo
-            //
-            this.txtIndirizzo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtIndirizzo.Location = new System.Drawing.Point(100, 27);
-            this.txtIndirizzo.Name = "txtIndirizzo";
-            this.txtIndirizzo.Size = new System.Drawing.Size(270, 23);
-            this.txtIndirizzo.TabIndex = 1;
-            //
+            // 
+            txtIndirizzo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtIndirizzo.Location = new Point(100, 27);
+            txtIndirizzo.MaxLength = 255;
+            txtIndirizzo.Name = "txtIndirizzo";
+            txtIndirizzo.Size = new Size(270, 23);
+            txtIndirizzo.TabIndex = 1;
+            // 
             // lblComune
-            //
-            this.lblComune.AutoSize = true;
-            this.lblComune.Location = new System.Drawing.Point(20, 70);
-            this.lblComune.Name = "lblComune";
-            this.lblComune.Size = new System.Drawing.Size(58, 15);
-            this.lblComune.TabIndex = 2;
-            this.lblComune.Text = "Comune:";
-            //
+            // 
+            lblComune.AutoSize = true;
+            lblComune.Location = new Point(20, 70);
+            lblComune.Name = "lblComune";
+            lblComune.Size = new Size(56, 15);
+            lblComune.TabIndex = 2;
+            lblComune.Text = "Comune:";
+            // 
             // txtComune
-            //
-            this.txtComune.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtComune.Location = new System.Drawing.Point(100, 67);
-            this.txtComune.Name = "txtComune";
-            this.txtComune.Size = new System.Drawing.Size(270, 23);
-            this.txtComune.TabIndex = 3;
-            //
+            // 
+            txtComune.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtComune.Location = new Point(100, 67);
+            txtComune.MaxLength = 100;
+            txtComune.Name = "txtComune";
+            txtComune.Size = new Size(270, 23);
+            txtComune.TabIndex = 3;
+            // 
             // lblCap
-            //
-            this.lblCap.AutoSize = true;
-            this.lblCap.Location = new System.Drawing.Point(20, 110);
-            this.lblCap.Name = "lblCap";
-            this.lblCap.Size = new System.Drawing.Size(32, 15);
-            this.lblCap.TabIndex = 4;
-            this.lblCap.Text = "CAP:";
-            //
+            // 
+            lblCap.AutoSize = true;
+            lblCap.Location = new Point(20, 110);
+            lblCap.Name = "lblCap";
+            lblCap.Size = new Size(33, 15);
+            lblCap.TabIndex = 4;
+            lblCap.Text = "CAP:";
+            // 
             // numCap
-            //
-            this.numCap.Location = new System.Drawing.Point(100, 107);
-            this.numCap.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this.numCap.Name = "numCap";
-            this.numCap.Size = new System.Drawing.Size(120, 23);
-            this.numCap.TabIndex = 5;
-            //
+            // 
+            numCap.Location = new Point(100, 107);
+            numCap.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
+            numCap.Name = "numCap";
+            numCap.Size = new Size(120, 23);
+            numCap.TabIndex = 5;
+            // 
             // chkPredefinito
-            //
-            this.chkPredefinito.AutoSize = true;
-            this.chkPredefinito.Location = new System.Drawing.Point(20, 145);
-            this.chkPredefinito.Name = "chkPredefinito";
-            this.chkPredefinito.Size = new System.Drawing.Size(86, 19);
-            this.chkPredefinito.TabIndex = 6;
-            this.chkPredefinito.Text = "Predefinito";
-            this.chkPredefinito.UseVisualStyleBackColor = true;
-            //
+            // 
+            chkPredefinito.AutoSize = true;
+            chkPredefinito.Location = new Point(20, 145);
+            chkPredefinito.Name = "chkPredefinito";
+            chkPredefinito.Size = new Size(84, 19);
+            chkPredefinito.TabIndex = 6;
+            chkPredefinito.Text = "Predefinito";
+            chkPredefinito.UseVisualStyleBackColor = true;
+            // 
             // btnSalva
-            //
-            this.btnSalva.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSalva.Location = new System.Drawing.Point(295, 170);
-            this.btnSalva.Name = "btnSalva";
-            this.btnSalva.Size = new System.Drawing.Size(75, 30);
-            this.btnSalva.TabIndex = 7;
-            this.btnSalva.Text = "Salva";
-            this.btnSalva.UseVisualStyleBackColor = true;
-            this.btnSalva.Click += new System.EventHandler(this.btnSalva_Click);
-            //
+            // 
+            btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSalva.Location = new Point(295, 170);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(75, 30);
+            btnSalva.TabIndex = 7;
+            btnSalva.Text = "Salva";
+            btnSalva.UseVisualStyleBackColor = true;
+            btnSalva.Click += btnSalva_Click;
+            // 
             // ClientiIndirizzoDetailForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(390, 215);
-            this.Controls.Add(this.btnSalva);
-            this.Controls.Add(this.chkPredefinito);
-            this.Controls.Add(this.numCap);
-            this.Controls.Add(this.lblCap);
-            this.Controls.Add(this.txtComune);
-            this.Controls.Add(this.lblComune);
-            this.Controls.Add(this.txtIndirizzo);
-            this.Controls.Add(this.lblIndirizzo);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "ClientiIndirizzoDetailForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Dettagli Indirizzo Cliente";
-            ((System.ComponentModel.ISupportInitialize)(this.numCap)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(390, 215);
+            Controls.Add(btnSalva);
+            Controls.Add(chkPredefinito);
+            Controls.Add(numCap);
+            Controls.Add(lblCap);
+            Controls.Add(txtComune);
+            Controls.Add(lblComune);
+            Controls.Add(txtIndirizzo);
+            Controls.Add(lblIndirizzo);
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "ClientiIndirizzoDetailForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Dettagli Indirizzo Cliente";
+            ((System.ComponentModel.ISupportInitialize)numCap).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 
