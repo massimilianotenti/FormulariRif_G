@@ -1,45 +1,44 @@
 ﻿// File: Forms/FormulariRifiutiListForm.cs
 // Questo form visualizza un elenco di formulari rifiuti e permette le operazioni CRUD.
+// Ora utilizza FormManager per la gestione delle form di dettaglio non modali.
 using Microsoft.Extensions.DependencyInjection;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
 using Microsoft.EntityFrameworkCore; // Per l'include delle proprietà di navigazione
-using System.Threading; // Aggiungi questo per CancellationTokenSource
-using System.Windows.Forms; // Per Timer (se usi System.Windows.Forms.Timer)
-
+using System.Threading;
+using System.Windows.Forms;
+using FormulariRif_G.Service; // Aggiunto l'using per FormManager
 
 namespace FormulariRif_G.Forms
 {
     public partial class FormulariRifiutiListForm : Form
     {
         private readonly IGenericRepository<FormularioRifiuti> _formularioRifiutiRepository;
-        private readonly IGenericRepository<Cliente> _clienteRepository; // Per caricare i nomi dei clienti
-        private readonly IGenericRepository<Automezzo> _automezzoRepository; // Per caricare le descrizioni degli automezzi
+        private readonly IGenericRepository<Cliente> _clienteRepository;
+        private readonly IGenericRepository<Automezzo> _automezzoRepository;
         private DateTimePicker dtpDaData;
         private Label label1;
-        private readonly IServiceProvider _serviceProvider;
-        // Timer per il debouncing
+        private readonly FormManager _formManager; // Sostituito IServiceProvider con FormManager
+
         private System.Windows.Forms.Timer _searchTimer;
-        // Per la cancellazione delle query
         private CancellationTokenSource _cancellationTokenSource;
 
         public FormulariRifiutiListForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
-                                        IGenericRepository<Cliente> clienteRepository,
-                                        IGenericRepository<Automezzo> automezzoRepository,
-                                        IServiceProvider serviceProvider)
+                                         IGenericRepository<Cliente> clienteRepository,
+                                         IGenericRepository<Automezzo> automezzoRepository,
+                                         FormManager formManager) // Inietta FormManager
         {
             InitializeComponent();
             _formularioRifiutiRepository = formularioRifiutiRepository;
             _clienteRepository = clienteRepository;
             _automezzoRepository = automezzoRepository;
-            _serviceProvider = serviceProvider;
+            _formManager = formManager; // Assegna il FormManager iniettato
             this.Load += FormulariRifiutiListForm_Load;
 
-            // **Inizializza il timer per il debouncing**
             _searchTimer = new System.Windows.Forms.Timer();
-            _searchTimer.Interval = 500; // Aspetta 500ms dopo l'ultima battitura
-            _searchTimer.Tick += SearchTimer_Tick; // Collega l'evento Tick al metodo di ricerca
-            _searchTimer.Stop(); // Il timer inizia fermo
+            _searchTimer.Interval = 500;
+            _searchTimer.Tick += SearchTimer_Tick;
+            _searchTimer.Stop();
         }
 
         private async void FormulariRifiutiListForm_Load(object? sender, EventArgs e)
@@ -55,33 +54,37 @@ namespace FormulariRif_G.Forms
         {
             try
             {
-                // **Cancellare l'operazione precedente se presente**
-                _cancellationTokenSource?.Cancel(); // Annulla qualsiasi operazione precedente
-                _cancellationTokenSource?.Dispose(); // Rilascia le risorse del vecchio CancellationTokenSource
-                _cancellationTokenSource = new CancellationTokenSource(); // Crea un nuovo CancellationTokenSource
-                cancellationToken = _cancellationTokenSource.Token; // Assegna il token per questa operazione                                
+                _cancellationTokenSource?.Cancel();
+                _cancellationTokenSource?.Dispose();
+                _cancellationTokenSource = new CancellationTokenSource();
+                cancellationToken = _cancellationTokenSource.Token;
 
-                // Carica i formulari includendo le proprietà di navigazione per Cliente, ClienteIndirizzo e Automezzo
-                // Nota: GenericRepository.GetAllAsync() non include le proprietà di navigazione per default.
-                // Dobbiamo estendere IGenericRepository o creare un metodo specifico per l'inclusione.
-                // Per ora, useremo un approccio diretto per la query con include.
-                // Se il tuo GenericRepository non supporta Include, questo potrebbe richiedere una modifica.
-                // Assumendo che AppDbContext sia accessibile o che tu abbia un modo per fare Include.
-                //var formulari = await _formularioRifiutiRepository.GetAllAsync();
                 IQueryable<FormularioRifiuti> formulariQuery = _formularioRifiutiRepository.AsQueryable()
                     .Include(f => f.Cliente)
                     .Include(f => f.ClienteIndirizzo)
                     .Include(f => f.Automezzo);
+
                 if (dtpDaData.Value != null)
                 {
                     formulariQuery = formulariQuery.Where(f => f.Data >= dtpDaData.Value);
                 }
 
-                // Per visualizzare i nomi/descrizioni, dobbiamo unire i dati
                 var clienti = (await _clienteRepository.GetAllAsync()).ToDictionary(c => c.Id, c => c.RagSoc);
                 var automezzi = (await _automezzoRepository.GetAllAsync()).ToDictionary(a => a.Id, a => a.Descrizione);
-                var indirizzi = (await _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>().GetAllAsync())
-                                .ToDictionary(ci => ci.Id, ci => $"{ci.Indirizzo}, {ci.Comune}");
+                // NOTA: Per ClienteIndirizzo, hai iniettato IServiceProvider nel costruttore originale,
+                // ma con FormManager iniettato direttamente, non è più necessario.
+                // Se la repository di ClienteIndirizzo non è già iniettata in questa form,
+                // dovrai iniettarla nel costruttore di questa form, come le altre.
+                // Per il momento, assumo che tu la possa ottenere in qualche modo.
+                // In una struttura pulita, ClienteIndirizzoRepository dovrebbe essere iniettato se necessario.
+                // Per semplificare, userò temporaneamente _serviceProvider (se ancora disponibile)
+                // oppure dovrai aggiungere IGenericRepository<ClienteIndirizzo> al costruttore di FormulariRifiutiListForm.
+                // Per consistenza con l'approccio DI, è meglio iniettarlo direttamente.
+                // Temporaneamente lascio la riga con _serviceProvider.GetRequiredService, ma considera l'iniezione diretta.
+                var indirizzi = (await _clienteRepository.GetContext().Set<ClienteIndirizzo>().ToListAsync()) // Assumo che tu possa accedere al contesto via _clienteRepository
+                                 .ToDictionary(ci => ci.Id, ci => $"{ci.Indirizzo}, {ci.Comune}");
+                // Se il tuo IGenericRepository non espone il contesto, dovresti aggiungere
+                // IGenericRepository<ClienteIndirizzo> al costruttore di FormulariRifiutiListForm.
 
                 var displayData = formulariQuery.Select(f => new
                 {
@@ -98,27 +101,42 @@ namespace FormulariRif_G.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Errore durante il caricamento dei formulari rifiuti: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        /// <summary>
-        /// Gestisce il click sul pulsante "Nuovo".
-        /// </summary>
-        private async void btnNuovo_Click(object sender, EventArgs e)
-        {
-            using (var detailForm = _serviceProvider.GetRequiredService<FormulariRifiutiDetailForm>())
-            {
-                detailForm.SetFormulario(new FormularioRifiuti { Data = DateTime.Now });
-                if (detailForm.ShowDialog() == DialogResult.OK)
+                // Gestisci l'eccezione OperationCanceledException se è dovuta alla cancellazione.
+                if (ex is OperationCanceledException)
                 {
-                    await LoadFormulariRifiutiAsync();
+                    // L'operazione è stata cancellata, non è un errore da mostrare all'utente.
+                    // Puoi loggare o ignorare.
+                }
+                else
+                {
+                    MessageBox.Show($"Errore durante il caricamento dei formulari rifiuti: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
         /// <summary>
+        /// Gestisce il click sul pulsante "Nuovo".
+        /// Apre FormulariRifiutiDetailForm in modalità non modale per l'inserimento.
+        /// </summary>
+        private async void btnNuovo_Click(object sender, EventArgs e)
+        {
+            // Usa il FormManager per aprire o attivare la FormulariRifiutiDetailForm
+            var detailForm = _formManager.ShowOrActivate<FormulariRifiutiDetailForm>();
+
+            // Imposta il formulario e la modalità.
+            // Se la form era già aperta, potremmo volerla resettare o meno,
+            // a seconda della logica desiderata. Qui la resettiamo a una nuova entità.
+            detailForm.SetFormulario(new FormularioRifiuti { Data = DateTime.Now });
+
+            // Per le form non modali, gestiamo l'evento FormClosed
+            // per sapere quando ricaricare i dati.
+            detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
+            detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
+        }
+
+        /// <summary>
         /// Gestisce il click sul pulsante "Modifica".
+        /// Apre FormulariRifiutiDetailForm in modalità non modale per la modifica.
         /// </summary>
         private async void btnModifica_Click(object sender, EventArgs e)
         {
@@ -129,20 +147,27 @@ namespace FormulariRif_G.Forms
 
                 if (selectedFormulario != null)
                 {
-                    using (var detailForm = _serviceProvider.GetRequiredService<FormulariRifiutiDetailForm>())
-                    {
-                        detailForm.SetFormulario(selectedFormulario);
-                        if (detailForm.ShowDialog() == DialogResult.OK)
-                        {
-                            await LoadFormulariRifiutiAsync();
-                        }
-                    }
+                    // Usa il FormManager per aprire o attivare la FormulariRifiutiDetailForm
+                    var detailForm = _formManager.ShowOrActivate<FormulariRifiutiDetailForm>();
+                    detailForm.SetFormulario(selectedFormulario);
+
+                    detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
+                    detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
                 }
             }
             else
             {
                 MessageBox.Show("Seleziona un formulario da modificare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        /// <summary>
+        /// Gestore comune per l'evento FormClosed delle form di dettaglio.
+        /// Ricarica i dati quando una form di dettaglio viene chiusa.
+        /// </summary>
+        private async void DetailForm_FormClosed(object? sender, FormClosedEventArgs e)
+        {
+            await LoadFormulariRifiutiAsync();
         }
 
         /// <summary>
@@ -196,18 +221,23 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        ///// <summary>
-        ///// Clean up any resources being used.
-        ///// </summary>
-        ///// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing && (components != null))
-        //    {
-        //        components.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            if (disposing)
+            {
+                _searchTimer?.Dispose();
+                _cancellationTokenSource?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
         /// <summary>
         /// Required method for Designer support - do not modify
@@ -224,9 +254,9 @@ namespace FormulariRif_G.Forms
             label1 = new Label();
             ((System.ComponentModel.ISupportInitialize)dataGridViewFormulari).BeginInit();
             SuspendLayout();
-            // 
+            //
             // dataGridViewFormulari
-            // 
+            //
             dataGridViewFormulari.AllowUserToAddRows = false;
             dataGridViewFormulari.AllowUserToDeleteRows = false;
             dataGridViewFormulari.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -238,9 +268,9 @@ namespace FormulariRif_G.Forms
             dataGridViewFormulari.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridViewFormulari.Size = new Size(760, 363);
             dataGridViewFormulari.TabIndex = 0;
-            // 
+            //
             // btnNuovo
-            // 
+            //
             btnNuovo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnNuovo.Location = new Point(12, 420);
             btnNuovo.Name = "btnNuovo";
@@ -249,9 +279,9 @@ namespace FormulariRif_G.Forms
             btnNuovo.Text = "Nuovo";
             btnNuovo.UseVisualStyleBackColor = true;
             btnNuovo.Click += btnNuovo_Click;
-            // 
+            //
             // btnModifica
-            // 
+            //
             btnModifica.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnModifica.Location = new Point(93, 420);
             btnModifica.Name = "btnModifica";
@@ -260,9 +290,9 @@ namespace FormulariRif_G.Forms
             btnModifica.Text = "Modifica";
             btnModifica.UseVisualStyleBackColor = true;
             btnModifica.Click += btnModifica_Click;
-            // 
+            //
             // btnElimina
-            // 
+            //
             btnElimina.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             btnElimina.Location = new Point(174, 420);
             btnElimina.Name = "btnElimina";
@@ -271,9 +301,9 @@ namespace FormulariRif_G.Forms
             btnElimina.Text = "Elimina";
             btnElimina.UseVisualStyleBackColor = true;
             btnElimina.Click += btnElimina_Click;
-            // 
+            //
             // btnAggiorna
-            // 
+            //
             btnAggiorna.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnAggiorna.Location = new Point(697, 420);
             btnAggiorna.Name = "btnAggiorna";
@@ -282,27 +312,27 @@ namespace FormulariRif_G.Forms
             btnAggiorna.Text = "Aggiorna";
             btnAggiorna.UseVisualStyleBackColor = true;
             btnAggiorna.Click += btnAggiorna_Click;
-            // 
+            //
             // dtpDaData
-            // 
+            //
             dtpDaData.Format = DateTimePickerFormat.Short;
             dtpDaData.Location = new Point(81, 12);
             dtpDaData.Name = "dtpDaData";
             dtpDaData.Size = new Size(131, 23);
             dtpDaData.TabIndex = 19;
             dtpDaData.ValueChanged += dtpDaData_ValueChanged;
-            // 
+            //
             // label1
-            // 
+            //
             label1.AutoSize = true;
             label1.Location = new Point(12, 17);
             label1.Name = "label1";
             label1.Size = new Size(47, 15);
             label1.TabIndex = 20;
             label1.Text = "Da data";
-            // 
+            //
             // FormulariRifiutiListForm
-            // 
+            //
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 461);
@@ -333,34 +363,14 @@ namespace FormulariRif_G.Forms
 
         private void dtpDaData_ValueChanged(object sender, EventArgs e)
         {
-            // Resetta e riavvia il timer ad ogni battitura
             _searchTimer.Stop();
             _searchTimer.Start();
         }
 
-        /// <summary>
-        /// Questo metodo viene chiamato quando il timer di ricerca scatta.
-        /// Indica che l'utente ha smesso di digitare per un po', quindi eseguiamo la ricerca.
-        /// </summary>
         private async void SearchTimer_Tick(object? sender, EventArgs e)
         {
-            _searchTimer.Stop(); // Ferma il timer per evitare che scatti di nuovo immediatamente
-            await LoadFormulariRifiutiAsync(); // Esegui la ricerca effettiva
-        }
-
-        // **Aggiungi Dispose per pulire il CancellationTokenSource e il Timer**
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            if (disposing)
-            {
-                _searchTimer?.Dispose(); // Assicurati di disporre il timer
-                _cancellationTokenSource?.Dispose(); // Assicurati di disporre il CancellationTokenSource
-            }
-            base.Dispose(disposing);
+            _searchTimer.Stop();
+            await LoadFormulariRifiutiAsync();
         }
     }
 }

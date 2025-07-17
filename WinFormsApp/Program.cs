@@ -5,12 +5,13 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using FormulariRif_G.Data;
-using FormulariRif_G.Forms;
-using FormulariRif_G.Models;
+using FormulariRif_G.Data; // Contiene il tuo DbContext (AppDbContext) e IGenericRepository
+using FormulariRif_G.Forms; // Per le tue Form (MainForm, LoginForm, ConfigurazioneForm, etc.)
+using FormulariRif_G.Models; // Per i tuoi modelli (Configurazione, Utente, Cliente, etc.)
 using FormulariRif_G.Utils; // Per CurrentUser, PasswordHasher, EncryptionHelper
 using Microsoft.Data.SqlClient;
 using System.Text.Json;
+using FormulariRif_G.Service; // NUOVO: Namespace per il FormManager (da aggiungere tu)
 
 namespace FormulariRif_G
 {
@@ -21,19 +22,25 @@ namespace FormulariRif_G
         [STAThread]
         static async Task Main()
         {
+            // Inizializzazione standard dell'applicazione Windows Forms
+            // Questa linea è stata spostata qui per essere eseguita una sola volta
+            // all'inizio del Main, prima di qualsiasi ciclo o logica UI.
             ApplicationConfiguration.Initialize();
 
             bool restartApp = true;
 
+            // Ciclo principale dell'applicazione per la gestione della riconfigurazione
             while (restartApp)
             {
-                restartApp = false;
+                restartApp = false; // Reset per ogni iterazione
 
+                // Carica la configurazione iniziale (appsettings.json)
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
 
+                // Gestione della chiave di criptazione
                 var encryptionKey = configuration["EncryptionKey"];
                 if (string.IsNullOrEmpty(encryptionKey))
                 {
@@ -50,6 +57,7 @@ namespace FormulariRif_G
                     return;
                 }
 
+                // Recupero delle credenziali criptate dalla configurazione
                 string? serverName = configuration["ConnectionStrings:ServerName"];
                 string? databaseName = configuration["ConnectionStrings:DatabaseName"];
                 string? encryptedUsername = configuration["EncryptedCredentials:EncryptedUsername"];
@@ -59,8 +67,9 @@ namespace FormulariRif_G
                 string? dbPassword = null;
                 string? connectionString = null;
 
-                bool configNeeded = false;
+                bool configNeeded = false; // Flag per indicare se è necessaria la configurazione iniziale
 
+                // Tenta di decriptare le credenziali e testare la connessione
                 if (!string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(databaseName) &&
                     !string.IsNullOrEmpty(encryptedUsername) && !string.IsNullOrEmpty(encryptedPassword))
                 {
@@ -70,6 +79,7 @@ namespace FormulariRif_G
                         dbPassword = EncryptionHelper.Decrypt(encryptedPassword);
                         connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
 
+                        // Test della connessione al database
                         using (var conn = new SqlConnection(connectionString))
                         {
                             await conn.OpenAsync();
@@ -78,23 +88,28 @@ namespace FormulariRif_G
                     }
                     catch (Exception)
                     {
+                        // Se la decriptazione fallisce o la connessione non riesce, la configurazione è necessaria
                         configNeeded = true;
                     }
                 }
                 else
                 {
+                    // Se mancano dati nella configurazione, la configurazione è necessaria
                     configNeeded = true;
                 }
 
+                // --- Logica per la Configurazione Iniziale dell'Applicazione ---
                 if (configNeeded)
                 {
+                    // Crea un host temporaneo per mostrare solo la ConfigurazioneForm
                     _host = Host.CreateDefaultBuilder()
                         .ConfigureAppConfiguration((context, config) =>
                         {
-                            config.AddConfiguration(configuration);
+                            config.AddConfiguration(configuration); // Usa la configurazione esistente
                         })
                         .ConfigureServices((context, services) =>
                         {
+                            // Registra solo ConfigurazioneForm, senza il DbContext in questo stage
                             services.AddTransient<ConfigurazioneForm>();
                         }).Build();
 
@@ -103,19 +118,21 @@ namespace FormulariRif_G
                         var configForm = scope.ServiceProvider.GetRequiredService<ConfigurazioneForm>();
                         if (configForm.ShowDialog() == DialogResult.OK)
                         {
-                            // La ConfigurazioneForm ha già salvato i dati dell'azienda nel DB.
-                            // Qui dobbiamo solo segnalare il riavvio.
+                            // Se la configurazione è stata salvata con successo, riavvia l'applicazione
                             restartApp = true;
                         }
                         else
                         {
+                            // Se l'utente annulla la configurazione, esci dall'applicazione
                             Application.Exit();
                         }
                     }
                 }
 
-                if (restartApp || !configNeeded)
+                // --- Logica per l'Avvio Completo dell'Applicazione dopo la Configurazione (o se già presente) ---
+                if (restartApp || !configNeeded) // Se è stato richiesto un riavvio o se la configurazione non era necessaria
                 {
+                    // Se c'è stato un riavvio, ricarica la configurazione (potrebbe essere cambiata)
                     if (restartApp)
                     {
                         configuration = new ConfigurationBuilder()
@@ -123,6 +140,7 @@ namespace FormulariRif_G
                             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                             .Build();
 
+                        // Riprova a decriptare le credenziali con la nuova configurazione
                         serverName = configuration["ConnectionStrings:ServerName"];
                         databaseName = configuration["ConnectionStrings:DatabaseName"];
                         encryptedUsername = configuration["EncryptedCredentials:EncryptedUsername"];
@@ -130,28 +148,33 @@ namespace FormulariRif_G
 
                         try
                         {
-                            dbUsername = EncryptionHelper.Decrypt(encryptedUsername!);
-                            dbPassword = EncryptionHelper.Decrypt(encryptedPassword!);
+                            dbUsername = EncryptionHelper.Decrypt(encryptedUsername!); // Usare '!' per indicare che non sarà null
+                            dbPassword = EncryptionHelper.Decrypt(encryptedPassword!); // Usare '!' per indicare che non sarà null
                             connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
                         }
                         catch (Exception ex)
                         {
-                            MessageBox.Show($"Errore durante la decriptazione dopo il salvataggio: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show($"Errore durante la decriptazione delle credenziali dopo il salvataggio: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             Application.Exit();
                         }
                     }
 
+                    // IMPORTANTE: Dispone il vecchio host temporaneo prima di crearne uno nuovo completo
                     _host?.Dispose();
+                    // Crea l'host completo con tutti i servizi registrati, inclusi DbContext e FormManager
                     _host = CreateFullHostBuilder(configuration, connectionString!).Build();
 
+                    // Applica le migrazioni del database (se necessarie)
                     await ApplyMigrations(_host.Services);
 
+                    // Assicura l'esistenza dell'utente di default e della configurazione aziendale
                     using (var dbScope = _host.Services.CreateScope())
                     {
                         var configRepo = dbScope.ServiceProvider.GetRequiredService<IGenericRepository<Configurazione>>();
                         var existingConfig = (await configRepo.GetAllAsync()).FirstOrDefault();
                         if (existingConfig == null)
                         {
+                            // Inserisci la configurazione aziendale di default se non esiste
                             existingConfig = new Configurazione
                             {
                                 DatiTest = false,
@@ -160,7 +183,7 @@ namespace FormulariRif_G
                                 Comune = "Milano",
                                 Cap = 20100,
                                 Email = "info@azienda.com",
-                                PartitaIva = "01234567890", 
+                                PartitaIva = "01234567890",
                                 CodiceFiscale = "RSSMRA80A01H501Z",
                                 NumeroIscrizioneAlbo = "ABC/123",
                                 DataIscrizioneAlbo = DateTime.Now
@@ -169,20 +192,28 @@ namespace FormulariRif_G
                             await configRepo.SaveChangesAsync();
                         }
 
+                        // Assicura l'esistenza dell'utente di default
                         await EnsureDefaultUserExists(dbScope.ServiceProvider);
                     }
 
+                    // Avvia la LoginForm (modalmente, come era già)
                     var loginForm = _host.Services.GetRequiredService<LoginForm>();
                     if (loginForm.ShowDialog() == DialogResult.OK)
                     {
+                        // Se il login ha successo, avvia la MainForm (ora gestita dal DI)
                         var mainForm = _host.Services.GetRequiredService<MainForm>();
+                        // La MainForm ora verrà mostrata usando ShowOrActivate tramite FormManager
+                        // Tuttavia, qui stiamo ancora usando ShowDialog. Se la MainForm
+                        // ha un proprio ShowDialog che può restituire DialogResult.Retry,
+                        // allora questa logica rimane.
                         if (mainForm.ShowDialog() == DialogResult.Retry)
                         {
-                            restartApp = true;
+                            restartApp = true; // Se la MainForm richiede un riavvio (es. per cambio utente)
                         }
                     }
                     else
                     {
+                        // Se l'utente annulla il login, esci dall'applicazione
                         restartApp = false;
                     }
                 }
@@ -190,7 +221,7 @@ namespace FormulariRif_G
         }
 
         /// <summary>
-        /// Crea e configura un host completo dell'applicazione con il DbContext.
+        /// Crea e configura un host completo dell'applicazione con il DbContext e tutti i servizi.
         /// </summary>
         /// <param name="configuration">L'istanza di IConfiguration.</param>
         /// <param name="connectionString">La stringa di connessione completa al database.</param>
@@ -204,28 +235,36 @@ namespace FormulariRif_G
                 })
                 .ConfigureServices((context, services) =>
                 {
+                    // Registrazione del DbContext con la stringa di connessione e lifetime Scoped
                     services.AddDbContext<AppDbContext>(options =>
                     {
-                        //options.UseLazyLoadingProxies(); // Abilita il lazy loading
+                        // options.UseLazyLoadingProxies(); // Abilita il lazy loading (se vuoi usarlo, assicurati del pacchetto NuGet)
                         options.UseSqlServer(connectionString);
-                    });
+                    }, ServiceLifetime.Scoped); // <-- Imposta il lifetime a Scoped
 
+                    // Registrazione del Generic Repository
                     services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
+                    // Registrazione dei Form come Transient (nuova istanza ad ogni richiesta)
                     services.AddTransient<LoginForm>();
                     services.AddTransient<MainForm>();
+                    services.AddTransient<ConfigurazioneForm>(); // Già presente, la manteniamo
+
+                    // Registrazione di tutti i tuoi Form esistenti e nuovi
                     services.AddTransient<ClientiListForm>();
-                    services.AddTransient<ClientiDetailForm>();                    
+                    services.AddTransient<ClientiDetailForm>();
                     services.AddTransient<ClientiContattiDetailForm>();
                     services.AddTransient<UtentiListForm>();
                     services.AddTransient<UtentiDetailForm>();
-                    services.AddTransient<ConfigurazioneForm>();
-                    // NUOVO: Registrazione dei nuovi form e repository                    
                     services.AddTransient<ClientiIndirizzoDetailForm>();
                     services.AddTransient<AutomezziListForm>();
                     services.AddTransient<AutomezziDetailForm>();
                     services.AddTransient<FormulariRifiutiListForm>();
                     services.AddTransient<FormulariRifiutiDetailForm>();
+                    // Aggiungi qui eventuali altri Form del tuo progetto
+
+                    // Registrazione del FormManager come Singleton
+                    services.AddSingleton<FormManager>(); // NUOVO: Registrazione del FormManager
                 });
         }
 
@@ -266,7 +305,6 @@ namespace FormulariRif_G
                     string defaultUsername = "chris";
                     string defaultPassword = "chris143";
 
-                    // Utilizza la struttura HashResult definita in PasswordHasher
                     string psalt = PasswordHasher.NewPasswordSalt();
                     string hashResult = PasswordHasher.HashPassword(defaultPassword, psalt);
 

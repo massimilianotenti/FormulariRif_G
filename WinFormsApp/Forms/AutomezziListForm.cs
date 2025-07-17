@@ -3,6 +3,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+using System.Threading.Tasks; // Necessario per Task e async/await
+// using Microsoft.EntityFrameworkCore; // Non strettamente necessario qui a meno di .Include() su relazioni complesse
+using System.ComponentModel; // Necessario per BindingList
 
 namespace FormulariRif_G.Forms
 {
@@ -11,13 +18,26 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Automezzo> _automezzoRepository;
         private readonly IServiceProvider _serviceProvider;
 
+        // Dichiarazioni dei controlli (corrispondenti al tuo Designer.cs)
+        private System.Windows.Forms.DataGridView dataGridViewAutomezzi;
+        private System.Windows.Forms.Button btnNuovo;
+        private System.Windows.Forms.Button btnModifica;
+        private System.Windows.Forms.Button btnElimina;
+        private System.Windows.Forms.Button btnAggiorna;
+
         public AutomezziListForm(IGenericRepository<Automezzo> automezzoRepository,
                                  IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _automezzoRepository = automezzoRepository;
             _serviceProvider = serviceProvider;
+
+            // Collega gli handler degli eventi ai pulsanti e al form Load.
             this.Load += AutomezziListForm_Load;
+            if (btnNuovo != null) btnNuovo.Click += btnNuovo_Click;
+            if (btnModifica != null) btnModifica.Click += btnModifica_Click;
+            if (btnElimina != null) btnElimina.Click += btnElimina_Click;
+            if (btnAggiorna != null) btnAggiorna.Click += btnAggiorna_Click;
         }
 
         private async void AutomezziListForm_Load(object? sender, EventArgs e)
@@ -33,8 +53,19 @@ namespace FormulariRif_G.Forms
             try
             {
                 var automezzi = await _automezzoRepository.GetAllAsync();
-                dataGridViewAutomezzi.DataSource = automezzi.ToList();
-                dataGridViewAutomezzi.Columns["Id"].Visible = false;
+                // Assicurati che il DataSource sia impostato correttamente
+                dataGridViewAutomezzi.DataSource = new BindingList<Automezzo>(automezzi.ToList());
+
+                // Nasconde la colonna "Id" se esiste
+                if (dataGridViewAutomezzi.Columns.Contains("Id"))
+                {
+                    dataGridViewAutomezzi.Columns["Id"].Visible = false;
+                }
+                // Puoi nascondere altre colonne qui, ad esempio:
+                // if (dataGridViewAutomezzi.Columns.Contains("ProprietaNonMostrare"))
+                // {
+                //     dataGridViewAutomezzi.Columns["ProprietaNonMostrare"].Visible = false;
+                // }
             }
             catch (Exception ex)
             {
@@ -45,14 +76,16 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Nuovo".
         /// </summary>
-        private async void btnNuovo_Click(object sender, EventArgs e)
+        private async void btnNuovo_Click(object? sender, EventArgs e) // Aggiunto ? per nullable
         {
+            // Ottieni una nuova istanza di AutomezziDetailForm tramite il ServiceProvider
+            // Questo assicura che eventuali dipendenze del DetailForm siano risolte
             using (var detailForm = _serviceProvider.GetRequiredService<AutomezziDetailForm>())
             {
-                detailForm.SetAutomezzo(new Automezzo());
+                detailForm.SetAutomezzo(new Automezzo()); // Passa un nuovo oggetto Automezzo
                 if (detailForm.ShowDialog() == DialogResult.OK)
                 {
-                    await LoadAutomezziAsync();
+                    await LoadAutomezziAsync(); // Ricarica la lista dopo l'aggiunta
                 }
             }
         }
@@ -60,19 +93,21 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Modifica".
         /// </summary>
-        private async void btnModifica_Click(object sender, EventArgs e)
+        private async void btnModifica_Click(object? sender, EventArgs e) // Aggiunto ? per nullable
         {
             if (dataGridViewAutomezzi.SelectedRows.Count > 0)
             {
+                // Recupera l'automezzo selezionato dalla riga della DataGridView
                 var selectedAutomezzo = dataGridViewAutomezzi.SelectedRows[0].DataBoundItem as Automezzo;
                 if (selectedAutomezzo != null)
                 {
+                    // Ottieni una nuova istanza di AutomezziDetailForm tramite il ServiceProvider
                     using (var detailForm = _serviceProvider.GetRequiredService<AutomezziDetailForm>())
                     {
-                        detailForm.SetAutomezzo(selectedAutomezzo);
+                        detailForm.SetAutomezzo(selectedAutomezzo); // Passa l'oggetto automezzo da modificare
                         if (detailForm.ShowDialog() == DialogResult.OK)
                         {
-                            await LoadAutomezziAsync();
+                            await LoadAutomezziAsync(); // Ricarica la lista dopo la modifica
                         }
                     }
                 }
@@ -86,21 +121,26 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Elimina".
         /// </summary>
-        private async void btnElimina_Click(object sender, EventArgs e)
+        private async void btnElimina_Click(object? sender, EventArgs e) // Aggiunto ? per nullable
         {
             if (dataGridViewAutomezzi.SelectedRows.Count > 0)
             {
                 var selectedAutomezzo = dataGridViewAutomezzi.SelectedRows[0].DataBoundItem as Automezzo;
                 if (selectedAutomezzo != null)
                 {
-                    var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare l'automezzo '{selectedAutomezzo.Descrizione}' con targa '{selectedAutomezzo.Targa}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    var confirmResult = MessageBox.Show(
+                        $"Sei sicuro di voler eliminare l'automezzo '{selectedAutomezzo.Descrizione}' con targa '{selectedAutomezzo.Targa}'?",
+                        "Conferma Eliminazione",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question);
+
                     if (confirmResult == DialogResult.Yes)
                     {
                         try
                         {
                             _automezzoRepository.Delete(selectedAutomezzo);
                             await _automezzoRepository.SaveChangesAsync();
-                            await LoadAutomezziAsync();
+                            await LoadAutomezziAsync(); // Ricarica la lista dopo l'eliminazione
                             MessageBox.Show("Automezzo eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         }
                         catch (Exception ex)
@@ -119,7 +159,7 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Aggiorna".
         /// </summary>
-        private async void btnAggiorna_Click(object sender, EventArgs e)
+        private async void btnAggiorna_Click(object? sender, EventArgs e) // Aggiunto ? per nullable
         {
             await LoadAutomezziAsync();
         }
@@ -184,7 +224,6 @@ namespace FormulariRif_G.Forms
             this.btnNuovo.TabIndex = 1;
             this.btnNuovo.Text = "Nuovo";
             this.btnNuovo.UseVisualStyleBackColor = true;
-            this.btnNuovo.Click += new System.EventHandler(this.btnNuovo_Click);
             //
             // btnModifica
             //
@@ -195,7 +234,6 @@ namespace FormulariRif_G.Forms
             this.btnModifica.TabIndex = 2;
             this.btnModifica.Text = "Modifica";
             this.btnModifica.UseVisualStyleBackColor = true;
-            this.btnModifica.Click += new System.EventHandler(this.btnModifica_Click);
             //
             // btnElimina
             //
@@ -206,7 +244,6 @@ namespace FormulariRif_G.Forms
             this.btnElimina.TabIndex = 3;
             this.btnElimina.Text = "Elimina";
             this.btnElimina.UseVisualStyleBackColor = true;
-            this.btnElimina.Click += new System.EventHandler(this.btnElimina_Click);
             //
             // btnAggiorna
             //
@@ -217,7 +254,6 @@ namespace FormulariRif_G.Forms
             this.btnAggiorna.TabIndex = 4;
             this.btnAggiorna.Text = "Aggiorna";
             this.btnAggiorna.UseVisualStyleBackColor = true;
-            this.btnAggiorna.Click += new System.EventHandler(this.btnAggiorna_Click);
             //
             // AutomezziListForm
             //
@@ -237,12 +273,6 @@ namespace FormulariRif_G.Forms
             this.ResumeLayout(false);
 
         }
-
-        private System.Windows.Forms.DataGridView dataGridViewAutomezzi;
-        private System.Windows.Forms.Button btnNuovo;
-        private System.Windows.Forms.Button btnModifica;
-        private System.Windows.Forms.Button btnElimina;
-        private System.Windows.Forms.Button btnAggiorna;
 
         #endregion
     }

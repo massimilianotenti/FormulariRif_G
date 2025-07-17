@@ -7,9 +7,10 @@ using Microsoft.EntityFrameworkCore; // Per l'include delle proprietà di naviga
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Configuration;
-using System.Drawing.Text;
+// using System.Drawing.Text; // Non sembra essere usato
 using System.Linq;
 using System.Globalization;
+using System.IO; // Aggiunto per Path.Combine e IOException
 
 namespace FormulariRif_G.Forms
 {
@@ -53,6 +54,7 @@ namespace FormulariRif_G.Forms
         {
             // La data viene impostata nel LoadFormularioData dopo che le combobox sono caricate
             _currentFormulario = formulario;
+            // La logica _isFormularioSaved ora riflette se il formulario esiste già nel DB (non è nuovo)
             _isFormularioSaved = (_currentFormulario != null && _currentFormulario.Id != 0);
         }
 
@@ -97,7 +99,7 @@ namespace FormulariRif_G.Forms
                 }
                 txtDescr.Text = _currentFormulario.Descrizione ?? string.Empty;
                 if (_currentFormulario.Quantita.HasValue)
-                    txtQuantita.Text = _currentFormulario.Quantita.Value.ToString("F2"); // Formatta come decimale con 2 cifre                
+                    txtQuantita.Text = _currentFormulario.Quantita.Value.ToString("F2"); // Formatta come decimale con 2 cifre
                 else
                     txtQuantita.Text = string.Empty;
                 if (_currentFormulario.Kg_Lt.HasValue)
@@ -191,11 +193,11 @@ namespace FormulariRif_G.Forms
                 _currentFormulario.SatoFisico = null;
             _currentFormulario.CaratteristicheChimiche = txtCarattPericolosità.Text.Trim();
             if (rbProvUrb.Checked)
-                _currentFormulario.Provenienza = 1; // Urbano            
+                _currentFormulario.Provenienza = 1; // Urbano
             else if (rbProvSpec.Checked)
-                _currentFormulario.Provenienza = 2; // Speciale            
+                _currentFormulario.Provenienza = 2; // Speciale
             else
-                _currentFormulario.Provenienza = null; // Nessuna selezione                                                       
+                _currentFormulario.Provenienza = null; // Nessuna selezione
             _currentFormulario.Descrizione = txtDescr.Text.Trim();
             if (!string.IsNullOrWhiteSpace(txtQuantita.Text) && decimal.TryParse(txtQuantita.Text, out decimal quantita))
                 _currentFormulario.Quantita = quantita;
@@ -235,9 +237,13 @@ namespace FormulariRif_G.Forms
                 }
                 await _formularioRifiutiRepository.SaveChangesAsync();
                 MessageBox.Show("Formulario salvato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.DialogResult = DialogResult.OK;
-                _isFormularioSaved = true;
-                //this.Close();
+
+                // --- INIZIO MODIFICA QUI ---
+                // Rimuovi questa riga, non è necessaria per le finestre non modali
+                // this.DialogResult = DialogResult.OK;
+                _isFormularioSaved = true; // Questo flag è utile per il bottone Stampa
+                this.Close(); // Chiudi la form dopo il salvataggio.
+                // --- FINE MODIFICA ---
             }
             catch (Exception ex)
             {
@@ -245,6 +251,14 @@ namespace FormulariRif_G.Forms
                 _isFormularioSaved = false;
                 UpdatePrintButtonState();
             }
+        }
+
+        private void btnAnnulla_Click(object sender, EventArgs e)
+        {
+            // --- INIZIO MODIFICA QUI ---
+            // Nelle form non modali, basta chiudere la form.
+            this.Close();
+            // --- FINE MODIFICA ---
         }
 
         #region combobox
@@ -428,13 +442,31 @@ namespace FormulariRif_G.Forms
 
         private async void btStampa_Click(object sender, EventArgs e)
         {
+            // Verifica che _currentFormulario non sia null e che abbia un Id valido
+            if (_currentFormulario == null || _currentFormulario.Id == 0)
+            {
+                MessageBox.Show("Impossibile stampare: il formulario non è stato salvato o è un nuovo formulario senza ID.", "Errore Stampa", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var AppConfigData = await _configurazioneRepository.GetAllAsync();
             var conf = AppConfigData.FirstOrDefault();
 
+            if (conf == null)
+            {
+                MessageBox.Show("Configurazione non trovata. Impossibile generare il PDF.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             var cliente = await _clienteRepository.GetByIdAsync(_currentFormulario.IdCli);
             var indirizzo = await _clienteIndirizzoRepository.GetByIdAsync(_currentFormulario.IdClienteIndirizzo);
-
             var mezzo = await _automezzoRepository.GetByIdAsync(_currentFormulario.IdAutomezzo);
+
+            if (cliente == null || indirizzo == null || mezzo == null)
+            {
+                MessageBox.Show("Dati correlati (cliente, indirizzo o automezzo) mancanti. Impossibile generare il PDF.", "Errore Dati", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             // Prepara i dati in un dizionario, mappando i nomi dei campi PDF ai valori
             var datiFormulario = new Dictionary<string, string>
@@ -456,7 +488,7 @@ namespace FormulariRif_G.Forms
                 { "Dest_D", getStrValore(conf.DestD) },
                 { "Dest_Auto_Comunic", getStrValore(conf.DestAutoComunic) },
                 { "Dest_Tipo1", getStrValore(conf.DestTipo1) + getStrValore(conf.DestTipo2)},
-                //{ "Dest_Tipo2", getStrValore(conf.DestTipo2) },                
+                //{ "Dest_Tipo2", getStrValore(conf.DestTipo2) },
                 // Trasportatore
                 { "Trasp_Rag_Soc", conf.RagSoc1 + getStrValore(conf.RagSoc2)},
                 { "Trasp_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
@@ -484,18 +516,24 @@ namespace FormulariRif_G.Forms
             // Definisci i percorsi del template e dell'output
             // Assicurati che questi percorsi siano corretti per il tuo ambiente!
             // Potresti mettere il template nella cartella "Resources" o "Templates" del tuo progetto
-            //string templatePdfPath = Path.Combine(Application.StartupPath, "Resources", "TemplateFormulario.pdf");
             string templatePdfPath = Path.Combine(Application.StartupPath, "Resources", "ModuloFormulario.pdf");
             string outputPdfPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FormulariStampati", $"Formulario_{_currentFormulario.Id}.pdf");
 
             try
             {
+                // Assicurati che la directory di output esista
+                string outputDir = Path.GetDirectoryName(outputPdfPath);
+                if (!Directory.Exists(outputDir))
+                {
+                    Directory.CreateDirectory(outputDir);
+                }
+
                 var filler = new PDFGenerator(templatePdfPath, outputPdfPath);
                 bool success = await filler.FillFatturaAsync(datiFormulario);
 
                 if (success)
                 {
-                    // MessageBox.Show($"Formulario generata con successo in:\n{outputPdfPath}", "Generazione PDF", MessageBoxButtons.OK, MessageBoxIcon.Information);                    
+                    // MessageBox.Show($"Formulario generata con successo in:\n{outputPdfPath}", "Generazione PDF", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     try
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(outputPdfPath) { UseShellExecute = true });
@@ -534,8 +572,8 @@ namespace FormulariRif_G.Forms
             }
         }
 
-        #endregion
-
+        #endregion       
+    
 
         // Codice generato dal designer
         #region Windows Form Designer generated code
@@ -1035,7 +1073,6 @@ namespace FormulariRif_G.Forms
 
 
         #endregion
-
 
         
     }

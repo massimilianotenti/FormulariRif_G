@@ -3,6 +3,9 @@
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
 using FormulariRif_G.Utils; // Per PasswordHasher (BCrypt)
+using System; // Per EventArgs e Exception
+using System.Windows.Forms; // Per Form, MessageBox, DialogResult
+using System.Threading.Tasks; // Per Task
 
 namespace FormulariRif_G.Forms
 {
@@ -12,10 +15,28 @@ namespace FormulariRif_G.Forms
         private Utente? _currentUtente;
         private bool _isReadOnly;
 
+        // Dichiarazioni dei controlli (corrispondenti al tuo Designer.cs)
+        private System.Windows.Forms.Label lblNomeUtente;
+        private System.Windows.Forms.TextBox txtNomeUtente;
+        private System.Windows.Forms.Label lblPassword;
+        private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.Label lblEmail;
+        private System.Windows.Forms.TextBox txtEmail;
+        private System.Windows.Forms.CheckBox chkAdmin;
+        private System.Windows.Forms.Button btnSalva;
+        private System.Windows.Forms.Button btnAnnulla;
+        private System.Windows.Forms.CheckBox chkMustChangePassword;
+
         public UtentiDetailForm(IGenericRepository<Utente> utenteRepository)
         {
             InitializeComponent();
             _utenteRepository = utenteRepository;
+
+            // Collega gli handler degli eventi ai pulsanti.
+            // Questi collegamenti sono stati spostati qui dal Designer.cs
+            // per mantenere il Designer.cs "pulito" e automatico.
+            if (btnSalva != null) btnSalva.Click += btnSalva_Click;
+            if (btnAnnulla != null) btnAnnulla.Click += btnAnnulla_Click;
         }
 
         /// <summary>
@@ -42,7 +63,6 @@ namespace FormulariRif_G.Forms
                 txtNomeUtente.Text = _currentUtente.NomeUtente;
                 // Non caricare la password hash nel campo di testo della password per motivi di sicurezza.
                 // Lascia il campo vuoto o usa una stringa fittizia.
-                // txtPassword.Text = _currentUtente.Password; // NON FARE QUESTO!
                 txtPassword.Text = string.Empty; // Lascia vuoto per non esporre l'hash
                 txtEmail.Text = _currentUtente.Email;
                 chkMustChangePassword.Checked = _currentUtente.MustChangePassword;
@@ -68,14 +88,16 @@ namespace FormulariRif_G.Forms
             txtEmail.ReadOnly = _isReadOnly;
             chkMustChangePassword.Enabled = !_isReadOnly;
 
-            btnSalva.Visible = !_isReadOnly;
+            if (btnSalva != null) btnSalva.Visible = !_isReadOnly;
+            if (btnAnnulla != null) btnAnnulla.Visible = true; // Annulla è sempre visibile
+
             this.Text = _isReadOnly ? "Dettagli Utente" : (_currentUtente?.Id == 0 ? "Nuovo Utente" : "Modifica Utente");
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Salva".
         /// </summary>
-        private async void btnSalva_Click(object sender, EventArgs e)
+        private async void btnSalva_Click(object? sender, EventArgs e) // Aggiunto ? per nullable
         {
             if (!ValidateInput())
             {
@@ -146,7 +168,7 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Annulla".
         /// </summary>
-        private void btnAnnulla_Click(object sender, EventArgs e)
+        private void btnAnnulla_Click(object? sender, EventArgs e) // Aggiunto ? per nullable
         {
             this.DialogResult = DialogResult.Cancel;
             this.Close();
@@ -265,7 +287,6 @@ namespace FormulariRif_G.Forms
             btnSalva.TabIndex = 9;
             btnSalva.Text = "Salva";
             btnSalva.UseVisualStyleBackColor = true;
-            btnSalva.Click += btnSalva_Click;
             // 
             // btnAnnulla
             // 
@@ -276,7 +297,6 @@ namespace FormulariRif_G.Forms
             btnAnnulla.TabIndex = 10;
             btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
-            btnAnnulla.Click += btnAnnulla_Click;
             // 
             // chkMustChangePassword
             // 
@@ -313,17 +333,6 @@ namespace FormulariRif_G.Forms
             PerformLayout();
 
         }
-
-        private System.Windows.Forms.Label lblNomeUtente;
-        private System.Windows.Forms.TextBox txtNomeUtente;
-        private System.Windows.Forms.Label lblPassword;
-        private System.Windows.Forms.TextBox txtPassword;
-        private System.Windows.Forms.Label lblEmail;
-        private System.Windows.Forms.TextBox txtEmail;
-        private System.Windows.Forms.CheckBox chkAdmin;
-        private System.Windows.Forms.Button btnSalva;
-        private System.Windows.Forms.Button btnAnnulla;
-        private System.Windows.Forms.CheckBox chkMustChangePassword;
 
         #endregion
     }

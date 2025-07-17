@@ -1,19 +1,44 @@
 ﻿// File: Forms/MainForm.cs
 // Questo è il form principale dell'applicazione che funge da menu.
 // Ora include pulsanti per le nuove gestioni (Automezzi, Formulari Rifiuti).
-using Microsoft.Extensions.DependencyInjection; // Per IServiceProvider
+
+// 07/07/2205 - AGGIORNAMENTO PER DEPENDENCY INJECTION E FORM MANAGER
+// ------------------------------------------------------------------------------------------------------------------------------
+// Il lifetime della form e del dbcontext era gestito tramite la using, la showdialog() blocca l'esecuzione del codice
+// sotto fino alla chiusura della form. Se si cambia con la show() viene aperta la form e nel frattempo si chiude la
+// using e quindi il dbcontext, visto che viene usato un caricamento asincrono nella form.
+//
+// - Va tolto la using per evitare che il dbcontext venga chiuso prima che la form sia effettivamente utilizzata.
+// - Va usato AddScoped<YourDbContext>(), è lifetime più comune e generalmente consigliato per applicazioni desktop: significa
+//   che una nuova istanza del DBContext viene creata per ogni "scope". Se ogni form ha il suo DBContext iniettato come "scoped",
+//   allora ogni form avrà la sua istanza di DBContext e verrà disposta solo quando la form stessa viene disposta.
+// - Va usato AddTransient<YourDbContext>(): Crea una nuova istanza ogni volta che viene richiesta. Potrebbe essere un'opzione,
+//   ma spesso Scoped è preferibile per i DBContext per motivi di unit of work.
+//
+// Con AddScoped<YourDbContext>() e AddTransient<ClientiListForm>(), ogni volta che richiedi una ClientiListForm, ti verrà data
+// una nuova istanza della form, e quella form riceverà una nuova istanza del DBContext (o quella esistente se è all'interno
+// dello stesso scope di un servizio "genitore"). Il DBContext sarà dismesso solo quando la form che lo contiene viene dismessa.
+//
+// - Nella form va poi fatto il dispose del DBContext (questo sarà gestito dal DI e FormClosed event, non manualmente qui)
+// - Va fatta una gestione delle form aperte per evitare che si aprano più volte (gestito dal FormManager)
+
 using FormulariRif_G.Utils; // Per CurrentUser
+using Microsoft.Extensions.DependencyInjection; // Per IServiceProvider
+using FormulariRif_G.Service; // NUOVO: Namespace per il FormManager
 
 namespace FormulariRif_G.Forms
 {
     public partial class MainForm : Form
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly FormManager _formManager; // NUOVO: Riferimento al FormManager
 
-        public MainForm(IServiceProvider serviceProvider)
+        // Modifica del costruttore per iniettare il FormManager
+        public MainForm(IServiceProvider serviceProvider, FormManager formManager)
         {
             InitializeComponent();
             _serviceProvider = serviceProvider;
+            _formManager = formManager; // Inizializza il FormManager
             this.Load += MainForm_Load;
         }
 
@@ -26,61 +51,53 @@ namespace FormulariRif_G.Forms
 
         /// <summary>
         /// Gestisce il click sul pulsante "Gestione Clienti".
-        /// Apre il form per la gestione dei clienti.
+        /// Apre il form per la gestione dei clienti tramite FormManager.
         /// </summary>
         private void btnGestioneClienti_Click(object sender, EventArgs e)
         {
-            using (var clientiListForm = _serviceProvider.GetRequiredService<ClientiListForm>())
-            {
-                clientiListForm.ShowDialog();
-            }
+            // Usa il FormManager per mostrare o attivare la form.
+            _formManager.ShowOrActivate<ClientiListForm>();
         }
-
-        
 
         /// <summary>
         /// Gestisce il click sul pulsante "Gestione Utenti".
-        /// Apre il form per la gestione degli utenti.
+        /// Apre il form per la gestione degli utenti tramite FormManager.
         /// </summary>
         private void btnGestioneUtenti_Click(object sender, EventArgs e)
         {
-            using (var utentiListForm = _serviceProvider.GetRequiredService<UtentiListForm>())
-            {
-                utentiListForm.ShowDialog();
-            }
+            // Usa il FormManager per mostrare o attivare la form.
+            _formManager.ShowOrActivate<UtentiListForm>();
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Gestione Automezzi".
-        /// Apre il form per la gestione degli automezzi.
+        /// Apre il form per la gestione degli automezzi tramite FormManager.
         /// </summary>
         private void btnGestioneAutomezzi_Click(object sender, EventArgs e)
         {
-            using (var automezziListForm = _serviceProvider.GetRequiredService<AutomezziListForm>())
-            {
-                automezziListForm.ShowDialog();
-            }
+            // Usa il FormManager per mostrare o attivare la form.
+            _formManager.ShowOrActivate<AutomezziListForm>();
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Gestione Formulari Rifiuti".
-        /// Apre il form per la gestione dei formulari rifiuti.
+        /// Apre il form per la gestione dei formulari rifiuti tramite FormManager.
         /// </summary>
         private void btnGestioneFormulariRifiuti_Click(object sender, EventArgs e)
         {
-            using (var formulariListForm = _serviceProvider.GetRequiredService<FormulariRifiutiListForm>())
-            {
-                formulariListForm.ShowDialog();
-            }
+            // Usa il FormManager per mostrare o attivare la form.
+            _formManager.ShowOrActivate<FormulariRifiutiListForm>();
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Configurazione".
-        /// Apre il form di configurazione. Se la configurazione viene salvata,
+        /// Apre il form di configurazione in modalità modale. Se la configurazione viene salvata,
         /// segnala a Program.cs di riavviare l'applicazione.
         /// </summary>
         private async void btnConfigurazione_Click(object sender, EventArgs e)
         {
+            // La ConfigurazioneForm rimane modale e non è gestita dal FormManager,
+            // in quanto il suo scopo è bloccare l'applicazione per la configurazione.
             using (var configForm = _serviceProvider.GetRequiredService<ConfigurazioneForm>())
             {
                 if (configForm.ShowDialog() == DialogResult.OK)
@@ -99,7 +116,7 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void btnLogout_Click(object sender, EventArgs e)
         {
-            //CurrentUser.Clear(); // Pulisce l'utente corrente
+            // CurrentUser.Clear(); // Pulisce l'utente corrente (decommenta se necessario)
             this.DialogResult = DialogResult.Cancel; // Segnala al LoginForm di non chiudere l'applicazione
             this.Close(); // Chiudi il MainForm
         }
@@ -138,9 +155,9 @@ namespace FormulariRif_G.Forms
             btnGestioneAutomezzi = new Button();
             btnGestioneFormulariRifiuti = new Button();
             SuspendLayout();
-            // 
+            //
             // btnGestioneClienti
-            // 
+            //
             btnGestioneClienti.Location = new Point(93, 64);
             btnGestioneClienti.Margin = new Padding(6, 6, 6, 6);
             btnGestioneClienti.Name = "btnGestioneClienti";
@@ -149,9 +166,9 @@ namespace FormulariRif_G.Forms
             btnGestioneClienti.Text = "Gestione Clienti";
             btnGestioneClienti.UseVisualStyleBackColor = true;
             btnGestioneClienti.Click += btnGestioneClienti_Click;
-            // 
+            //
             // btnGestioneUtenti
-            // 
+            //
             btnGestioneUtenti.Location = new Point(93, 383);
             btnGestioneUtenti.Margin = new Padding(6, 6, 6, 6);
             btnGestioneUtenti.Name = "btnGestioneUtenti";
@@ -160,9 +177,9 @@ namespace FormulariRif_G.Forms
             btnGestioneUtenti.Text = "Gestione Utenti";
             btnGestioneUtenti.UseVisualStyleBackColor = true;
             btnGestioneUtenti.Click += btnGestioneUtenti_Click;
-            // 
+            //
             // btnLogout
-            // 
+            //
             btnLogout.Location = new Point(93, 832);
             btnLogout.Margin = new Padding(6, 6, 6, 6);
             btnLogout.Name = "btnLogout";
@@ -171,9 +188,9 @@ namespace FormulariRif_G.Forms
             btnLogout.Text = "Logout";
             btnLogout.UseVisualStyleBackColor = true;
             btnLogout.Click += btnLogout_Click;
-            // 
+            //
             // btnConfigurazione
-            // 
+            //
             btnConfigurazione.Location = new Point(93, 704);
             btnConfigurazione.Margin = new Padding(6, 6, 6, 6);
             btnConfigurazione.Name = "btnConfigurazione";
@@ -182,9 +199,9 @@ namespace FormulariRif_G.Forms
             btnConfigurazione.Text = "Configurazione";
             btnConfigurazione.UseVisualStyleBackColor = true;
             btnConfigurazione.Click += btnConfigurazione_Click;
-            // 
+            //
             // btnGestioneAutomezzi
-            // 
+            //
             btnGestioneAutomezzi.Location = new Point(93, 511);
             btnGestioneAutomezzi.Margin = new Padding(6, 6, 6, 6);
             btnGestioneAutomezzi.Name = "btnGestioneAutomezzi";
@@ -193,9 +210,9 @@ namespace FormulariRif_G.Forms
             btnGestioneAutomezzi.Text = "Gestione Automezzi";
             btnGestioneAutomezzi.UseVisualStyleBackColor = true;
             btnGestioneAutomezzi.Click += btnGestioneAutomezzi_Click;
-            // 
+            //
             // btnGestioneFormulariRifiuti
-            // 
+            //
             btnGestioneFormulariRifiuti.Location = new Point(93, 196);
             btnGestioneFormulariRifiuti.Margin = new Padding(6, 6, 6, 6);
             btnGestioneFormulariRifiuti.Name = "btnGestioneFormulariRifiuti";
@@ -204,9 +221,9 @@ namespace FormulariRif_G.Forms
             btnGestioneFormulariRifiuti.Text = "Gestione Formulari Rifiuti";
             btnGestioneFormulariRifiuti.UseVisualStyleBackColor = true;
             btnGestioneFormulariRifiuti.Click += btnGestioneFormulariRifiuti_Click;
-            // 
+            //
             // MainForm
-            // 
+            //
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(557, 981);

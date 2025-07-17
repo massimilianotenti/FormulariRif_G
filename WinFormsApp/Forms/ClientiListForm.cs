@@ -8,30 +8,34 @@ using System.Linq; // Per l'estensione Where
 using Microsoft.EntityFrameworkCore; // Necessario per il metodo Include
 using System.Threading; // Aggiungi questo per CancellationTokenSource
 using System.Windows.Forms; // Per Timer (se usi System.Windows.Forms.Timer)
+using FormulariRif_G.Service; // NUOVO: Namespace per il FormManager
 
 namespace FormulariRif_G.Forms
 {
     public partial class ClientiListForm : Form
     {
         private readonly IGenericRepository<Cliente> _clienteRepository;
-        private readonly IGenericRepository<Configurazione> _configurazioneRepository; 
-        // Per risolvere i form di dettaglio
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository;
         private readonly IServiceProvider _serviceProvider;
+        private readonly FormManager _formManager; // NUOVO: Riferimento al FormManager
+
         // Timer per il debouncing
         private System.Windows.Forms.Timer _searchTimer;
         // Per la cancellazione delle query
-        private CancellationTokenSource _cancellationTokenSource; 
-
+        private CancellationTokenSource _cancellationTokenSource;
 
         public ClientiListForm(IGenericRepository<Cliente> clienteRepository,
-                                 IGenericRepository<Configurazione> configurazioneRepository, // Aggiunta la dipendenza
-                                 IServiceProvider serviceProvider)
+                               IGenericRepository<Configurazione> configurazioneRepository,
+                               IServiceProvider serviceProvider,
+                               FormManager formManager) // NUOVO: Inietta il FormManager
         {
             InitializeComponent();
             _clienteRepository = clienteRepository;
             _configurazioneRepository = configurazioneRepository;
             _serviceProvider = serviceProvider;
-            this.Load += ClientiListForm_Load; 
+            _formManager = formManager; // Inizializza il FormManager
+            this.Load += ClientiListForm_Load;
+            this.FormClosed += ClientiListForm_FormClosed; // NUOVO: Gestisce la chiusura del form
 
             // **Inizializza il timer per il debouncing**
             _searchTimer = new System.Windows.Forms.Timer();
@@ -47,29 +51,48 @@ namespace FormulariRif_G.Forms
         }
 
         /// <summary>
+        /// Gestisce la chiusura del form.
+        /// </summary>
+        private void ClientiListForm_FormClosed(object? sender, FormClosedEventArgs e)
+        {
+            // Cancella e disattiva il CancellationTokenSource quando il form viene chiuso
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null; // Imposta a null per evitare usi successivi di un oggetto disposto
+        }
+
+        /// <summary>
         /// Carica i dati dei clienti nella DataGridView, filtrando per dati di test se necessario.
         /// </summary>
-        private async Task LoadClientiAsync(CancellationToken cancellationToken = default)
+        private async Task LoadClientiAsync() // Rimosso CancellationToken dal parametro per gestirlo internamente
         {
+            // Inizializza un nuovo CancellationTokenSource per questa operazione
+            _cancellationTokenSource?.Cancel(); // Annulla qualsiasi operazione precedente in corso
+            _cancellationTokenSource?.Dispose(); // Rilascia le risorse del vecchio CancellationTokenSource
+            _cancellationTokenSource = new CancellationTokenSource(); // Crea un nuovo CancellationTokenSource
+            var cancellationToken = _cancellationTokenSource.Token; // Ottieni il token per questa operazione
+
             try
             {
-                // **Cancellare l'operazione precedente se presente**
-                _cancellationTokenSource?.Cancel(); // Annulla qualsiasi operazione precedente
-                _cancellationTokenSource?.Dispose(); // Rilascia le risorse del vecchio CancellationTokenSource
-                _cancellationTokenSource = new CancellationTokenSource(); // Crea un nuovo CancellationTokenSource
-                cancellationToken = _cancellationTokenSource.Token; // Assegna il token per questa operazione
+                // Mostra un indicatore di caricamento (es. una ProgressBar o un Label)
+                // lblLoading.Visible = true; // Assumi di avere un lblLoading nel designer
+                // panelLoading.Visible = true; // Assumi di avere un panelLoading nel designer
 
                 var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
                 bool showTestData = configurazione?.DatiTest ?? false;
 
-                IQueryable<Cliente> query = _clienteRepository.AsQueryable(); 
+                IQueryable<Cliente> query = _clienteRepository.AsQueryable();
                 // Includi Indirizzi e Contatti per poter accedere ai dati di navigazione
                 query = query.Include(c => c.Indirizzi)
                              .Include(c => c.Contatti);
+
                 if (!showTestData)
-                    // Carica solo i clienti non di test                
+                {
+                    // Carica solo i clienti non di test
                     query = query.Where(c => c.IsTestData == false);
-                //Applica il filtro di ricerca se presente**
+                }
+
+                // Applica il filtro di ricerca se presente
                 var searchText = txtRicerca.Text.Trim().ToLower();
                 if (!string.IsNullOrEmpty(searchText))
                 {
@@ -81,14 +104,15 @@ namespace FormulariRif_G.Forms
                         c.Contatti.Any(cont => cont.Predefinito && (cont.Telefono.ToLower().Contains(searchText) || cont.Email.ToLower().Contains(searchText)))
                     );
                 }
+
                 // Esegui la query per ottenere i clienti con i dati inclusi
-                var clienti = await query.ToListAsync(cancellationToken); 
+                var clienti = await query.ToListAsync(cancellationToken);
 
                 // Prepara i dati per la DataGridView, includendo indirizzo e contatto predefiniti
                 var clientiViewModel = clienti.Select(c => new
                 {
                     c.Id,
-                    c.RagSoc,                    
+                    c.RagSoc,
                     c.PartitaIva,
                     c.CodiceFiscale,
                     TelefonoPredefinito = c.Contatti.FirstOrDefault(cont => cont.Predefinito)?.Telefono ?? "N/D",
@@ -96,7 +120,7 @@ namespace FormulariRif_G.Forms
                     IndirizzoCompleto = c.Indirizzi.FirstOrDefault(ind => ind.Predefinito) != null ?
                                         $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Indirizzo}, " +
                                         $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Comune} - " +
-                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} " 
+                                        $"{c.Indirizzi.FirstOrDefault(ind => ind.Predefinito)?.Cap} "
                                         : "N/D",
                     c.IsTestData // Manteniamo questa proprietà per la logica interna, ma la colonna sarà nascosta
                 }).ToList();
@@ -104,58 +128,63 @@ namespace FormulariRif_G.Forms
                 dataGridViewClienti.DataSource = clientiViewModel.ToList();
                 // Nasconde la colonna Id per una migliore visualizzazione, ma la mantiene accessibile per le operazioni
                 dataGridViewClienti.Columns["Id"].Visible = false;
-                // Nasconde le colonne di navigazione 
-                if (dataGridViewClienti.Columns.Contains("Contatti"))                
-                    dataGridViewClienti.Columns["Contatti"].Visible = false;                
-                if (dataGridViewClienti.Columns.Contains("Indirizzi"))                
+                // Nasconde le colonne di navigazione (potrebbero non esistere nel DTO anonimo, ma è una buona precauzione)
+                if (dataGridViewClienti.Columns.Contains("Contatti"))
+                    dataGridViewClienti.Columns["Contatti"].Visible = false;
+                if (dataGridViewClienti.Columns.Contains("Indirizzi"))
                     dataGridViewClienti.Columns["Indirizzi"].Visible = false;
                 // Nasconde la colonna IsTestData (sebbene utile per il debug, non è per l'utente finale)
-                if (dataGridViewClienti.Columns.Contains("IsTestData"))                
-                    dataGridViewClienti.Columns["IsTestData"].Visible = false;                              
+                if (dataGridViewClienti.Columns.Contains("IsTestData"))
+                    dataGridViewClienti.Columns["IsTestData"].Visible = false;
+            }
+            catch (OperationCanceledException)
+            {
+                // L'operazione è stata cancellata, non fare nulla (silenziosamente)
+                Console.WriteLine("ClientiListForm: Operazione di caricamento clienti annullata.");
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Errore durante il caricamento dei clienti: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        /// <summary>
-        /// Gestisce il click sul pulsante "Nuovo".
-        /// Apre il form di dettaglio per l'inserimento di un nuovo cliente.
-        /// </summary>
-        private async void btnNuovo_Click(object sender, EventArgs e)
-        {
-            using (var detailForm = _serviceProvider.GetRequiredService<ClientiDetailForm>())
+            finally
             {
-                // Imposta il form di dettaglio per l'inserimento di un nuovo record
-                detailForm.SetCliente(new Cliente());
-                if (detailForm.ShowDialog() == DialogResult.OK)
-                {
-                    await LoadClientiAsync(); // Ricarica i dati dopo l'inserimento
-                }
+                // Nascondi l'indicatore di caricamento
+                // lblLoading.Visible = false;
+                // panelLoading.Visible = false;
             }
         }
 
         /// <summary>
+        /// Gestisce il click sul pulsante "Nuovo".
+        /// Apre il form di dettaglio per l'inserimento di un nuovo cliente (non modale).
+        /// </summary>
+        private void btnNuovo_Click(object sender, EventArgs e)
+        {
+            // Ottiene o crea la ClientiDetailForm tramite FormManager
+            var detailForm = _formManager.ShowOrActivate<ClientiDetailForm>();
+            detailForm.SetCliente(new Cliente()); // Imposta il form per un nuovo cliente
+            // Iscriviti all'evento FormClosed per ricaricare i dati quando il dettaglio si chiude
+            detailForm.FormClosed -= ClienteDetailForm_Closed; // Evita duplicati
+            detailForm.FormClosed += ClienteDetailForm_Closed;
+        }
+
+        /// <summary>
         /// Gestisce il click sul pulsante "Modifica".
-        /// Apre il form di dettaglio per la modifica del cliente selezionato.
+        /// Apre il form di dettaglio per la modifica del cliente selezionato (non modale).
         /// </summary>
         private async void btnModifica_Click(object sender, EventArgs e)
         {
             if (dataGridViewClienti.SelectedRows.Count > 0)
             {
-                var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;                
+                var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;
                 var selectedCliente = await _clienteRepository.GetByIdAsync(selectedId);
                 if (selectedCliente != null)
                 {
-                    using (var detailForm = _serviceProvider.GetRequiredService<ClientiDetailForm>())
-                    {
-                        detailForm.SetCliente(selectedCliente);
-                        if (detailForm.ShowDialog() == DialogResult.OK)
-                        {
-                            await LoadClientiAsync(); // Ricarica i dati dopo la modifica
-                        }
-                    }
+                    var detailForm = _formManager.ShowOrActivate<ClientiDetailForm>();
+                    detailForm.SetCliente(selectedCliente); // Imposta il form per la modifica
+                    // Iscriviti all'evento FormClosed per ricaricare i dati quando il dettaglio si chiude
+                    detailForm.FormClosed -= ClienteDetailForm_Closed; // Evita duplicati
+                    detailForm.FormClosed += ClienteDetailForm_Closed;
                 }
             }
             else
@@ -174,7 +203,6 @@ namespace FormulariRif_G.Forms
             {
                 var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;
                 var selectedCliente = await _clienteRepository.GetByIdAsync(selectedId);
-                //var selectedCliente = dataGridViewClienti.SelectedRows[0].DataBoundItem as Cliente;
                 if (selectedCliente != null)
                 {
                     var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare il cliente '{selectedCliente.RagSoc}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
@@ -202,25 +230,20 @@ namespace FormulariRif_G.Forms
 
         /// <summary>
         /// Gestisce il click sul pulsante "Dettagli".
-        /// Apre il form di dettaglio in modalità sola lettura per il cliente selezionato.
+        /// Apre il form di dettaglio in modalità sola lettura per il cliente selezionato (non modale).
         /// </summary>
         private async void btnDettagli_Click(object sender, EventArgs e)
         {
             if (dataGridViewClienti.SelectedRows.Count > 0)
             {
-                // Recupera l'ID del cliente dalla riga selezionata (assumendo che Id sia una colonna nel DTO anonimo)
-                // Usiamo Cells["Id"].Value perché DataBoundItem è ora un tipo anonimo.
                 var selectedId = (int)dataGridViewClienti.SelectedRows[0].Cells["Id"].Value;
 
-                // Carica il cliente completo dal repository, includendo le entità correlate
                 var selectedCliente = await _clienteRepository.GetByIdAsync(selectedId);
                 if (selectedCliente != null)
                 {
-                    using (var detailForm = _serviceProvider.GetRequiredService<ClientiDetailForm>())
-                    {
-                        detailForm.SetCliente(selectedCliente, isReadOnly: true);
-                        detailForm.ShowDialog(); // Mostra il form in sola lettura
-                    }
+                    var detailForm = _formManager.ShowOrActivate<ClientiDetailForm>();
+                    detailForm.SetCliente(selectedCliente, isReadOnly: true); // Imposta il form in sola lettura
+                    // Non è necessario iscriversi a FormClosed qui perché la modalità solo lettura non implica modifiche da ricaricare
                 }
             }
             else
@@ -228,6 +251,23 @@ namespace FormulariRif_G.Forms
                 MessageBox.Show("Seleziona un cliente per visualizzare i dettagli.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
+        /// <summary>
+        /// Metodo per gestire l'evento FormClosed della ClientiDetailForm.
+        /// Ricarica i dati dei clienti nella lista principale.
+        /// </summary>
+        private async void ClienteDetailForm_Closed(object? sender, FormClosedEventArgs e)
+        {
+            // Ricarica i dati nella lista principale quando il form di dettaglio si chiude
+            await LoadClientiAsync();
+
+            // Disiscrivi l'evento per evitare riferimenti persistenti
+            if (sender is ClientiDetailForm detailForm)
+            {
+                detailForm.FormClosed -= ClienteDetailForm_Closed;
+            }
+        }
+
 
         /// <summary>
         /// Gestisce il click sul pulsante "Aggiorna".
@@ -241,13 +281,13 @@ namespace FormulariRif_G.Forms
 
         /// <summary>
         /// Gestisce il cambio di testo nel campo di ricerca.
-        /// Filtra i clienti visualizzati nella DataGridView.
+        /// Attiva il timer per il debouncing.
         /// </summary>
-        private async void txtRicerca_TextChanged(object sender, EventArgs e)
+        private void txtRicerca_TextChanged(object sender, EventArgs e)
         {
             // Resetta e riavvia il timer ad ogni battitura
-            _searchTimer.Stop(); 
-            _searchTimer.Start();             
+            _searchTimer.Stop();
+            _searchTimer.Start();
         }
 
         /// <summary>
@@ -260,7 +300,10 @@ namespace FormulariRif_G.Forms
             await LoadClientiAsync(); // Esegui la ricerca effettiva
         }
 
-        // **Aggiungi Dispose per pulire il CancellationTokenSource e il Timer**
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -270,31 +313,19 @@ namespace FormulariRif_G.Forms
             if (disposing)
             {
                 _searchTimer?.Dispose(); // Assicurati di disporre il timer
-                _cancellationTokenSource?.Dispose(); // Assicurati di disporre il CancellationTokenSource
+                // Il CancellationTokenSource viene disposto nell'evento FormClosed per evitare race conditions
+                // durante le operazioni asincrone in corso al momento della chiusura del form.
+                // Se non c'è un'operazione in corso, può essere nullo.
             }
             base.Dispose(disposing);
         }
 
-        // Codice generato dal designer per ClientiListForm
         #region Windows Form Designer generated code
 
         /// <summary>
         ///  Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        ///  Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing && (components != null))
-        //    {
-        //        components.Dispose();
-        //    }
-        //    base.Dispose(disposing);
-        //}
 
         /// <summary>
         ///  Required method for Designer support - do not modify

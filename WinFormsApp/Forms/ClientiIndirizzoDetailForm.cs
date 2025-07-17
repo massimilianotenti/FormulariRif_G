@@ -10,20 +10,26 @@ namespace FormulariRif_G.Forms
     {
         private readonly IGenericRepository<ClienteIndirizzo> _clienteIndirizzoRepository;
         private ClienteIndirizzo? _currentIndirizzo;
+        private int _idCliCorrente; // Aggiunto per tenere traccia dell'IdCli per i nuovi indirizzi
 
         public ClientiIndirizzoDetailForm(IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository)
         {
             InitializeComponent();
             _clienteIndirizzoRepository = clienteIndirizzoRepository;
+            // Aggiungi un gestore per il bottone Annulla se presente sul form
+            // Assicurati di avere un bottone 'btnAnnulla' nel designer
+            // this.btnAnnulla.Click += new System.EventHandler(this.btnAnnulla_Click);
         }
 
         /// <summary>
         /// Imposta l'indirizzo da visualizzare o modificare.
+        /// Questo metodo dovrebbe essere chiamato dalla form chiamante.
         /// </summary>
-        /// <param name="indirizzo">L'oggetto ClienteIndirizzo.</param>
+        /// <param name="indirizzo">L'oggetto ClienteIndirizzo (per modifica) o un nuovo oggetto con IdCli già impostato (per nuovo inserimento).</param>
         public void SetIndirizzo(ClienteIndirizzo indirizzo)
         {
             _currentIndirizzo = indirizzo;
+            _idCliCorrente = indirizzo.IdCli; // Assicurati che IdCli sia impostato qui
             LoadIndirizzoData();
         }
 
@@ -61,6 +67,7 @@ namespace FormulariRif_G.Forms
             if (_currentIndirizzo == null)
             {
                 _currentIndirizzo = new ClienteIndirizzo();
+                _currentIndirizzo.IdCli = _idCliCorrente; // Assicurati che l'IdCli sia impostato per il nuovo indirizzo
             }
 
             _currentIndirizzo.Indirizzo = txtIndirizzo.Text.Trim();
@@ -71,6 +78,7 @@ namespace FormulariRif_G.Forms
             try
             {
                 // Recupera tutti gli indirizzi esistenti per questo cliente
+                // Usa _currentIndirizzo.IdCli che deve essere già impostato correttamente
                 var allAddressesForClient = (await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == _currentIndirizzo.IdCli)).ToList();
 
                 if (newPredefinitoState) // Se l'utente vuole impostare questo indirizzo come predefinito
@@ -85,10 +93,10 @@ namespace FormulariRif_G.Forms
                 }
                 else // Se l'utente vuole deselezionare questo indirizzo come predefinito
                 {
-                    // Se è l'unico indirizzo e lo si sta deselezionando come predefinito, impedirlo
-                    if (allAddressesForClient.Count == 1 && allAddressesForClient.First().Id == _currentIndirizzo.Id && _currentIndirizzo.Predefinito)
+                    // Controlla se ci sono altri indirizzi predefiniti o se è l'unico
+                    if (_currentIndirizzo.Id != 0 && allAddressesForClient.Count(a => a.Predefinito) == 1 && allAddressesForClient.First(a => a.Predefinito).Id == _currentIndirizzo.Id)
                     {
-                        MessageBox.Show("Un cliente deve avere almeno un indirizzo predefinito. Impossibile deselezionare questo indirizzo come predefinito.", "Validazione Indirizzo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Un cliente deve avere almeno un indirizzo predefinito. Impossibile deselezionare l'unico indirizzo predefinito.", "Validazione Indirizzo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return; // Non permettere il salvataggio
                     }
                     _currentIndirizzo.Predefinito = false;
@@ -110,13 +118,24 @@ namespace FormulariRif_G.Forms
 
                 await _clienteIndirizzoRepository.SaveChangesAsync();
                 MessageBox.Show("Indirizzo salvato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                // --- INIZIO MODIFICA QUI ---
+                // Rimuovi questa riga
+                // this.DialogResult = DialogResult.OK;
+                this.Close(); // Chiudi la form dopo il salvataggio
+                // --- FINE MODIFICA ---
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Errore durante il salvataggio dell'indirizzo: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>
+        /// Gestisce il click sul pulsante "Annulla" (se presente).
+        /// </summary>
+        private void btnAnnulla_Click(object sender, EventArgs e)
+        {
+            this.Close(); // Semplicemente chiude la form senza salvare
         }
 
         /// <summary>
@@ -181,64 +200,68 @@ namespace FormulariRif_G.Forms
             numCap = new NumericUpDown();
             chkPredefinito = new CheckBox();
             btnSalva = new Button();
+            // Aggiungi qui la dichiarazione e l'inizializzazione del pulsante Annulla
+            // Se non hai già un pulsante Annulla nel tuo designer, devi aggiungerlo.
+            // Esempio:
+            btnAnnulla = new Button(); // Dichiarazione
             ((System.ComponentModel.ISupportInitialize)numCap).BeginInit();
             SuspendLayout();
-            // 
+            //
             // lblIndirizzo
-            // 
+            //
             lblIndirizzo.AutoSize = true;
             lblIndirizzo.Location = new Point(20, 30);
             lblIndirizzo.Name = "lblIndirizzo";
             lblIndirizzo.Size = new Size(54, 15);
             lblIndirizzo.TabIndex = 0;
             lblIndirizzo.Text = "Indirizzo:";
-            // 
+            //
             // txtIndirizzo
-            // 
+            //
             txtIndirizzo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtIndirizzo.Location = new Point(100, 27);
             txtIndirizzo.MaxLength = 255;
             txtIndirizzo.Name = "txtIndirizzo";
             txtIndirizzo.Size = new Size(270, 23);
             txtIndirizzo.TabIndex = 1;
-            // 
+            //
             // lblComune
-            // 
+            //
             lblComune.AutoSize = true;
             lblComune.Location = new Point(20, 70);
             lblComune.Name = "lblComune";
             lblComune.Size = new Size(56, 15);
             lblComune.TabIndex = 2;
             lblComune.Text = "Comune:";
-            // 
+            //
             // txtComune
-            // 
+            //
             txtComune.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             txtComune.Location = new Point(100, 67);
             txtComune.MaxLength = 100;
             txtComune.Name = "txtComune";
             txtComune.Size = new Size(270, 23);
             txtComune.TabIndex = 3;
-            // 
+            //
             // lblCap
-            // 
+            //
             lblCap.AutoSize = true;
             lblCap.Location = new Point(20, 110);
             lblCap.Name = "lblCap";
             lblCap.Size = new Size(33, 15);
             lblCap.TabIndex = 4;
             lblCap.Text = "CAP:";
-            // 
+            //
             // numCap
-            // 
+            //
             numCap.Location = new Point(100, 107);
             numCap.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
             numCap.Name = "numCap";
             numCap.Size = new Size(120, 23);
             numCap.TabIndex = 5;
-            // 
+            //
             // chkPredefinito
-            // 
+            //
             chkPredefinito.AutoSize = true;
             chkPredefinito.Location = new Point(20, 145);
             chkPredefinito.Name = "chkPredefinito";
@@ -246,9 +269,9 @@ namespace FormulariRif_G.Forms
             chkPredefinito.TabIndex = 6;
             chkPredefinito.Text = "Predefinito";
             chkPredefinito.UseVisualStyleBackColor = true;
-            // 
+            //
             // btnSalva
-            // 
+            //
             btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnSalva.Location = new Point(295, 170);
             btnSalva.Name = "btnSalva";
@@ -257,12 +280,24 @@ namespace FormulariRif_G.Forms
             btnSalva.Text = "Salva";
             btnSalva.UseVisualStyleBackColor = true;
             btnSalva.Click += btnSalva_Click;
-            // 
+            //
+            // btnAnnulla (Aggiunta per gestire l'annullamento)
+            //
+            btnAnnulla.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnAnnulla.Location = new Point(210, 170); // Posizionalo accanto al pulsante Salva
+            btnAnnulla.Name = "btnAnnulla";
+            btnAnnulla.Size = new Size(75, 30);
+            btnAnnulla.TabIndex = 8; // Assicurati che l'indice sia corretto
+            btnAnnulla.Text = "Annulla";
+            btnAnnulla.UseVisualStyleBackColor = true;
+            btnAnnulla.Click += btnAnnulla_Click; // Collega l'evento click al nuovo metodo
+            //
             // ClientiIndirizzoDetailForm
-            // 
+            //
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(390, 215);
+            Controls.Add(btnAnnulla); // Aggiungi il bottone Annulla ai controlli
             Controls.Add(btnSalva);
             Controls.Add(chkPredefinito);
             Controls.Add(numCap);
@@ -275,7 +310,7 @@ namespace FormulariRif_G.Forms
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ClientiIndirizzoDetailForm";
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterParent; // Potresti volerlo su CenterScreen per form non modali "primarie"
             Text = "Dettagli Indirizzo Cliente";
             ((System.ComponentModel.ISupportInitialize)numCap).EndInit();
             ResumeLayout(false);
@@ -291,6 +326,7 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.NumericUpDown numCap;
         private System.Windows.Forms.CheckBox chkPredefinito;
         private System.Windows.Forms.Button btnSalva;
+        private System.Windows.Forms.Button btnAnnulla; // Dichiarazione per il bottone Annulla
 
         #endregion
     }

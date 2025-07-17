@@ -6,7 +6,10 @@ using FormulariRif_G.Data;
 using FormulariRif_G.Models;
 using Microsoft.Extensions.DependencyInjection; // Per IServiceProvider
 using System.Linq;
-using Microsoft.EntityFrameworkCore; // Per l'Include (anche se usiamo proiezione)
+using Microsoft.EntityFrameworkCore; // Non strettamente necessario qui se usi solo FindAsync/GetByIdAsync, ma utile per contesto
+using System.Windows.Forms; // Assicurati che sia presente per Form, MessageBox, DialogResult
+using System; // Per EventArgs e Exception
+using System.Threading.Tasks; // Per Task
 
 namespace FormulariRif_G.Forms
 {
@@ -17,15 +20,33 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<ClienteContatto> _clienteContattoRepository;
         private readonly IServiceProvider _serviceProvider;
         private Cliente? _currentCliente;
-        private TextBox txtPIVA;
-        private Label label1;
-        private TextBox txtIscrizAlbo;
-        private Label label2;
-        private TextBox txtAutoCom;
-        private Label label3;
-        private TextBox txtTipo;
-        private Label label4;
         private bool _isReadOnly;
+
+        // Dichiarazioni dei controlli (corrispondenti al tuo Designer.cs)
+        private System.Windows.Forms.Label lblRagSoc;
+        private System.Windows.Forms.TextBox txtRagSoc;
+        private System.Windows.Forms.Button btnSalva;
+        private System.Windows.Forms.Label lblCodiceFiscale;
+        private System.Windows.Forms.TextBox txtCodiceFiscale;
+        private System.Windows.Forms.GroupBox groupBoxIndirizzi;
+        private System.Windows.Forms.Button btnEliminaIndirizzo;
+        private System.Windows.Forms.Button btnModificaIndirizzo;
+        private System.Windows.Forms.Button btnNuovoIndirizzo;
+        private System.Windows.Forms.DataGridView dataGridViewIndirizzi;
+        private System.Windows.Forms.GroupBox groupBoxContatti;
+        private System.Windows.Forms.Button btnEliminaContatto;
+        private System.Windows.Forms.Button btnModificaContatto;
+        private System.Windows.Forms.Button btnNuovoContatto;
+        private System.Windows.Forms.DataGridView dataGridViewContatti;
+        private System.Windows.Forms.TextBox txtPIVA;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtIscrizAlbo;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.TextBox txtAutoCom;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.TextBox txtTipo;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button btnAnnulla; // Aggiunto, se presente nel tuo designer
 
         public ClientiDetailForm(IGenericRepository<Cliente> clienteRepository,
                                  IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository,
@@ -38,32 +59,49 @@ namespace FormulariRif_G.Forms
             _clienteContattoRepository = clienteContattoRepository;
             _serviceProvider = serviceProvider;
             this.Load += ClientiDetailForm_Load;
-        }
 
-        private async void ClientiDetailForm_Load(object? sender, EventArgs e)
-        {
-            if (_currentCliente?.Id != 0) // Se è un cliente esistente
+            // Collega gli handler degli eventi dei pulsanti per indirizzi e contatti
+            // Assicurati che questi pulsanti siano stati trascinati sul form nel designer
+            // e che i loro nomi (Name property) corrispondano a quelli qui sotto.
+            // Ho aggiunto controlli null per maggiore robustezza nel caso un pulsante non ci fosse.
+            if (btnNuovoIndirizzo != null) btnNuovoIndirizzo.Click += btnNuovoIndirizzo_Click;
+            if (btnModificaIndirizzo != null) btnModificaIndirizzo.Click += btnModificaIndirizzo_Click;
+            if (btnEliminaIndirizzo != null) btnEliminaIndirizzo.Click += btnEliminaIndirizzo_Click;
+
+            if (btnNuovoContatto != null) btnNuovoContatto.Click += btnNuovoContatto_Click;
+            if (btnModificaContatto != null) btnModificaContatto.Click += btnModificaContatto_Click;
+            if (btnEliminaContatto != null) btnEliminaContatto.Click += btnEliminaContatto_Click;
+
+            if (btnSalva != null) btnSalva.Click += btnSalva_Click;
+
+            // Assicurati che btnAnnulla esista nel designer se lo usi.
+            // Se non hai un pulsante Annulla, puoi rimuovere questa riga.
+            if (btnAnnulla != null)
             {
-                await LoadIndirizziAsync();
-                await LoadContattiAsync();
-            }
-            else
-            {
-                // Per un nuovo cliente, le griglie rimarranno vuote fino al salvataggio
-                // e i pulsanti di gestione indirizzi/contatti saranno disabilitati.
+                btnAnnulla.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
             }
         }
 
         /// <summary>
-        /// Imposta il cliente da visualizzare o modificare.
+        /// Carica i dati iniziali quando il form viene caricato.
+        /// </summary>
+        private async void ClientiDetailForm_Load(object? sender, EventArgs e)
+        {
+            // await LoadDataAsync();            
+        }
+
+        /// <summary>
+        /// Imposta il cliente da visualizzare o modificare e lo stato del form.
         /// </summary>
         /// <param name="cliente">L'oggetto Cliente.</param>
         /// <param name="isReadOnly">True per la modalità di sola lettura, False per la modifica.</param>
-        public void SetCliente(Cliente cliente, bool isReadOnly = false)
+        public async void SetCliente(Cliente cliente, bool isReadOnly = false)
         {
             _currentCliente = cliente;
             _isReadOnly = isReadOnly;
+
             LoadClienteData();
+            await LoadDataAsync();            
             SetFormState();
         }
 
@@ -94,6 +132,46 @@ namespace FormulariRif_G.Forms
         }
 
         /// <summary>
+        /// Imposta lo stato dei controlli del form (sola lettura o modifica).
+        /// </summary>
+        private void SetFormState()
+        {
+            txtRagSoc.ReadOnly = _isReadOnly;
+            txtPIVA.ReadOnly = _isReadOnly;
+            txtCodiceFiscale.ReadOnly = _isReadOnly;
+            txtIscrizAlbo.ReadOnly = _isReadOnly;
+            txtAutoCom.ReadOnly = _isReadOnly;
+            txtTipo.ReadOnly = _isReadOnly;
+            if (btnSalva != null) btnSalva.Visible = !_isReadOnly;
+
+            // I pulsanti di gestione indirizzi/contatti sono abilitati solo se il cliente è esistente e non in sola lettura
+            bool enableSubCrud = !_isReadOnly && _currentCliente?.Id != 0;
+            if (btnNuovoIndirizzo != null) btnNuovoIndirizzo.Enabled = enableSubCrud;
+            if (btnModificaIndirizzo != null) btnModificaIndirizzo.Enabled = enableSubCrud;
+            if (btnEliminaIndirizzo != null) btnEliminaIndirizzo.Enabled = enableSubCrud;
+            if (btnNuovoContatto != null) btnNuovoContatto.Enabled = enableSubCrud;
+            if (btnModificaContatto != null) btnModificaContatto.Enabled = enableSubCrud;
+            if (btnEliminaContatto != null) btnEliminaContatto.Enabled = enableSubCrud;
+        }
+
+        /// <summary>
+        /// Carica tutti i dati relativi al cliente (indirizzi e contatti).
+        /// Chiamato al Load del form o dopo modifiche/aggiunte/eliminazioni.
+        /// </summary>
+        private async Task LoadDataAsync()
+        {
+            if (_currentCliente?.Id != 0) // Se è un cliente esistente
+            {
+                await LoadIndirizziAsync();
+                await LoadContattiAsync();
+            }
+            // Per un nuovo cliente, le griglie rimarranno vuote fino al salvataggio
+            // e i pulsanti di gestione indirizzi/contatti saranno disabilitati (gestito da SetFormState).
+
+            SetFormState(); // Riapplica lo stato per gestire l'abilitazione dei pulsanti secondari
+        }
+
+        /// <summary>
         /// Carica gli indirizzi del cliente nella DataGridView degli indirizzi.
         /// </summary>
         private async Task LoadIndirizziAsync()
@@ -107,17 +185,20 @@ namespace FormulariRif_G.Forms
                 var displayIndirizzi = indirizzi.Select(i => new
                 {
                     i.Id,
-                    i.Indirizzo,
-                    i.Comune,
-                    i.Cap,
+                    IndirizzoCompleto = $"{i.Indirizzo}, {i.Cap} {i.Comune} ", // Concatenazione per visualizzazione                    
                     i.Predefinito
                 }).ToList();
 
-                dataGridViewIndirizzi.DataSource = displayIndirizzi;
-                // Nascondi la colonna Id se non necessaria per la visualizzazione
-                if (dataGridViewIndirizzi.Columns.Contains("Id"))
+                if (dataGridViewIndirizzi != null)
                 {
-                    dataGridViewIndirizzi.Columns["Id"].Visible = false;
+                    dataGridViewIndirizzi.DataSource = displayIndirizzi;
+                    // Nascondi la colonna Id se non necessaria per la visualizzazione
+                    if (dataGridViewIndirizzi.Columns.Contains("Id"))
+                    {
+                        dataGridViewIndirizzi.Columns["Id"].Visible = false;
+                    }
+                    // Adatta le colonne alla dimensione del contenuto
+                    dataGridViewIndirizzi.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                 }
             }
             catch (Exception ex)
@@ -140,17 +221,22 @@ namespace FormulariRif_G.Forms
                 var displayContatti = contatti.Select(c => new
                 {
                     c.Id,
-                    c.Contatto,
+                    c.Contatto,                    
                     c.Telefono,
                     c.Email,
                     c.Predefinito
                 }).ToList();
 
-                dataGridViewContatti.DataSource = displayContatti;
-                // Nascondi la colonna Id se non necessaria per la visualizzazione
-                if (dataGridViewContatti.Columns.Contains("Id"))
+                if (dataGridViewContatti != null)
                 {
-                    dataGridViewContatti.Columns["Id"].Visible = false;
+                    dataGridViewContatti.DataSource = displayContatti;
+                    // Nascondi la colonna Id se non necessaria per la visualizzazione
+                    if (dataGridViewContatti.Columns.Contains("Id"))
+                    {
+                        dataGridViewContatti.Columns["Id"].Visible = false;
+                    }
+                    // Adatta le colonne alla dimensione del contenuto
+                    dataGridViewContatti.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                 }
             }
             catch (Exception ex)
@@ -160,29 +246,9 @@ namespace FormulariRif_G.Forms
         }
 
         /// <summary>
-        /// Imposta lo stato dei controlli del form (sola lettura o modifica).
-        /// </summary>
-        private void SetFormState()
-        {
-            txtRagSoc.ReadOnly = _isReadOnly;
-            txtPIVA.ReadOnly = _isReadOnly;
-            txtCodiceFiscale.ReadOnly = _isReadOnly;
-            btnSalva.Visible = !_isReadOnly;
-
-            // I pulsanti di gestione indirizzi/contatti sono abilitati solo se il cliente è esistente e non in sola lettura
-            bool enableSubCrud = !_isReadOnly && _currentCliente?.Id != 0;
-            btnNuovoIndirizzo.Enabled = enableSubCrud;
-            btnModificaIndirizzo.Enabled = enableSubCrud;
-            btnEliminaIndirizzo.Enabled = enableSubCrud;
-            btnNuovoContatto.Enabled = enableSubCrud;
-            btnModificaContatto.Enabled = enableSubCrud;
-            btnEliminaContatto.Enabled = enableSubCrud;
-        }
-
-        /// <summary>
         /// Gestisce il click sul pulsante "Salva".
         /// </summary>
-        private async void btnSalva_Click(object sender, EventArgs e)
+        private async void btnSalva_Click(object? sender, EventArgs e)
         {
             if (!ValidateInput())
             {
@@ -208,10 +274,10 @@ namespace FormulariRif_G.Forms
                     await _clienteRepository.AddAsync(_currentCliente);
                     await _clienteRepository.SaveChangesAsync(); // Salva per ottenere l'ID del nuovo cliente
                     MessageBox.Show("Cliente salvato con successo! Ora puoi aggiungere indirizzi e contatti.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    // Ricarica lo stato per abilitare i pulsanti di gestione
-                    SetFormState();
-                    // Non chiudere il form, l'utente potrebbe voler aggiungere indirizzi/contatti subito
+
                     this.DialogResult = DialogResult.OK; // Segnala che il cliente è stato salvato
+                    // Non chiudere il form per permettere l'aggiunta di indirizzi e contatti subito
+                    SetFormState(); // Ricarica lo stato per abilitare i pulsanti di gestione
                 }
                 else // Cliente esistente
                 {
@@ -219,7 +285,7 @@ namespace FormulariRif_G.Forms
                     await _clienteRepository.SaveChangesAsync();
                     MessageBox.Show("Cliente aggiornato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
-                    this.Close();
+                    this.Close(); // Chiude il form dopo l'aggiornamento
                 }
             }
             catch (Exception ex)
@@ -240,15 +306,34 @@ namespace FormulariRif_G.Forms
                 txtRagSoc.Focus();
                 return false;
             }
+            // Puoi aggiungere altre regole di validazione qui (es. Partita IVA, Codice Fiscale)
             return true;
         }
+
+        /// <summary>
+        /// Metodo helper per ottenere l'ID della riga selezionata in una DataGridView.
+        /// </summary>
+        /// <param name="dataGridView">La DataGridView da cui ottenere l'ID.</param>
+        /// <returns>L'ID della riga selezionata, o 0 se nessuna riga è selezionata o l'ID non è valido.</returns>
+        private int GetSelectedRowId(DataGridView dataGridView)
+        {
+            if (dataGridView.SelectedRows.Count > 0)
+            {
+                // Usiamo Dynamic per accedere alla proprietà Id del tipo anonimo in modo sicuro.
+                // In alternativa, si potrebbe usare reflection come GetProperty("Id").GetValue(selectedRowData)
+                // ma Dynamic è più conciso per questo caso.
+                dynamic selectedRowData = dataGridView.SelectedRows[0].DataBoundItem;
+                return selectedRowData.Id;
+            }
+            return 0;
+        }        
 
         #region Gestione Indirizzi
 
         /// <summary>
         /// Gestisce il click sul pulsante "Nuovo Indirizzo".
         /// </summary>
-        private async void btnNuovoIndirizzo_Click(object sender, EventArgs e)
+        private async void btnNuovoIndirizzo_Click(object? sender, EventArgs e)
         {
             if (_currentCliente == null || _currentCliente.Id == 0)
             {
@@ -271,99 +356,98 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Modifica Indirizzo".
         /// </summary>
-        private async void btnModificaIndirizzo_Click(object sender, EventArgs e)
+        private async void btnModificaIndirizzo_Click(object? sender, EventArgs e)
         {
-            if (dataGridViewIndirizzi.SelectedRows.Count > 0)
-            {
-                // Recupera l'ID dal tipo anonimo e poi l'oggetto completo dal repository
-                var selectedRowData = dataGridViewIndirizzi.SelectedRows[0].DataBoundItem;
-                int selectedId = (int)selectedRowData.GetType().GetProperty("Id").GetValue(selectedRowData);
-                var selectedIndirizzo = await _clienteIndirizzoRepository.GetByIdAsync(selectedId);
-
-                if (selectedIndirizzo != null)
-                {
-                    using (var detailForm = _serviceProvider.GetRequiredService<ClientiIndirizzoDetailForm>())
-                    {
-                        detailForm.SetIndirizzo(selectedIndirizzo);
-                        if (detailForm.ShowDialog() == DialogResult.OK)
-                        {
-                            // La logica di salvataggio e gestione del predefinito è nel detail form
-                            await LoadIndirizziAsync(); // Ricarica la griglia dopo il salvataggio
-                        }
-                    }
-                }
-            }
-            else
+            int selectedId = GetSelectedRowId(dataGridViewIndirizzi);
+            if (selectedId == 0)
             {
                 MessageBox.Show("Seleziona un indirizzo da modificare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var selectedIndirizzo = await _clienteIndirizzoRepository.GetByIdAsync(selectedId);
+            if (selectedIndirizzo == null)
+            {
+                MessageBox.Show("Indirizzo non trovato.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using (var detailForm = _serviceProvider.GetRequiredService<ClientiIndirizzoDetailForm>())
+            {
+                detailForm.SetIndirizzo(selectedIndirizzo);
+                if (detailForm.ShowDialog() == DialogResult.OK)
+                {
+                    // La logica di salvataggio e gestione del predefinito è nel detail form
+                    await LoadIndirizziAsync(); // Ricarica la griglia dopo il salvataggio
+                }
             }
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Elimina Indirizzo".
         /// </summary>
-        private async void btnEliminaIndirizzo_Click(object sender, EventArgs e)
+        private async void btnEliminaIndirizzo_Click(object? sender, EventArgs e)
         {
-            if (dataGridViewIndirizzi.SelectedRows.Count > 0)
-            {
-                // Recupera l'ID dal tipo anonimo e poi l'oggetto completo dal repository
-                var selectedRowData = dataGridViewIndirizzi.SelectedRows[0].DataBoundItem;
-                int selectedId = (int)selectedRowData.GetType().GetProperty("Id").GetValue(selectedRowData);
-                var selectedIndirizzo = await _clienteIndirizzoRepository.GetByIdAsync(selectedId);
-
-                if (selectedIndirizzo != null)
-                {
-                    // Logica per prevenire l'eliminazione dell'unico indirizzo predefinito
-                    var allAddresses = await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == _currentCliente!.Id);
-                    if (allAddresses.Count() == 1 && selectedIndirizzo.Predefinito)
-                    {
-                        MessageBox.Show("Impossibile eliminare l'unico indirizzo predefinito. Un cliente deve avere almeno un indirizzo predefinito.", "Errore Eliminazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
-                    }
-
-                    var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare l'indirizzo '{selectedIndirizzo.Indirizzo}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (confirmResult == DialogResult.Yes)
-                    {
-                        try
-                        {
-                            _clienteIndirizzoRepository.Delete(selectedIndirizzo);
-                            await _clienteIndirizzoRepository.SaveChangesAsync();
-                            await LoadIndirizziAsync();
-
-                            // Se l'indirizzo eliminato era predefinito e ce ne sono altri, imposta il primo come predefinito
-                            var remainingAddresses = await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == _currentCliente!.Id);
-                            if (!remainingAddresses.Any(a => a.Predefinito) && remainingAddresses.Any())
-                            {
-                                var firstRemaining = remainingAddresses.First();
-                                firstRemaining.Predefinito = true;
-                                _clienteIndirizzoRepository.Update(firstRemaining);
-                                await _clienteIndirizzoRepository.SaveChangesAsync();
-                                await LoadIndirizziAsync(); // Ricarica per riflettere il nuovo predefinito
-                            }
-
-                            MessageBox.Show("Indirizzo eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Errore durante l'eliminazione dell'indirizzo: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                }
-            }
-            else
+            int selectedId = GetSelectedRowId(dataGridViewIndirizzi);
+            if (selectedId == 0)
             {
                 MessageBox.Show("Seleziona un indirizzo da eliminare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var selectedIndirizzo = await _clienteIndirizzoRepository.GetByIdAsync(selectedId);
+            if (selectedIndirizzo == null)
+            {
+                MessageBox.Show("Indirizzo non trovato.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Logica per prevenire l'eliminazione dell'unico indirizzo predefinito
+            // Questo controllo è fondamentale per garantire che ci sia sempre un indirizzo predefinito.
+            var allAddresses = await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == _currentCliente!.Id);
+            if (allAddresses.Count() == 1 && selectedIndirizzo.Predefinito)
+            {
+                MessageBox.Show("Impossibile eliminare l'unico indirizzo predefinito. Un cliente deve avere almeno un indirizzo predefinito.", "Errore Eliminazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare l'indirizzo '{selectedIndirizzo.Indirizzo}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirmResult == DialogResult.Yes)
+            {
+                try
+                {
+                    _clienteIndirizzoRepository.Delete(selectedIndirizzo);
+                    await _clienteIndirizzoRepository.SaveChangesAsync();
+                    await LoadIndirizziAsync();
+
+                    // Se l'indirizzo eliminato era predefinito e ce ne sono altri, imposta il primo come predefinito
+                    var remainingAddresses = await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == _currentCliente!.Id);
+                    if (!remainingAddresses.Any(a => a.Predefinito) && remainingAddresses.Any())
+                    {
+                        var firstRemaining = remainingAddresses.First();
+                        firstRemaining.Predefinito = true;
+                        _clienteIndirizzoRepository.Update(firstRemaining);
+                        await _clienteIndirizzoRepository.SaveChangesAsync();
+                        await LoadIndirizziAsync(); // Ricarica per riflettere il nuovo predefinito
+                    }
+
+                    MessageBox.Show("Indirizzo eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Errore durante l'eliminazione dell'indirizzo: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
-        #endregion
+        #endregion        
 
         #region Gestione Contatti
 
         /// <summary>
         /// Gestisce il click sul pulsante "Nuovo Contatto".
         /// </summary>
-        private async void btnNuovoContatto_Click(object sender, EventArgs e)
+        private async void btnNuovoContatto_Click(object? sender, EventArgs e)
         {
             if (_currentCliente == null || _currentCliente.Id == 0)
             {
@@ -385,67 +469,65 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Gestisce il click sul pulsante "Modifica Contatto".
         /// </summary>
-        private async void btnModificaContatto_Click(object sender, EventArgs e)
+        private async void btnModificaContatto_Click(object? sender, EventArgs e)
         {
-            if (dataGridViewContatti.SelectedRows.Count > 0)
-            {
-                // Recupera l'ID dal tipo anonimo e poi l'oggetto completo dal repository
-                var selectedRowData = dataGridViewContatti.SelectedRows[0].DataBoundItem;
-                int selectedId = (int)selectedRowData.GetType().GetProperty("Id").GetValue(selectedRowData);
-                var selectedContatto = await _clienteContattoRepository.GetByIdAsync(selectedId);
-
-                if (selectedContatto != null)
-                {
-                    using (var detailForm = _serviceProvider.GetRequiredService<ClientiContattiDetailForm>())
-                    {
-                        detailForm.SetContatto(selectedContatto);
-                        if (detailForm.ShowDialog() == DialogResult.OK)
-                        {
-                            await LoadContattiAsync(); // Ricarica la griglia dopo il salvataggio
-                        }
-                    }
-                }
-            }
-            else
+            int selectedId = GetSelectedRowId(dataGridViewContatti);
+            if (selectedId == 0)
             {
                 MessageBox.Show("Seleziona un contatto da modificare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var selectedContatto = await _clienteContattoRepository.GetByIdAsync(selectedId);
+            if (selectedContatto == null)
+            {
+                MessageBox.Show("Contatto non trovato.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            using (var detailForm = _serviceProvider.GetRequiredService<ClientiContattiDetailForm>())
+            {
+                detailForm.SetContatto(selectedContatto);
+                if (detailForm.ShowDialog() == DialogResult.OK)
+                {
+                    await LoadContattiAsync(); // Ricarica la griglia dopo il salvataggio
+                }
             }
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Elimina Contatto".
         /// </summary>
-        private async void btnEliminaContatto_Click(object sender, EventArgs e)
+        private async void btnEliminaContatto_Click(object? sender, EventArgs e)
         {
-            if (dataGridViewContatti.SelectedRows.Count > 0)
-            {
-                // Recupera l'ID dal tipo anonimo e poi l'oggetto completo dal repository
-                var selectedRowData = dataGridViewContatti.SelectedRows[0].DataBoundItem;
-                int selectedId = (int)selectedRowData.GetType().GetProperty("Id").GetValue(selectedRowData);
-                var selectedContatto = await _clienteContattoRepository.GetByIdAsync(selectedId);
-
-                if (selectedContatto != null)
-                {
-                    var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare il contatto '{selectedContatto.Contatto}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                    if (confirmResult == DialogResult.Yes)
-                    {
-                        try
-                        {
-                            _clienteContattoRepository.Delete(selectedContatto);
-                            await _clienteContattoRepository.SaveChangesAsync();
-                            await LoadContattiAsync();
-                            MessageBox.Show("Contatto eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Errore durante l'eliminazione del contatto: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
-                }
-            }
-            else
+            int selectedId = GetSelectedRowId(dataGridViewContatti);
+            if (selectedId == 0)
             {
                 MessageBox.Show("Seleziona un contatto da eliminare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var selectedContatto = await _clienteContattoRepository.GetByIdAsync(selectedId);
+            if (selectedContatto == null)
+            {
+                MessageBox.Show("Contatto non trovato.", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            var confirmResult = MessageBox.Show($"Sei sicuro di voler eliminare il contatto '{selectedContatto.Contatto}'?", "Conferma Eliminazione", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (confirmResult == DialogResult.Yes)
+            {
+                try
+                {
+                    _clienteContattoRepository.Delete(selectedContatto);
+                    await _clienteContattoRepository.SaveChangesAsync();
+                    await LoadContattiAsync();
+                    MessageBox.Show("Contatto eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Errore durante l'eliminazione del contatto: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
         }
 
@@ -501,6 +583,7 @@ namespace FormulariRif_G.Forms
             label3 = new Label();
             txtTipo = new TextBox();
             label4 = new Label();
+            btnAnnulla = new Button(); // Aggiunto: Se non lo avevi, assicurati di posizionarlo nel designer
             groupBoxIndirizzi.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewIndirizzi).BeginInit();
             groupBoxContatti.SuspendLayout();
@@ -576,7 +659,6 @@ namespace FormulariRif_G.Forms
             btnEliminaIndirizzo.TabIndex = 3;
             btnEliminaIndirizzo.Text = "Elimina";
             btnEliminaIndirizzo.UseVisualStyleBackColor = true;
-            btnEliminaIndirizzo.Click += btnEliminaIndirizzo_Click;
             // 
             // btnModificaIndirizzo
             // 
@@ -587,7 +669,6 @@ namespace FormulariRif_G.Forms
             btnModificaIndirizzo.TabIndex = 2;
             btnModificaIndirizzo.Text = "Modifica";
             btnModificaIndirizzo.UseVisualStyleBackColor = true;
-            btnModificaIndirizzo.Click += btnModificaIndirizzo_Click;
             // 
             // btnNuovoIndirizzo
             // 
@@ -598,7 +679,6 @@ namespace FormulariRif_G.Forms
             btnNuovoIndirizzo.TabIndex = 1;
             btnNuovoIndirizzo.Text = "Nuovo";
             btnNuovoIndirizzo.UseVisualStyleBackColor = true;
-            btnNuovoIndirizzo.Click += btnNuovoIndirizzo_Click;
             // 
             // dataGridViewIndirizzi
             // 
@@ -638,7 +718,6 @@ namespace FormulariRif_G.Forms
             btnEliminaContatto.TabIndex = 3;
             btnEliminaContatto.Text = "Elimina";
             btnEliminaContatto.UseVisualStyleBackColor = true;
-            btnEliminaContatto.Click += btnEliminaContatto_Click;
             // 
             // btnModificaContatto
             // 
@@ -649,7 +728,6 @@ namespace FormulariRif_G.Forms
             btnModificaContatto.TabIndex = 2;
             btnModificaContatto.Text = "Modifica";
             btnModificaContatto.UseVisualStyleBackColor = true;
-            btnModificaContatto.Click += btnModificaContatto_Click;
             // 
             // btnNuovoContatto
             // 
@@ -660,7 +738,6 @@ namespace FormulariRif_G.Forms
             btnNuovoContatto.TabIndex = 1;
             btnNuovoContatto.Text = "Nuovo";
             btnNuovoContatto.UseVisualStyleBackColor = true;
-            btnNuovoContatto.Click += btnNuovoContatto_Click;
             // 
             // dataGridViewContatti
             // 
@@ -749,11 +826,21 @@ namespace FormulariRif_G.Forms
             label4.TabIndex = 13;
             label4.Text = "Tipo:";
             // 
+            // btnAnnulla
+            // 
+            btnAnnulla.Location = new Point(604, 584); // Esempio di posizione, adatta al tuo layout
+            btnAnnulla.Name = "btnAnnulla";
+            btnAnnulla.Size = new Size(75, 30);
+            btnAnnulla.TabIndex = 15; // Un nuovo tabindex
+            btnAnnulla.Text = "Annulla";
+            btnAnnulla.UseVisualStyleBackColor = true;
+            // 
             // ClientiDetailForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 629);
+            Controls.Add(btnAnnulla); // Aggiunto ai controlli del form
             Controls.Add(txtTipo);
             Controls.Add(label4);
             Controls.Add(txtAutoCom);
@@ -783,22 +870,6 @@ namespace FormulariRif_G.Forms
             PerformLayout();
 
         }
-
-        private System.Windows.Forms.Label lblRagSoc;
-        private System.Windows.Forms.TextBox txtRagSoc;
-        private System.Windows.Forms.Button btnSalva;
-        private System.Windows.Forms.Label lblCodiceFiscale;
-        private System.Windows.Forms.TextBox txtCodiceFiscale;
-        private System.Windows.Forms.GroupBox groupBoxIndirizzi;
-        private System.Windows.Forms.Button btnEliminaIndirizzo;
-        private System.Windows.Forms.Button btnModificaIndirizzo;
-        private System.Windows.Forms.Button btnNuovoIndirizzo;
-        private System.Windows.Forms.DataGridView dataGridViewIndirizzi;
-        private System.Windows.Forms.GroupBox groupBoxContatti;
-        private System.Windows.Forms.Button btnEliminaContatto;
-        private System.Windows.Forms.Button btnModificaContatto;
-        private System.Windows.Forms.Button btnNuovoContatto;
-        private System.Windows.Forms.DataGridView dataGridViewContatti;
 
         #endregion
     }

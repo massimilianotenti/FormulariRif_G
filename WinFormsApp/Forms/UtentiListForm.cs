@@ -1,27 +1,29 @@
 ﻿// File: Forms/UtentiListForm.cs
 // Questo form visualizza un elenco di utenti, permette la ricerca e le operazioni CRUD.
-// Ora include la logica per prevenire l'eliminazione dell'unico utente amministratore.
+// Ora include la logica per prevenire l'eliminazione dell'unico utente amministratore
+// e utilizza FormManager per la gestione delle form di dettaglio non modali.
 using Microsoft.Extensions.DependencyInjection;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
-using System.Linq; // Per l'estensione Where
+using FormulariRif_G.Service; // Aggiunto l'using per FormManager
+using System.Linq;
 
 namespace FormulariRif_G.Forms
 {
     public partial class UtentiListForm : Form
     {
         private readonly IGenericRepository<Utente> _utenteRepository;
-        private readonly IGenericRepository<Configurazione> _configurazioneRepository; // Nuova dipendenza
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository;
+        private readonly FormManager _formManager; // Sostituito IServiceProvider con FormManager
 
         public UtentiListForm(IGenericRepository<Utente> utenteRepository,
-                              IGenericRepository<Configurazione> configurazioneRepository, // Aggiunta la dipendenza
-                              IServiceProvider serviceProvider)
+                              IGenericRepository<Configurazione> configurazioneRepository,
+                              FormManager formManager) // Inietta FormManager
         {
             InitializeComponent();
             _utenteRepository = utenteRepository;
             _configurazioneRepository = configurazioneRepository;
-            _serviceProvider = serviceProvider;
+            _formManager = formManager; // Assegna il FormManager iniettato
             this.Load += UtentiListForm_Load;
         }
 
@@ -38,16 +40,13 @@ namespace FormulariRif_G.Forms
             try
             {
                 var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
-                bool showTestData = configurazione?.DatiTest ?? false; // Assumendo che gli utenti non siano dati di test
+                bool showTestData = configurazione?.DatiTest ?? false;
 
                 IEnumerable<Utente> utenti;
-                // Per gli utenti, non c'è un campo IsTestData, quindi li carichiamo sempre tutti
-                // Se in futuro volessi distinguere utenti di test, dovresti aggiungere un campo IsTestData al modello Utente
                 utenti = await _utenteRepository.GetAllAsync();
 
                 dataGridViewUtenti.DataSource = utenti.ToList();
                 dataGridViewUtenti.Columns["Id"].Visible = false;
-                // Nasconde le colonne sensibili per motivi di sicurezza/visualizzazione
                 if (dataGridViewUtenti.Columns.Contains("Password"))
                 {
                     dataGridViewUtenti.Columns["Password"].Visible = false;
@@ -69,21 +68,27 @@ namespace FormulariRif_G.Forms
 
         /// <summary>
         /// Gestisce il click sul pulsante "Nuovo".
+        /// Apre UtentiDetailForm in modalità non modale per l'inserimento.
         /// </summary>
         private async void btnNuovo_Click(object sender, EventArgs e)
         {
-            using (var detailForm = _serviceProvider.GetRequiredService<UtentiDetailForm>())
-            {
-                detailForm.SetUtente(new Utente(), false ); 
-                if (detailForm.ShowDialog() == DialogResult.OK)
-                {
-                    await LoadUtentiAsync();
-                }
-            }
+            // Usa il FormManager per aprire o attivare la UtentiDetailForm
+            var detailForm = _formManager.ShowOrActivate<UtentiDetailForm>();
+
+            // Imposta l'utente e la modalità.
+            // Se la form era già aperta, potremmo volerla resettare o meno,
+            // a seconda della logica desiderata. Qui la resettiamo a una nuova entità.
+            detailForm.SetUtente(new Utente(), false);
+
+            // Per le form non modali, gestiamo l'evento FormClosed
+            // per sapere quando ricaricare i dati.
+            detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
+            detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
         }
 
         /// <summary>
         /// Gestisce il click sul pulsante "Modifica".
+        /// Apre UtentiDetailForm in modalità non modale per la modifica.
         /// </summary>
         private async void btnModifica_Click(object sender, EventArgs e)
         {
@@ -92,20 +97,56 @@ namespace FormulariRif_G.Forms
                 var selectedUtente = dataGridViewUtenti.SelectedRows[0].DataBoundItem as Utente;
                 if (selectedUtente != null)
                 {
-                    using (var detailForm = _serviceProvider.GetRequiredService<UtentiDetailForm>())
-                    {
-                        detailForm.SetUtente(selectedUtente, isReadOnly: false); 
-                        if (detailForm.ShowDialog() == DialogResult.OK)
-                        {
-                            await LoadUtentiAsync();
-                        }
-                    }
+                    // Usa il FormManager per aprire o attivare la UtentiDetailForm
+                    var detailForm = _formManager.ShowOrActivate<UtentiDetailForm>();
+                    detailForm.SetUtente(selectedUtente, isReadOnly: false);
+
+                    detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
+                    detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
                 }
             }
             else
             {
                 MessageBox.Show("Seleziona un utente da modificare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+        }
+
+        /// <summary>
+        /// Gestisce il click sul pulsante "Dettagli".
+        /// Apre UtentiDetailForm in modalità non modale di sola lettura.
+        /// </summary>
+        private void btnDettagli_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewUtenti.SelectedRows.Count > 0)
+            {
+                var selectedUtente = dataGridViewUtenti.SelectedRows[0].DataBoundItem as Utente;
+                if (selectedUtente != null)
+                {
+                    // Usa il FormManager per aprire o attivare la UtentiDetailForm
+                    var detailForm = _formManager.ShowOrActivate<UtentiDetailForm>();
+                    detailForm.SetUtente(selectedUtente, isReadOnly: true);
+
+                    detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
+                    detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
+                }
+            }
+            else
+            {
+                MessageBox.Show("Seleziona un utente per visualizzare i dettagli.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        /// <summary>
+        /// Gestore comune per l'evento FormClosed delle form di dettaglio.
+        /// Ricarica i dati quando una form di dettaglio viene chiusa.
+        /// </summary>
+        private async void DetailForm_FormClosed(object? sender, FormClosedEventArgs e)
+        {
+            // Se la form è stata chiusa (quindi non più visibile), possiamo ricaricare i dati.
+            // Puoi aggiungere logica qui per verificare se i dati sono stati effettivamente modificati
+            // nella form di dettaglio, se la tua detail form restituisce un DialogResult.OK
+            // o un flag interno. Per semplicità, ricarichiamo sempre.
+            await LoadUtentiAsync();
         }
 
         /// <summary>
@@ -150,29 +191,6 @@ namespace FormulariRif_G.Forms
             else
             {
                 MessageBox.Show("Seleziona un utente da eliminare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
-
-        /// <summary>
-        /// Gestisce il click sul pulsante "Dettagli".
-        /// </summary>
-        private void btnDettagli_Click(object sender, EventArgs e)
-        {
-            if (dataGridViewUtenti.SelectedRows.Count > 0)
-            {
-                var selectedUtente = dataGridViewUtenti.SelectedRows[0].DataBoundItem as Utente;
-                if (selectedUtente != null)
-                {
-                    using (var detailForm = _serviceProvider.GetRequiredService<UtentiDetailForm>())
-                    {
-                        detailForm.SetUtente(selectedUtente, isReadOnly: true); // Passa il contesto admin
-                        detailForm.ShowDialog();
-                    }
-                }
-            }
-            else
-            {
-                MessageBox.Show("Seleziona un utente per visualizzare i dettagli.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
