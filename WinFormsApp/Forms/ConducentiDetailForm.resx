@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Dettaglio Conducente</value>
+  </data>
+  <data name="lblDescrizione.AutoSize" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="lblDescrizione.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>30, 30</value>
+  </data>
+  <data name="lblDescrizione.Name" xml:space="preserve">
+    <value>lblDescrizione</value>
+  </data>
+  <data name="lblDescrizione.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>73, 15</value>
+  </data>
+  <data name="lblDescrizione.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="lblDescrizione.Text" xml:space="preserve">
+    <value>Descrizione:</value>
+  </data>
+  <data name="txtDescrizione.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms" xml:space="preserve">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="txtDescrizione.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>160, 27</value>
+  </data>
+  <data name="txtDescrizione.MaxLength" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>250</value>
+  </data>
+  <data name="txtDescrizione.Name" xml:space="preserve">
+    <value>txtDescrizione</value>
+  </data>
+  <data name="txtDescrizione.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>220, 23</value>
+  </data>
+  <data name="txtDescrizione.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="lblContatto.AutoSize" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="lblContatto.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>30, 70</value>
+  </data>
+  <data name="lblContatto.Name" xml:space="preserve">
+    <value>lblContatto</value>
+  </data>
+  <data name="lblContatto.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>59, 15</value>
+  </data>
+  <data name="lblContatto.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>2</value>
+  </data>
+  <data name="lblContatto.Text" xml:space="preserve">
+    <value>Contatto:</value>
+  </data>
+  <data name="txtContatto.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms" xml:space="preserve">
+    <value>Top, Left, Right</value>
+  </data>
+  <data name="txtContatto.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>160, 67</value>
+  </data>
+  <data name="txtContatto.MaxLength" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>50</value>
+  </data>
+  <data name="txtContatto.Name" xml:space="preserve">
+    <value>txtContatto</value>
+  </data>
+  <data name="txtContatto.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>220, 23</value>
+  </data>
+  <data name="txtContatto.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>3</value>
+  </data>
+  <data name="lblTipo.AutoSize" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="lblTipo.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>30, 110</value>
+  </data>
+  <data name="lblTipo.Name" xml:space="preserve">
+    <value>lblTipo</value>
+  </data>
+  <data name="lblTipo.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>33, 15</value>
+  </data>
+  <data name="lblTipo.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="lblTipo.Text" xml:space="preserve">
+    <value>Tipo:</value>
+  </data>
+  <data name="rdbDipendente.AutoSize" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="rdbDipendente.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>160, 108</value>
+  </data>
+  <data name="rdbDipendente.Name" xml:space="preserve">
+    <value>rdbDipendente</value>
+  </data>
+  <data name="rdbDipendente.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>83, 19</value>
+  </data>
+  <data name="rdbDipendente.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="rdbDipendente.Text" xml:space="preserve">
+    <value>Dipendente</value>
+  </data>
+  <data name="rdbDipendente.UseVisualStyleBackColor" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.AutoSize" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>160, 133</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.Name" xml:space="preserve">
+    <value>rdbTrasportatoreEsterno</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>135, 19</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>6</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.Text" xml:space="preserve">
+    <value>Trasportatore Esterno</value>
+  </data>
+  <data name="rdbTrasportatoreEsterno.UseVisualStyleBackColor" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="btnSalva.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms" xml:space="preserve">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="btnSalva.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>224, 220</value>
+  </data>
+  <data name="btnSalva.Name" xml:space="preserve">
+    <value>btnSalva</value>
+  </data>
+  <data name="btnSalva.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>75, 30</value>
+  </data>
+  <data name="btnSalva.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>7</value>
+  </data>
+  <data name="btnSalva.Text" xml:space="preserve">
+    <value>Salva</value>
+  </data>
+  <data name="btnSalva.UseVisualStyleBackColor" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="btnAnnulla.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms" xml:space="preserve">
+    <value>Bottom, Right</value>
+  </data>
+  <data name="btnAnnulla.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>305, 220</value>
+  </data>
+  <data name="btnAnnulla.Name" xml:space="preserve">
+    <value>btnAnnulla</value>
+  </data>
+  <data name="btnAnnulla.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>75, 30</value>
+  </data>
+  <data name="btnAnnulla.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>8</value>
+  </data>
+  <data name="btnAnnulla.Text" xml:space="preserve">
+    <value>Annulla</value>
+  </data>
+  <data name="btnAnnulla.UseVisualStyleBackColor" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="$this.Name" xml:space="preserve">
+    <value>ConducentiDetailForm</value>
+  </data>
+</root>

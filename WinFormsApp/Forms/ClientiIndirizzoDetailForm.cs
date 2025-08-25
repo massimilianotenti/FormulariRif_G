@@ -42,7 +42,7 @@ namespace FormulariRif_G.Forms
             {
                 txtIndirizzo.Text = _currentIndirizzo.Indirizzo;
                 txtComune.Text = _currentIndirizzo.Comune;
-                numCap.Value = _currentIndirizzo.Cap;
+                numCap.Value = (int)_currentIndirizzo.Cap;
                 chkPredefinito.Checked = _currentIndirizzo.Predefinito;
             }
             else

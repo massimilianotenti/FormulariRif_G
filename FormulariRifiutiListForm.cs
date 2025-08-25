@@ -1,4 +1,4 @@
-﻿// File: Forms/FormulariRifiutiListForm.cs
+// File: Forms/FormulariRifiutiListForm.cs
 // Questo form visualizza un elenco di formulari rifiuti e permette le operazioni CRUD.
 // Ora utilizza FormManager per la gestione delle form di dettaglio non modali.
 using Microsoft.Extensions.DependencyInjection;

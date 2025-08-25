@@ -80,6 +80,15 @@ namespace FormulariRif_G.Forms
         }
 
         /// <summary>
+        /// Gestisce il click sul pulsante "Gestione Conducenti".
+        /// Apre il form per la gestione dei conducenti tramite FormManager.
+        /// </summary>
+        private void btnGestioneConducenti_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowOrActivate<ConducentiListForm>();
+        }
+
+        /// <summary>
         /// Gestisce il click sul pulsante "Gestione Formulari Rifiuti".
         /// Apre il form per la gestione dei formulari rifiuti tramite FormManager.
         /// </summary>
@@ -154,6 +163,7 @@ namespace FormulariRif_G.Forms
             btnConfigurazione = new Button();
             btnGestioneAutomezzi = new Button();
             btnGestioneFormulariRifiuti = new Button();
+            btnGestioneConducenti = new Button(); // NUOVO: Dichiarazione del pulsante per Gestione Conducenti
             SuspendLayout();
             //
             // btnGestioneClienti
@@ -169,7 +179,7 @@ namespace FormulariRif_G.Forms
             //
             // btnGestioneUtenti
             //
-            btnGestioneUtenti.Location = new Point(93, 383);
+            btnGestioneUtenti.Location = new Point(93, 324);
             btnGestioneUtenti.Margin = new Padding(6, 6, 6, 6);
             btnGestioneUtenti.Name = "btnGestioneUtenti";
             btnGestioneUtenti.Size = new Size(371, 107);
@@ -180,7 +190,7 @@ namespace FormulariRif_G.Forms
             //
             // btnLogout
             //
-            btnLogout.Location = new Point(93, 832);
+            btnLogout.Location = new Point(93, 844);
             btnLogout.Margin = new Padding(6, 6, 6, 6);
             btnLogout.Name = "btnLogout";
             btnLogout.Size = new Size(371, 107);
@@ -191,7 +201,7 @@ namespace FormulariRif_G.Forms
             //
             // btnConfigurazione
             //
-            btnConfigurazione.Location = new Point(93, 704);
+            btnConfigurazione.Location = new Point(93, 714);
             btnConfigurazione.Margin = new Padding(6, 6, 6, 6);
             btnConfigurazione.Name = "btnConfigurazione";
             btnConfigurazione.Size = new Size(371, 107);
@@ -202,7 +212,7 @@ namespace FormulariRif_G.Forms
             //
             // btnGestioneAutomezzi
             //
-            btnGestioneAutomezzi.Location = new Point(93, 511);
+            btnGestioneAutomezzi.Location = new Point(93, 454);
             btnGestioneAutomezzi.Margin = new Padding(6, 6, 6, 6);
             btnGestioneAutomezzi.Name = "btnGestioneAutomezzi";
             btnGestioneAutomezzi.Size = new Size(371, 107);
@@ -211,13 +221,24 @@ namespace FormulariRif_G.Forms
             btnGestioneAutomezzi.UseVisualStyleBackColor = true;
             btnGestioneAutomezzi.Click += btnGestioneAutomezzi_Click;
             //
+            // btnGestioneConducenti
+            //
+            btnGestioneConducenti.Location = new Point(93, 584);
+            btnGestioneConducenti.Margin = new Padding(6, 6, 6, 6);
+            btnGestioneConducenti.Name = "btnGestioneConducenti";
+            btnGestioneConducenti.Size = new Size(371, 107);
+            btnGestioneConducenti.TabIndex = 4; 
+            btnGestioneConducenti.Text = "Gestione Conducenti";
+            btnGestioneConducenti.UseVisualStyleBackColor = true;
+            btnGestioneConducenti.Click += btnGestioneConducenti_Click;
+            //
             // btnGestioneFormulariRifiuti
             //
-            btnGestioneFormulariRifiuti.Location = new Point(93, 196);
+            btnGestioneFormulariRifiuti.Location = new Point(93, 194);
             btnGestioneFormulariRifiuti.Margin = new Padding(6, 6, 6, 6);
             btnGestioneFormulariRifiuti.Name = "btnGestioneFormulariRifiuti";
             btnGestioneFormulariRifiuti.Size = new Size(371, 107);
-            btnGestioneFormulariRifiuti.TabIndex = 4;
+            btnGestioneFormulariRifiuti.TabIndex = 1; 
             btnGestioneFormulariRifiuti.Text = "Gestione Formulari Rifiuti";
             btnGestioneFormulariRifiuti.UseVisualStyleBackColor = true;
             btnGestioneFormulariRifiuti.Click += btnGestioneFormulariRifiuti_Click;
@@ -226,13 +247,14 @@ namespace FormulariRif_G.Forms
             //
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(557, 981);
+            ClientSize = new Size(557, 1050);
             Controls.Add(btnGestioneFormulariRifiuti);
             Controls.Add(btnGestioneAutomezzi);
             Controls.Add(btnLogout);
             Controls.Add(btnConfigurazione);
             Controls.Add(btnGestioneUtenti);
             Controls.Add(btnGestioneClienti);
+            Controls.Add(btnGestioneConducenti); 
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Margin = new Padding(6, 6, 6, 6);
             MaximizeBox = false;
@@ -250,6 +272,7 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Button btnConfigurazione;
         private System.Windows.Forms.Button btnGestioneAutomezzi; // Dichiarazione del nuovo pulsante
         private System.Windows.Forms.Button btnGestioneFormulariRifiuti; // Dichiarazione del nuovo pulsante
+        private System.Windows.Forms.Button btnGestioneConducenti; // NUOVO: Dichiarazione del pulsante per Gestione Conducenti
 
         #endregion
     }

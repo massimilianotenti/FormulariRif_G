@@ -20,5 +20,7 @@ namespace FormulariRif_G.Models
         [StringLength(20)] // La targa ha una lunghezza specifica
         [Column("targa")]
         public string Targa { get; set; } = string.Empty;
+
+        public ICollection<Autom_Cond> AutomezziConducenti { get; set; }
     }
 }

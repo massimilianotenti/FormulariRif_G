@@ -117,4 +117,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="btnGestioneFormulariRifiuti.Text" xml:space="preserve">
+    <value>Gestione Formulari Rifiuti</value>
+  </data>
+  <data name="btnGestioneFormulariRifiuti.UseVisualStyleBackColor" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="btnGestioneConducenti.Location" type="System.Drawing.Point, System.Drawing" xml:space="preserve">
+    <value>93, 640</value>
+  </data>
+  <data name="btnGestioneConducenti.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms" xml:space="preserve">
+    <value>6, 6, 6, 6</value>
+  </data>
+  <data name="btnGestioneConducenti.Name" xml:space="preserve">
+    <value>btnGestioneConducenti</value>
+  </data>
+  <data name="btnGestioneConducenti.Size" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>371, 107</value>
+  </data>
+  <data name="btnGestioneConducenti.TabIndex" type="System.Int32, mscorlib" xml:space="preserve">
+    <value>4</value>
+  </data>
+  <data name="btnGestioneConducenti.Text" xml:space="preserve">
+    <value>Gestione Conducenti</value>
+  </data>
+  <data name="btnGestioneConducenti.UseVisualStyleBackColor" type="System.Boolean, mscorlib" xml:space="preserve">
+    <value>True</value>
+  </data>
+  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing" xml:space="preserve">
+    <value>13, 32</value>
+  </data>
+  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing" xml:space="preserve">
+    <value>557, 1050</value>
+  </data>
+  <data name="$this.Name" xml:space="preserve">
+    <value>MainForm</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Menu Principale</value>
+  </data>
 </root>

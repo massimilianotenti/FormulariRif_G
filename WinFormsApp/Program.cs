@@ -1,5 +1,5 @@
 // File: Program.cs
-// Questo file è il punto di ingresso dell'applicazione WinForms.
+// Questo file ï¿½ il punto di ingresso dell'applicazione WinForms.
 // Gestisce la configurazione iniziale, la connessione al database e l'avvio della UI.
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,7 +23,7 @@ namespace FormulariRif_G
         static async Task Main()
         {
             // Inizializzazione standard dell'applicazione Windows Forms
-            // Questa linea è stata spostata qui per essere eseguita una sola volta
+            // Questa linea ï¿½ stata spostata qui per essere eseguita una sola volta
             // all'inizio del Main, prima di qualsiasi ciclo o logica UI.
             ApplicationConfiguration.Initialize();
 
@@ -67,7 +67,7 @@ namespace FormulariRif_G
                 string? dbPassword = null;
                 string? connectionString = null;
 
-                bool configNeeded = false; // Flag per indicare se è necessaria la configurazione iniziale
+                bool configNeeded = false; // Flag per indicare se ï¿½ necessaria la configurazione iniziale
 
                 // Tenta di decriptare le credenziali e testare la connessione
                 if (!string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(databaseName) &&
@@ -88,13 +88,13 @@ namespace FormulariRif_G
                     }
                     catch (Exception)
                     {
-                        // Se la decriptazione fallisce o la connessione non riesce, la configurazione è necessaria
+                        // Se la decriptazione fallisce o la connessione non riesce, la configurazione ï¿½ necessaria
                         configNeeded = true;
                     }
                 }
                 else
                 {
-                    // Se mancano dati nella configurazione, la configurazione è necessaria
+                    // Se mancano dati nella configurazione, la configurazione ï¿½ necessaria
                     configNeeded = true;
                 }
 
@@ -118,7 +118,7 @@ namespace FormulariRif_G
                         var configForm = scope.ServiceProvider.GetRequiredService<ConfigurazioneForm>();
                         if (configForm.ShowDialog() == DialogResult.OK)
                         {
-                            // Se la configurazione è stata salvata con successo, riavvia l'applicazione
+                            // Se la configurazione ï¿½ stata salvata con successo, riavvia l'applicazione
                             restartApp = true;
                         }
                         else
@@ -129,10 +129,10 @@ namespace FormulariRif_G
                     }
                 }
 
-                // --- Logica per l'Avvio Completo dell'Applicazione dopo la Configurazione (o se già presente) ---
-                if (restartApp || !configNeeded) // Se è stato richiesto un riavvio o se la configurazione non era necessaria
+                // --- Logica per l'Avvio Completo dell'Applicazione dopo la Configurazione (o se giï¿½ presente) ---
+                if (restartApp || !configNeeded) // Se ï¿½ stato richiesto un riavvio o se la configurazione non era necessaria
                 {
-                    // Se c'è stato un riavvio, ricarica la configurazione (potrebbe essere cambiata)
+                    // Se c'ï¿½ stato un riavvio, ricarica la configurazione (potrebbe essere cambiata)
                     if (restartApp)
                     {
                         configuration = new ConfigurationBuilder()
@@ -148,8 +148,8 @@ namespace FormulariRif_G
 
                         try
                         {
-                            dbUsername = EncryptionHelper.Decrypt(encryptedUsername!); // Usare '!' per indicare che non sarà null
-                            dbPassword = EncryptionHelper.Decrypt(encryptedPassword!); // Usare '!' per indicare che non sarà null
+                            dbUsername = EncryptionHelper.Decrypt(encryptedUsername!); // Usare '!' per indicare che non sarï¿½ null
+                            dbPassword = EncryptionHelper.Decrypt(encryptedPassword!); // Usare '!' per indicare che non sarï¿½ null
                             connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
                         }
                         catch (Exception ex)
@@ -196,15 +196,15 @@ namespace FormulariRif_G
                         await EnsureDefaultUserExists(dbScope.ServiceProvider);
                     }
 
-                    // Avvia la LoginForm (modalmente, come era già)
+                    // Avvia la LoginForm (modalmente, come era giï¿½)
                     var loginForm = _host.Services.GetRequiredService<LoginForm>();
                     if (loginForm.ShowDialog() == DialogResult.OK)
                     {
                         // Se il login ha successo, avvia la MainForm (ora gestita dal DI)
                         var mainForm = _host.Services.GetRequiredService<MainForm>();
-                        // La MainForm ora verrà mostrata usando ShowOrActivate tramite FormManager
+                        // La MainForm ora verrï¿½ mostrata usando ShowOrActivate tramite FormManager
                         // Tuttavia, qui stiamo ancora usando ShowDialog. Se la MainForm
-                        // ha un proprio ShowDialog che può restituire DialogResult.Retry,
+                        // ha un proprio ShowDialog che puï¿½ restituire DialogResult.Retry,
                         // allora questa logica rimane.
                         if (mainForm.ShowDialog() == DialogResult.Retry)
                         {
@@ -248,7 +248,7 @@ namespace FormulariRif_G
                     // Registrazione dei Form come Transient (nuova istanza ad ogni richiesta)
                     services.AddTransient<LoginForm>();
                     services.AddTransient<MainForm>();
-                    services.AddTransient<ConfigurazioneForm>(); // Già presente, la manteniamo
+                    services.AddTransient<ConfigurazioneForm>(); // Giï¿½ presente, la manteniamo
 
                     // Registrazione di tutti i tuoi Form esistenti e nuovi
                     services.AddTransient<ClientiListForm>();
@@ -261,6 +261,8 @@ namespace FormulariRif_G
                     services.AddTransient<AutomezziDetailForm>();
                     services.AddTransient<FormulariRifiutiListForm>();
                     services.AddTransient<FormulariRifiutiDetailForm>();
+                    services.AddTransient<ConducentiListForm>();
+                    services.AddTransient<ConducentiDetailForm>();
                     // Aggiungi qui eventuali altri Form del tuo progetto
 
                     // Registrazione del FormManager come Singleton

@@ -12,20 +12,24 @@ namespace FormulariRif_G.Data
         {
         }
 
-        // DbSet per la tabella Clienti
+        
         public DbSet<Cliente> Clienti { get; set; }
-        // DbSet per la tabella ClientiContatti
+        
         public DbSet<ClienteContatto> ClientiContatti { get; set; }
-        // DbSet per la tabella Utenti
+        
         public DbSet<Utente> Utenti { get; set; }
-        // DbSet per la tabella Configurazione
+        
         public DbSet<Configurazione> Configurazioni { get; set; }
-        // NUOVO: DbSet per la tabella Automezzi
+        
         public DbSet<Automezzo> Automezzi { get; set; }
-        // NUOVO: DbSet per la tabella ClientiIndirizzi
+        
         public DbSet<ClienteIndirizzo> ClientiIndirizzi { get; set; }
-        // NUOVO: DbSet per la tabella FormulariRifiuti
+        
         public DbSet<FormularioRifiuti> FormulariRifiuti { get; set; }
+
+        public DbSet<Conducente> Conducenti { get; set; }
+
+        public DbSet<Autom_Cond> FKAutomCond { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -64,8 +68,7 @@ namespace FormulariRif_G.Data
             {
                 entity.Property(e => e.IsTestData).HasColumnName("is_test_data");
             });
-
-            // Configurazione per la colonna dati_test per Configurazione
+            
             modelBuilder.Entity<Configurazione>(entity =>
             {
                 entity.Property(e => e.DatiTest).HasColumnName("dati_test");
@@ -75,13 +78,34 @@ namespace FormulariRif_G.Data
                 entity.Property(e => e.NumeroIscrizioneAlbo).HasColumnName("numero_iscrizione_albo");
                 entity.Property(e => e.DataIscrizioneAlbo).HasColumnName("data_iscrizione_albo");
             });
-
-            // NUOVO: Configurazione per Automezzo
+            
             modelBuilder.Entity<Automezzo>(entity =>
             {
                 entity.Property(e => e.Descrizione).HasColumnName("descrizione");
                 entity.Property(e => e.Targa).HasColumnName("targa");
             });
+
+            modelBuilder.Entity<Conducente>(entity =>
+            {
+                entity.Property(e => e.Descrizione).HasColumnName("descrizione");
+                entity.Property(e => e.Contatto).HasColumnName("contatto");
+                entity.Property(e => e.Tipo).HasColumnName("tipo");
+            });
+
+            modelBuilder.Entity<Autom_Cond>()
+                .HasKey(ac => new { ac.Id_Automezzo, ac.Id_Conducente });
+
+            // Configura la relazione tra Autom_Cond e Automezzo
+            modelBuilder.Entity<Autom_Cond>()
+                .HasOne(ac => ac.Automezzo)
+                .WithMany(a => a.AutomezziConducenti)
+                .HasForeignKey(ac => ac.Id_Automezzo);
+
+            // Configura la relazione tra Autom_Cond e Conducente
+            modelBuilder.Entity<Autom_Cond>()
+                .HasOne(ac => ac.Conducente)
+                .WithMany(c => c.ConducentiAutomezzi)
+                .HasForeignKey(ac => ac.Id_Conducente);
 
             // NUOVO: Configurazione per ClienteIndirizzo
             modelBuilder.Entity<ClienteIndirizzo>(entity =>
@@ -97,36 +121,51 @@ namespace FormulariRif_G.Data
                 entity.HasOne(ci => ci.Cliente)
                       .WithMany(c => c.Indirizzi)
                       .HasForeignKey(ci => ci.IdCli)
-                      .OnDelete(DeleteBehavior.Cascade);
-
-                // Indice unico per garantire un solo indirizzo predefinito per cliente (se necessario)
-                // Questa regola è più complessa da implementare a livello di DB con un indice unico
-                // perché richiede una condizione (WHERE Predefinito = 1).
-                // È più semplice gestirla a livello di applicazione.
-                // modelBuilder.Entity<ClienteIndirizzo>()
-                //     .HasIndex(ci => new { ci.IdCli, ci.Predefinito })
-                //     .IsUnique()
-                //     .HasFilter("[predefinito] = 1"); // Richiede SQL Server 2016+
+                      .OnDelete(DeleteBehavior.Restrict); // Modificato da Cascade a Restrict per evitare cicli di eliminazione
             });
 
-            // NUOVO: Configurazione per FormularioRifiuti
+            
             modelBuilder.Entity<FormularioRifiuti>(entity =>
             {
                 entity.Property(e => e.Data).HasColumnName("data");
-                entity.Property(e => e.IdCli).HasColumnName("id_cli");
-                entity.Property(e => e.IdClienteIndirizzo).HasColumnName("id_cliente_indirizzo");
+                entity.Property(e => e.IdProduttore).HasColumnName("id_produttore");
+                entity.Property(e => e.IdProduttoreIndirizzo).HasColumnName("id_produttore_indirizzo");
+                entity.Property(e => e.IdDestinatario).HasColumnName("id_destinatario");
+                entity.Property(e => e.IdDestinatarioIndirizzo).HasColumnName("id_destinatario_indirizzo");
+                entity.Property(e => e.IdTrasportatore).HasColumnName("id_trasportatore");
+                entity.Property(e => e.IdTrasportatoreIndirizzo).HasColumnName("id_trasportatore_indirizzo");
                 entity.Property(e => e.NumeroFormulario).HasColumnName("numero_formulario");
                 entity.Property(e => e.IdAutomezzo).HasColumnName("id_automezzo");
 
                 // Relazioni con Cliente, ClienteIndirizzo, Automezzo
-                entity.HasOne(fr => fr.Cliente)
+                entity.HasOne(fr => fr.Produttore)
                       .WithMany() // Formulari non hanno una collezione diretta su Cliente
-                      .HasForeignKey(fr => fr.IdCli)
+                      .HasForeignKey(fr => fr.IdProduttore)
                       .OnDelete(DeleteBehavior.Restrict); // Non eliminare il cliente se ha formulari
 
-                entity.HasOne(fr => fr.ClienteIndirizzo)
+                entity.HasOne(fr => fr.ProduttoreIndirizzo)
                       .WithMany() // Formulari non hanno una collezione diretta su ClienteIndirizzo
-                      .HasForeignKey(fr => fr.IdClienteIndirizzo)
+                      .HasForeignKey(fr => fr.IdProduttoreIndirizzo)
+                      .OnDelete(DeleteBehavior.Restrict); // Non eliminare l'indirizzo se ha formulari
+
+                entity.HasOne(fr => fr.Destinatario)
+                      .WithMany() // Formulari non hanno una collezione diretta su Cliente
+                      .HasForeignKey(fr => fr.IdDestinatario)
+                      .OnDelete(DeleteBehavior.Restrict); // Non eliminare il cliente se ha formulari
+
+                entity.HasOne(fr => fr.DestinatarioIndirizzo)
+                      .WithMany() // Formulari non hanno una collezione diretta su ClienteIndirizzo
+                      .HasForeignKey(fr => fr.IdDestinatarioIndirizzo)
+                      .OnDelete(DeleteBehavior.Restrict); // Non eliminare l'indirizzo se ha formulari
+
+                entity.HasOne(fr => fr.Trasportatore)
+                      .WithMany() // Formulari non hanno una collezione diretta su Cliente
+                      .HasForeignKey(fr => fr.IdTrasportatore)
+                      .OnDelete(DeleteBehavior.Restrict); // Non eliminare il cliente se ha formulari
+
+                entity.HasOne(fr => fr.TrasportatoreIndirizzo)
+                      .WithMany() // Formulari non hanno una collezione diretta su ClienteIndirizzo
+                      .HasForeignKey(fr => fr.IdTrasportatoreIndirizzo)
                       .OnDelete(DeleteBehavior.Restrict); // Non eliminare l'indirizzo se ha formulari
 
                 entity.HasOne(fr => fr.Automezzo)

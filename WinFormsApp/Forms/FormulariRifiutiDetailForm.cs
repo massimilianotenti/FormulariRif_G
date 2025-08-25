@@ -6,6 +6,7 @@ using FormulariRif_G.Utils;
 using Microsoft.EntityFrameworkCore; // Per l'include delle proprietà di navigazione
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 // using System.Drawing.Text; // Non sembra essere usato
 using System.Linq;
@@ -22,6 +23,9 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<ClienteIndirizzo> _clienteIndirizzoRepository;
         private readonly IGenericRepository<Automezzo> _automezzoRepository;
         private FormularioRifiuti? _currentFormulario;
+        // Flag per evitare che l'evento SelectedIndexChanged si attivi durante il caricamento iniziale dei dati
+        private bool _isLoading = false;
+
         private bool _isFormularioSaved = false;
 
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
@@ -37,13 +41,17 @@ namespace FormulariRif_G.Forms
             _automezzoRepository = automezzoRepository;
             _configurazioneRepository = configurazioneRepository;
             this.Load += FormulariRifiutiDetailForm_Load;
-            cmbCliente.SelectedIndexChanged += cmbCliente_SelectedIndexChanged;
         }
 
         private async void FormulariRifiutiDetailForm_Load(object? sender, EventArgs e)
         {
+            _isLoading = true;
             await LoadComboBoxes();
-            LoadFormularioData();
+            await LoadFormularioData();
+            _isLoading = false;
+            cmbProduttore.SelectedIndexChanged += cmbProduttore_SelectedIndexChanged;
+            cmbDestinatario.SelectedIndexChanged += cmbDestinatario_SelectedIndexChanged;
+            cmbTrasportatore.SelectedIndexChanged += cmbTrasportatore_SelectedIndexChanged;
         }
 
         /// <summary>
@@ -61,29 +69,37 @@ namespace FormulariRif_G.Forms
         /// <summary>
         /// Carica i dati del formulario nei controlli del form.
         /// </summary>
-        private void LoadFormularioData()
+        private async Task LoadFormularioData()
         {
             if (_currentFormulario != null)
             {
                 dtpData.Value = _currentFormulario.Data;
                 txtNumeroFormulario.Text = _currentFormulario.NumeroFormulario;
-                // Seleziona il cliente nella ComboBox
-                // Questo triggererà cmbCliente_SelectedIndexChanged che caricherà gli indirizzi
-                // e selezionerà l'indirizzo predefinito o quello del formulario.
-                cmbCliente.SelectedValue = _currentFormulario.IdCli;
-                // Dopo che cmbCliente_SelectedIndexChanged ha caricato gli indirizzi,
-                // dobbiamo selezionare l'indirizzo specifico del formulario.
-                if (_currentFormulario.IdClienteIndirizzo != 0)
-                    cmbIndirizzo.SelectedValue = _currentFormulario.IdClienteIndirizzo;
-                // Seleziona l'automezzo nella ComboBox
+
+                // Carica Produttore e relativo indirizzo
+                cmbProduttore.SelectedValue = _currentFormulario.IdProduttore;
+                await LoadIndirizziAsync(cmbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
+
+                // Carica Destinatario e relativo indirizzo
+                cmbDestinatario.SelectedValue = _currentFormulario.IdDestinatario;
+                await LoadIndirizziAsync(cmbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
+
+                // Carica Trasportatore e relativo indirizzo
+                cmbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
+                await LoadIndirizziAsync(cmbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
+
                 cmbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
-                //
-                //Caratteristiche del rifiuto
+
+                // Caratteristiche del rifiuto
                 txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;
                 if (_currentFormulario.SatoFisico.HasValue)
                     txtStatoFisco.Text = _currentFormulario.SatoFisico.Value.ToString();
                 else
                     txtStatoFisco.Text = string.Empty;
+
+                // NOTA: La proprietà CaratteristicheChimiche è usata per due campi diversi.
+                // Questo potrebbe essere un errore nel modello o nel design.
+                // Per ora, la mappo su entrambi come nel codice originale.
                 txtCarattPericolosità.Text = _currentFormulario.CaratteristicheChimiche ?? string.Empty;
                 if (_currentFormulario.Provenienza.HasValue)
                 {
@@ -134,11 +150,15 @@ namespace FormulariRif_G.Forms
             {
                 dtpData.Value = DateTime.Now;
                 txtNumeroFormulario.Text = string.Empty;
-                cmbCliente.SelectedIndex = -1;
-                cmbIndirizzo.SelectedIndex = -1;
+                cmbProduttore.SelectedIndex = -1;
+                cmbProduttoreIndirizzo.SelectedIndex = -1;
+                cmbDestinatario.SelectedIndex = -1;
+                cmbDestinatarioIndirizzo.SelectedIndex = -1;
+                cmbTrasportatore.SelectedIndex = -1;
+                cmbTrasportatoreIndirizzo.SelectedIndex = -1;
                 cmbAutomezzo.SelectedIndex = -1;
-                //
-                //Caratteristiche del rifiuto
+
+                // Pulisci campi caratteristiche rifiuto
                 txtCodiceEER.Text = string.Empty;
                 txtStatoFisco.Text = string.Empty;
                 txtCarattPericolosità.Text = string.Empty;
@@ -175,22 +195,26 @@ namespace FormulariRif_G.Forms
             _currentFormulario.NumeroFormulario = txtNumeroFormulario.Text.Trim();
 
             // Assicurati che un cliente, indirizzo e automezzo siano selezionati
-            if (cmbCliente.SelectedValue == null || cmbIndirizzo.SelectedValue == null || cmbAutomezzo.SelectedValue == null)
-            {
-                MessageBox.Show("Seleziona Cliente, Indirizzo e Automezzo.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (!ValidateInput()) return;
 
-            _currentFormulario.IdCli = (int)cmbCliente.SelectedValue;
-            _currentFormulario.IdClienteIndirizzo = (int)cmbIndirizzo.SelectedValue;
+            _currentFormulario.IdProduttore = (int)cmbProduttore.SelectedValue;
+            _currentFormulario.IdProduttoreIndirizzo = (int)cmbProduttoreIndirizzo.SelectedValue;
+
+            _currentFormulario.IdDestinatario = (int)cmbDestinatario.SelectedValue;
+            _currentFormulario.IdDestinatarioIndirizzo = (int)cmbDestinatarioIndirizzo.SelectedValue;
+
+            _currentFormulario.IdTrasportatore = (int)cmbTrasportatore.SelectedValue;
+            _currentFormulario.IdTrasportatoreIndirizzo = (int)cmbTrasportatoreIndirizzo.SelectedValue;
+
             _currentFormulario.IdAutomezzo = (int)cmbAutomezzo.SelectedValue;
-            //
-            //Caratteristiche del rifiuto
+
+            // Caratteristiche del rifiuto
             _currentFormulario.CodiceEER = txtCodiceEER.Text.Trim();
             if (!string.IsNullOrWhiteSpace(txtStatoFisco.Text) && int.TryParse(txtStatoFisco.Text, out int st_fisico))
                 _currentFormulario.SatoFisico = st_fisico;
             else
                 _currentFormulario.SatoFisico = null;
+
             _currentFormulario.CaratteristicheChimiche = txtCarattPericolosità.Text.Trim();
             if (rbProvUrb.Checked)
                 _currentFormulario.Provenienza = 1; // Urbano
@@ -223,6 +247,9 @@ namespace FormulariRif_G.Forms
                 _currentFormulario.AllaRinfusa = true;
             else
                 _currentFormulario.AllaRinfusa = false;
+
+            // NOTA: La proprietà CaratteristicheChimiche viene sovrascritta qui.
+            // Controllare se è il comportamento desiderato.
             _currentFormulario.CaratteristicheChimiche = txtChimicoFisiche.Text.Trim();
 
             try
@@ -238,12 +265,9 @@ namespace FormulariRif_G.Forms
                 await _formularioRifiutiRepository.SaveChangesAsync();
                 MessageBox.Show("Formulario salvato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                // --- INIZIO MODIFICA QUI ---
-                // Rimuovi questa riga, non è necessaria per le finestre non modali
-                // this.DialogResult = DialogResult.OK;
-                _isFormularioSaved = true; // Questo flag è utile per il bottone Stampa
-                this.Close(); // Chiudi la form dopo il salvataggio.
-                // --- FINE MODIFICA ---
+                _isFormularioSaved = true;
+                UpdatePrintButtonState();
+                this.Close();
             }
             catch (Exception ex)
             {
@@ -255,10 +279,8 @@ namespace FormulariRif_G.Forms
 
         private void btnAnnulla_Click(object sender, EventArgs e)
         {
-            // --- INIZIO MODIFICA QUI ---
             // Nelle form non modali, basta chiudere la form.
             this.Close();
-            // --- FINE MODIFICA ---
         }
 
         #region combobox
@@ -270,12 +292,27 @@ namespace FormulariRif_G.Forms
         {
             try
             {
-                var clienti = await _clienteRepository.GetAllAsync();
-                cmbCliente.DataSource = clienti.ToList();
-                cmbCliente.DisplayMember = "RagSoc";
-                cmbCliente.ValueMember = "Id";
-                cmbCliente.SelectedIndex = -1; // Nessuna selezione iniziale
+                var tuttiClienti = (await _clienteRepository.GetAllAsync()).ToList();
 
+                // Popola Produttore
+                cmbProduttore.DataSource = new List<Cliente>(tuttiClienti);
+                cmbProduttore.DisplayMember = "RagSoc";
+                cmbProduttore.ValueMember = "Id";
+                cmbProduttore.SelectedIndex = -1;
+
+                // Popola Destinatario
+                cmbDestinatario.DataSource = new List<Cliente>(tuttiClienti);
+                cmbDestinatario.DisplayMember = "RagSoc";
+                cmbDestinatario.ValueMember = "Id";
+                cmbDestinatario.SelectedIndex = -1;
+
+                // Popola Trasportatore
+                cmbTrasportatore.DataSource = new List<Cliente>(tuttiClienti);
+                cmbTrasportatore.DisplayMember = "RagSoc";
+                cmbTrasportatore.ValueMember = "Id";
+                cmbTrasportatore.SelectedIndex = -1;
+
+                // Popola Automezzi
                 var automezzi = await _automezzoRepository.GetAllAsync();
                 cmbAutomezzo.DataSource = automezzi.ToList();
                 cmbAutomezzo.DisplayMember = "Descrizione"; // O "Targa" a seconda della preferenza
@@ -288,41 +325,58 @@ namespace FormulariRif_G.Forms
             }
         }
 
-        /// <summary>
-        /// Gestisce la selezione di un cliente nella ComboBox.
-        /// Carica gli indirizzi associati al cliente selezionato e imposta il predefinito.
-        /// </summary>
-        private async void cmbCliente_SelectedIndexChanged(object? sender, EventArgs e)
+        private async void cmbProduttore_SelectedIndexChanged(object? sender, EventArgs e)
         {
-            cmbIndirizzo.DataSource = null; // Pulisci la ComboBox degli indirizzi
+            if (_isLoading) return;
+            await LoadIndirizziAsync(cmbProduttore, cmbProduttoreIndirizzo);
+        }
 
-            if (cmbCliente.SelectedValue != null && cmbCliente.SelectedValue is int clienteId)
+        private async void cmbDestinatario_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_isLoading) return;
+            await LoadIndirizziAsync(cmbDestinatario, cmbDestinatarioIndirizzo);
+        }
+
+        private async void cmbTrasportatore_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_isLoading) return;
+            await LoadIndirizziAsync(cmbTrasportatore, cmbTrasportatoreIndirizzo);
+        }
+
+        private async Task LoadIndirizziAsync(ComboBox ownerCombo, ComboBox addressCombo, int? addressIdToSelect = null)
+        {
+            addressCombo.DataSource = null;
+
+            if (ownerCombo.SelectedValue is int ownerId && ownerId > 0)
             {
                 try
                 {
-                    var indirizzi = await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == clienteId);
-                    cmbIndirizzo.DataSource = indirizzi.ToList();
-                    cmbIndirizzo.DisplayMember = "Indirizzo"; // Puoi personalizzare la visualizzazione (es. "Indirizzo, Comune")
-                    cmbIndirizzo.ValueMember = "Id";
+                    var indirizzi = (await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == ownerId)).ToList();
+                    if (indirizzi.Any())
+                    {
+                        addressCombo.DataSource = indirizzi;
+                        addressCombo.DisplayMember = "IndirizzoCompleto";
+                        addressCombo.ValueMember = "Id";
 
-                    // Seleziona l'indirizzo predefinito se esiste
-                    var defaultAddress = indirizzi.FirstOrDefault(ci => ci.Predefinito);
-                    if (defaultAddress != null)
-                    {
-                        cmbIndirizzo.SelectedValue = defaultAddress.Id;
-                    }
-                    else if (indirizzi.Any())
-                    {
-                        cmbIndirizzo.SelectedIndex = 0;
-                    }
-                    else
-                    {
-                        MessageBox.Show("Il cliente selezionato non ha indirizzi registrati. Si prega di aggiungere un indirizzo prima di creare un formulario.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        int idToSelect;
+
+                        // Priorità 1: ID specifico fornito (e valido)
+                        if (addressIdToSelect.HasValue && indirizzi.Any(i => i.Id == addressIdToSelect.Value))
+                        {
+                            idToSelect = addressIdToSelect.Value;
+                        }
+                        // Priorità 2: Indirizzo predefinito, altrimenti il primo della lista
+                        else
+                        {
+                            var defaultAddress = indirizzi.FirstOrDefault(ci => ci.Predefinito);
+                            idToSelect = defaultAddress?.Id ?? indirizzi.First().Id;
+                        }
+                        addressCombo.SelectedValue = idToSelect;
                     }
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Errore durante il caricamento degli indirizzi del cliente: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show($"Errore durante il caricamento degli indirizzi: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
@@ -396,16 +450,40 @@ namespace FormulariRif_G.Forms
             //    txtNumeroFormulario.Focus();
             //    return false;
             //}
-            if (cmbCliente.SelectedValue == null)
+            if (cmbProduttore.SelectedValue == null)
             {
-                MessageBox.Show("Seleziona un Cliente.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                cmbCliente.Focus();
+                MessageBox.Show("Seleziona un Produttore.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbProduttore.Focus();
                 return false;
             }
-            if (cmbIndirizzo.SelectedValue == null)
+            if (cmbProduttoreIndirizzo.SelectedValue == null)
             {
-                MessageBox.Show("Seleziona un Indirizzo del Cliente.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                cmbIndirizzo.Focus();
+                MessageBox.Show("Seleziona un Indirizzo del Produttore.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbProduttoreIndirizzo.Focus();
+                return false;
+            }
+            if (cmbDestinatario.SelectedValue == null)
+            {
+                MessageBox.Show("Seleziona un Destinatario.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbDestinatario.Focus();
+                return false;
+            }
+            if (cmbDestinatarioIndirizzo.SelectedValue == null)
+            {
+                MessageBox.Show("Seleziona un Indirizzo del Destinatario.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbDestinatarioIndirizzo.Focus();
+                return false;
+            }
+            if (cmbTrasportatore.SelectedValue == null)
+            {
+                MessageBox.Show("Seleziona un Trasportatore.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbTrasportatore.Focus();
+                return false;
+            }
+            if (cmbTrasportatoreIndirizzo.SelectedValue == null)
+            {
+                MessageBox.Show("Seleziona un Indirizzo del Trasportatore.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbTrasportatoreIndirizzo.Focus();
                 return false;
             }
             if (cmbAutomezzo.SelectedValue == null)
@@ -458,13 +536,17 @@ namespace FormulariRif_G.Forms
                 return;
             }
 
-            var cliente = await _clienteRepository.GetByIdAsync(_currentFormulario.IdCli);
-            var indirizzo = await _clienteIndirizzoRepository.GetByIdAsync(_currentFormulario.IdClienteIndirizzo);
+            var clienteP = await _clienteRepository.GetByIdAsync(_currentFormulario.IdProduttore);
+            var indirizzoP = await _clienteIndirizzoRepository.GetByIdAsync(_currentFormulario.IdProduttoreIndirizzo);
+            var clienteD = await _clienteRepository.GetByIdAsync(_currentFormulario.IdDestinatario);
+            var indirizzoD = await _clienteIndirizzoRepository.GetByIdAsync(_currentFormulario.IdDestinatarioIndirizzo);
+            var clienteT = await _clienteRepository.GetByIdAsync(_currentFormulario.IdTrasportatore);
+            var indirizzoT = await _clienteIndirizzoRepository.GetByIdAsync(_currentFormulario.IdTrasportatoreIndirizzo);
             var mezzo = await _automezzoRepository.GetByIdAsync(_currentFormulario.IdAutomezzo);
 
-            if (cliente == null || indirizzo == null || mezzo == null)
+            if (clienteP == null || indirizzoP == null || clienteD == null || indirizzoD == null || clienteT == null || indirizzoT == null || mezzo == null)
             {
-                MessageBox.Show("Dati correlati (cliente, indirizzo o automezzo) mancanti. Impossibile generare il PDF.", "Errore Dati", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Dati correlati (produttore, destinatario, trasportatore, indirizzi o automezzo) mancanti. Impossibile generare il PDF.", "Errore Dati", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -473,27 +555,27 @@ namespace FormulariRif_G.Forms
            {
                 { "Data_Emissione", dtpData.Value.ToString("dd/MM/yyyy") },
                 // Produttore
-                { "Cli_Rag_Soc", cliente.RagSoc.Trim() },
-                { "Cli_Ind", getStrValore(indirizzo.Indirizzo) + getIntValore(indirizzo.Cap) + getStrValore(indirizzo.Comune) },
-                { "Cli_Cod_Fisc", getStrValore(cliente.CodiceFiscale) },
-                { "Cli_Iscrizione_Albo", getStrValore(cliente.Iscrizione_Albo) },
-                { "Cli_Auto_Comunic", getStrValore(cliente.Auto_Comunicazione) },
-                { "Cli_Tipo", getStrValore(cliente.Tipo) },
+                { "Cli_Rag_Soc", clienteP.RagSoc.Trim() },
+                { "Cli_Ind", getStrValore(indirizzoP.Indirizzo) + getIntValore(indirizzoP.Cap) + getStrValore(indirizzoP.Comune) },
+                { "Cli_Cod_Fisc", getStrValore(clienteP.CodiceFiscale) },
+                { "Cli_Iscrizione_Albo", getStrValore(clienteP.Iscrizione_Albo) },
+                { "Cli_Auto_Comunic", getStrValore(clienteP.Auto_Comunicazione) },
+                { "Cli_Tipo", getStrValore(clienteP.Tipo) },
                 // Destinatario
-                { "Dest_Rag_Soc",  conf.RagSoc1 + getStrValore(conf.RagSoc2)},
-                { "Dest_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
-                { "Dest_Cod_Fisc", getStrValore(conf.CodiceFiscale) },
-                { "Dest_Iscrizione_Albo", getStrValore(conf.DestNumeroIscrizioneAlbo) },
-                { "Dest_R", getStrValore(conf.DestR) },
-                { "Dest_D", getStrValore(conf.DestD) },
-                { "Dest_Auto_Comunic", getStrValore(conf.DestAutoComunic) },
-                { "Dest_Tipo1", getStrValore(conf.DestTipo1) + getStrValore(conf.DestTipo2)},
+                { "Dest_Rag_Soc",  clienteD.RagSoc.Trim() },
+                { "Dest_Indirizzo", getStrValore(indirizzoD.Indirizzo) + getIntValore(indirizzoD.Cap) + getStrValore(indirizzoD.Comune) },
+                { "Dest_Cod_Fisc", getStrValore(clienteD.CodiceFiscale) },
+                { "Dest_Iscrizione_Albo", getStrValore(clienteD.Iscrizione_Albo) },
+                { "Dest_R", "" }, // Campo da mappare se esiste nel modello Cliente
+                { "Dest_D", "" }, // Campo da mappare se esiste nel modello Cliente
+                { "Dest_Auto_Comunic", getStrValore(clienteD.Auto_Comunicazione) },
+                { "Dest_Tipo1", getStrValore(clienteD.Tipo) },
                 //{ "Dest_Tipo2", getStrValore(conf.DestTipo2) },
                 // Trasportatore
-                { "Trasp_Rag_Soc", conf.RagSoc1 + getStrValore(conf.RagSoc2)},
-                { "Trasp_Indirizzo", getStrValore(conf.Indirizzo) + getIntValore(conf.Cap) + getStrValore(conf.Comune) },
-                { "Trasp_Cod_Fisc", getStrValore(conf.CodiceFiscale) },
-                { "Trasp_Iscrizione_Albo", getStrValore(conf.NumeroIscrizioneAlbo) + getDateValore(conf.DataIscrizioneAlbo) },
+                { "Trasp_Rag_Soc", clienteT.RagSoc.Trim() },
+                { "Trasp_Indirizzo", getStrValore(indirizzoT.Indirizzo) + getIntValore(indirizzoT.Cap) + getStrValore(indirizzoT.Comune) },
+                { "Trasp_Cod_Fisc", getStrValore(clienteT.CodiceFiscale) },
+                { "Trasp_Iscrizione_Albo", getStrValore(clienteT.Iscrizione_Albo) },
                 // Caratteristiche rifiuto
                 { "Codice_EER", txtCodiceEER.Text.Trim() },
                 { "Stato_Fisico", txtStatoFisco.Text.Trim() },
@@ -604,16 +686,16 @@ namespace FormulariRif_G.Forms
         {
             lblData = new Label();
             dtpData = new DateTimePicker();
-            lblCliente = new Label();
-            cmbCliente = new ComboBox();
-            lblIndirizzo = new Label();
-            cmbIndirizzo = new ComboBox();
+            lblProduttore = new Label();
+            cmbProduttore = new ComboBox();
+            lblProduttoreIndirizzo = new Label();
+            cmbProduttoreIndirizzo = new ComboBox();
             lblNumeroFormulario = new Label();
             txtNumeroFormulario = new TextBox();
             lblAutomezzo = new Label();
             cmbAutomezzo = new ComboBox();
             btnSalva = new Button();
-            btStampa = new Button();
+            btnAnnulla = new Button();
             grCarattRifiuto = new GroupBox();
             grAspettoEsteriore = new GroupBox();
             txtColli = new TextBox();
@@ -638,6 +720,16 @@ namespace FormulariRif_G.Forms
             label2 = new Label();
             txtCodiceEER = new TextBox();
             label1 = new Label();
+            btStampa = new Button();
+            lblDestinatario = new Label();
+            cmbDestinatario = new ComboBox();
+            lblDestinatarioIndirizzo = new Label();
+            cmbDestinatarioIndirizzo = new ComboBox();
+            lblTrasportatore = new Label();
+            cmbTrasportatore = new ComboBox();
+            lblTrasportatoreIndirizzo = new Label();
+            cmbTrasportatoreIndirizzo = new ComboBox();
+            panel1 = new Panel();
             grCarattRifiuto.SuspendLayout();
             grAspettoEsteriore.SuspendLayout();
             grKgLitri.SuspendLayout();
@@ -648,7 +740,7 @@ namespace FormulariRif_G.Forms
             // 
             lblData.AutoSize = true;
             lblData.Location = new Point(20, 25);
-            lblData.Name = "lblData";
+            lblData.Name = "lblData"; // 
             lblData.Size = new Size(34, 15);
             lblData.TabIndex = 0;
             lblData.Text = "Data:";
@@ -661,41 +753,41 @@ namespace FormulariRif_G.Forms
             dtpData.Size = new Size(230, 23);
             dtpData.TabIndex = 1;
             // 
-            // lblCliente
+            // lblProduttore
             // 
-            lblCliente.AutoSize = true;
-            lblCliente.Location = new Point(20, 57);
-            lblCliente.Name = "lblCliente";
-            lblCliente.Size = new Size(47, 15);
-            lblCliente.TabIndex = 2;
-            lblCliente.Text = "Cliente:";
+            lblProduttore.AutoSize = true;
+            lblProduttore.Location = new Point(20, 57);
+            lblProduttore.Name = "lblProduttore";
+            lblProduttore.Size = new Size(66, 15);
+            lblProduttore.TabIndex = 2;
+            lblProduttore.Text = "Produttore:";
             // 
-            // cmbCliente
+            // cmbProduttore
             // 
-            cmbCliente.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbCliente.FormattingEnabled = true;
-            cmbCliente.Location = new Point(140, 51);
-            cmbCliente.Name = "cmbCliente";
-            cmbCliente.Size = new Size(230, 23);
-            cmbCliente.TabIndex = 3;
+            cmbProduttore.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduttore.FormattingEnabled = true;
+            cmbProduttore.Location = new Point(140, 54);
+            cmbProduttore.Name = "cmbProduttore";
+            cmbProduttore.Size = new Size(230, 23);
+            cmbProduttore.TabIndex = 3;
             // 
-            // lblIndirizzo
+            // lblProduttoreIndirizzo
             // 
-            lblIndirizzo.AutoSize = true;
-            lblIndirizzo.Location = new Point(489, 60);
-            lblIndirizzo.Name = "lblIndirizzo";
-            lblIndirizzo.Size = new Size(54, 15);
-            lblIndirizzo.TabIndex = 4;
-            lblIndirizzo.Text = "Indirizzo:";
+            lblProduttoreIndirizzo.AutoSize = true;
+            lblProduttoreIndirizzo.Location = new Point(489, 57);
+            lblProduttoreIndirizzo.Name = "lblProduttoreIndirizzo";
+            lblProduttoreIndirizzo.Size = new Size(54, 15);
+            lblProduttoreIndirizzo.TabIndex = 4;
+            lblProduttoreIndirizzo.Text = "Indirizzo:";
             // 
-            // cmbIndirizzo
+            // cmbProduttoreIndirizzo
             // 
-            cmbIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbIndirizzo.FormattingEnabled = true;
-            cmbIndirizzo.Location = new Point(609, 57);
-            cmbIndirizzo.Name = "cmbIndirizzo";
-            cmbIndirizzo.Size = new Size(230, 23);
-            cmbIndirizzo.TabIndex = 5;
+            cmbProduttoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduttoreIndirizzo.FormattingEnabled = true;
+            cmbProduttoreIndirizzo.Location = new Point(609, 54);
+            cmbProduttoreIndirizzo.Name = "cmbProduttoreIndirizzo";
+            cmbProduttoreIndirizzo.Size = new Size(230, 23);
+            cmbProduttoreIndirizzo.TabIndex = 5;
             // 
             // lblNumeroFormulario
             // 
@@ -717,7 +809,7 @@ namespace FormulariRif_G.Forms
             // lblAutomezzo
             // 
             lblAutomezzo.AutoSize = true;
-            lblAutomezzo.Location = new Point(20, 83);
+            lblAutomezzo.Location = new Point(20, 145);
             lblAutomezzo.Name = "lblAutomezzo";
             lblAutomezzo.Size = new Size(70, 15);
             lblAutomezzo.TabIndex = 8;
@@ -727,14 +819,14 @@ namespace FormulariRif_G.Forms
             // 
             cmbAutomezzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbAutomezzo.FormattingEnabled = true;
-            cmbAutomezzo.Location = new Point(140, 80);
+            cmbAutomezzo.Location = new Point(140, 142);
             cmbAutomezzo.Name = "cmbAutomezzo";
             cmbAutomezzo.Size = new Size(230, 23);
             cmbAutomezzo.TabIndex = 9;
             // 
             // btnSalva
             // 
-            btnSalva.Location = new Point(786, 390);
+            btnSalva.Location = new Point(786, 434);
             btnSalva.Name = "btnSalva";
             btnSalva.Size = new Size(75, 30);
             btnSalva.TabIndex = 10;
@@ -742,16 +834,15 @@ namespace FormulariRif_G.Forms
             btnSalva.UseVisualStyleBackColor = true;
             btnSalva.Click += btnSalva_Click;
             // 
-            // btStampa
+            // btnAnnulla
             // 
-            btStampa.Enabled = false;
-            btStampa.Location = new Point(675, 390);
-            btStampa.Name = "btStampa";
-            btStampa.Size = new Size(75, 30);
-            btStampa.TabIndex = 24;
-            btStampa.Text = "Stampa";
-            btStampa.UseVisualStyleBackColor = true;
-            btStampa.Click += btStampa_Click;
+            btnAnnulla.Location = new Point(591, 434);
+            btnAnnulla.Name = "btnAnnulla";
+            btnAnnulla.Size = new Size(75, 30);
+            btnAnnulla.TabIndex = 24;
+            btnAnnulla.Text = "Annulla";
+            btnAnnulla.UseVisualStyleBackColor = true;
+            btnAnnulla.Click += btnAnnulla_Click;
             // 
             // grCarattRifiuto
             // 
@@ -771,9 +862,9 @@ namespace FormulariRif_G.Forms
             grCarattRifiuto.Controls.Add(label2);
             grCarattRifiuto.Controls.Add(txtCodiceEER);
             grCarattRifiuto.Controls.Add(label1);
-            grCarattRifiuto.Location = new Point(20, 127);
+            grCarattRifiuto.Location = new Point(20, 181);
             grCarattRifiuto.Name = "grCarattRifiuto";
-            grCarattRifiuto.Size = new Size(841, 233);
+            grCarattRifiuto.Size = new Size(841, 238);
             grCarattRifiuto.TabIndex = 33;
             grCarattRifiuto.TabStop = false;
             grCarattRifiuto.Text = "Caratteristiche del rifiuto";
@@ -997,22 +1088,123 @@ namespace FormulariRif_G.Forms
             label1.TabIndex = 33;
             label1.Text = "Codice EER:";
             // 
+            // btStampa
+            // 
+            btStampa.Enabled = false;
+            btStampa.Location = new Point(688, 434);
+            btStampa.Name = "btStampa";
+            btStampa.Size = new Size(75, 30);
+            btStampa.TabIndex = 34;
+            btStampa.Text = "Stampa";
+            btStampa.UseVisualStyleBackColor = true;
+            btStampa.Click += btStampa_Click;
+            // 
+            // lblDestinatario
+            // 
+            lblDestinatario.AutoSize = true;
+            lblDestinatario.Location = new Point(20, 86);
+            lblDestinatario.Name = "lblDestinatario";
+            lblDestinatario.Size = new Size(73, 15);
+            lblDestinatario.TabIndex = 35;
+            lblDestinatario.Text = "Destinatario:";
+            // 
+            // cmbDestinatario
+            // 
+            cmbDestinatario.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDestinatario.FormattingEnabled = true;
+            cmbDestinatario.Location = new Point(140, 83);
+            cmbDestinatario.Name = "cmbDestinatario";
+            cmbDestinatario.Size = new Size(230, 23);
+            cmbDestinatario.TabIndex = 36;
+            // 
+            // lblDestinatarioIndirizzo
+            // 
+            lblDestinatarioIndirizzo.AutoSize = true;
+            lblDestinatarioIndirizzo.Location = new Point(489, 86);
+            lblDestinatarioIndirizzo.Name = "lblDestinatarioIndirizzo";
+            lblDestinatarioIndirizzo.Size = new Size(54, 15);
+            lblDestinatarioIndirizzo.TabIndex = 37;
+            lblDestinatarioIndirizzo.Text = "Indirizzo:";
+            // 
+            // cmbDestinatarioIndirizzo
+            // 
+            cmbDestinatarioIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDestinatarioIndirizzo.FormattingEnabled = true;
+            cmbDestinatarioIndirizzo.Location = new Point(609, 83);
+            cmbDestinatarioIndirizzo.Name = "cmbDestinatarioIndirizzo";
+            cmbDestinatarioIndirizzo.Size = new Size(230, 23);
+            cmbDestinatarioIndirizzo.TabIndex = 38;
+            // 
+            // lblTrasportatore
+            // 
+            lblTrasportatore.AutoSize = true;
+            lblTrasportatore.Location = new Point(20, 115);
+            lblTrasportatore.Name = "lblTrasportatore";
+            lblTrasportatore.Size = new Size(79, 15);
+            lblTrasportatore.TabIndex = 39;
+            lblTrasportatore.Text = "Trasportatore:";
+            // 
+            // cmbTrasportatore
+            // 
+            cmbTrasportatore.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTrasportatore.FormattingEnabled = true;
+            cmbTrasportatore.Location = new Point(140, 112);
+            cmbTrasportatore.Name = "cmbTrasportatore";
+            cmbTrasportatore.Size = new Size(230, 23);
+            cmbTrasportatore.TabIndex = 40;
+            // 
+            // lblTrasportatoreIndirizzo
+            // 
+            lblTrasportatoreIndirizzo.AutoSize = true;
+            lblTrasportatoreIndirizzo.Location = new Point(489, 115);
+            lblTrasportatoreIndirizzo.Name = "lblTrasportatoreIndirizzo";
+            lblTrasportatoreIndirizzo.Size = new Size(54, 15);
+            lblTrasportatoreIndirizzo.TabIndex = 41;
+            lblTrasportatoreIndirizzo.Text = "Indirizzo:";
+            // 
+            // cmbTrasportatoreIndirizzo
+            // 
+            cmbTrasportatoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTrasportatoreIndirizzo.FormattingEnabled = true;
+            cmbTrasportatoreIndirizzo.Location = new Point(609, 112);
+            cmbTrasportatoreIndirizzo.Name = "cmbTrasportatoreIndirizzo";
+            cmbTrasportatoreIndirizzo.Size = new Size(230, 23);
+            cmbTrasportatoreIndirizzo.TabIndex = 42;
+            // 
+            // panel1
+            // 
+            panel1.BorderStyle = BorderStyle.Fixed3D;
+            panel1.Location = new Point(20, 171);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(841, 4);
+            panel1.TabIndex = 43;
+            // 
             // FormulariRifiutiDetailForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(893, 457);
-            Controls.Add(grCarattRifiuto);
+            ClientSize = new Size(893, 488);
+            Controls.Add(panel1);
+            Controls.Add(cmbTrasportatoreIndirizzo);
+            Controls.Add(lblTrasportatoreIndirizzo);
+            Controls.Add(cmbTrasportatore);
+            Controls.Add(lblTrasportatore);
+            Controls.Add(cmbDestinatarioIndirizzo);
+            Controls.Add(lblDestinatarioIndirizzo);
+            Controls.Add(cmbDestinatario);
+            Controls.Add(lblDestinatario);
             Controls.Add(btStampa);
+            Controls.Add(grCarattRifiuto);
+            Controls.Add(btnAnnulla);
             Controls.Add(btnSalva);
             Controls.Add(cmbAutomezzo);
             Controls.Add(lblAutomezzo);
             Controls.Add(txtNumeroFormulario);
             Controls.Add(lblNumeroFormulario);
-            Controls.Add(cmbIndirizzo);
-            Controls.Add(lblIndirizzo);
-            Controls.Add(cmbCliente);
-            Controls.Add(lblCliente);
+            Controls.Add(cmbProduttoreIndirizzo);
+            Controls.Add(lblProduttoreIndirizzo);
+            Controls.Add(cmbProduttore);
+            Controls.Add(lblProduttore);
             Controls.Add(dtpData);
             Controls.Add(lblData);
             FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1036,16 +1228,16 @@ namespace FormulariRif_G.Forms
 
         private System.Windows.Forms.Label lblData;
         private System.Windows.Forms.DateTimePicker dtpData;
-        private System.Windows.Forms.Label lblCliente;
-        private System.Windows.Forms.ComboBox cmbCliente;
-        private System.Windows.Forms.Label lblIndirizzo;
-        private System.Windows.Forms.ComboBox cmbIndirizzo;
+        private System.Windows.Forms.Label lblProduttore;
+        private System.Windows.Forms.ComboBox cmbProduttore;
+        private System.Windows.Forms.Label lblProduttoreIndirizzo;
+        private System.Windows.Forms.ComboBox cmbProduttoreIndirizzo;
         private System.Windows.Forms.Label lblNumeroFormulario;
         private System.Windows.Forms.TextBox txtNumeroFormulario;
         private System.Windows.Forms.Label lblAutomezzo;
         private System.Windows.Forms.ComboBox cmbAutomezzo;
         private System.Windows.Forms.Button btnSalva;
-        private System.Windows.Forms.Button btStampa;
+        private System.Windows.Forms.Button btnAnnulla;
         private System.Windows.Forms.GroupBox grCarattRifiuto;
         private System.Windows.Forms.GroupBox grAspettoEsteriore;
         private System.Windows.Forms.TextBox txtColli;
@@ -1070,6 +1262,17 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtCodiceEER;
         private System.Windows.Forms.Label label1;
+        private Button btStampa;
+        private Label lblDestinatario;
+        private ComboBox cmbDestinatario;
+        private Label lblDestinatarioIndirizzo;
+        private ComboBox cmbDestinatarioIndirizzo;
+        private Label lblTrasportatore;
+        private ComboBox cmbTrasportatore;
+        private Label lblTrasportatoreIndirizzo;
+        private ComboBox cmbTrasportatoreIndirizzo;
+        private Panel panel1;
+
 
 
         #endregion

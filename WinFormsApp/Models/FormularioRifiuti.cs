@@ -16,13 +16,29 @@ namespace FormulariRif_G.Models
         public DateTime Data { get; set; }
 
         [Required]
-        [Column("id_cli")] 
-        public int IdCli { get; set; }
+        [Column("id_produttore")] 
+        public int IdProduttore { get; set; }
 
         [Required]
-        [Column("id_cliente_indirizzo")] 
-        public int IdClienteIndirizzo { get; set; }
+        [Column("id_produttore_indirizzo")] 
+        public int IdProduttoreIndirizzo { get; set; }
         
+        [Required]
+        [Column("id_destinatario")] 
+        public int IdDestinatario { get; set; }
+
+        [Required]
+        [Column("id_destinatario_indirizzo")] 
+        public int IdDestinatarioIndirizzo { get; set; }
+
+        [Required]
+        [Column("id_trasportatore")] 
+        public int IdTrasportatore { get; set; }
+
+        [Required]
+        [Column("id_trasportatore_indirizzo")] 
+        public int IdTrasportatoreIndirizzo { get; set; }
+
         [StringLength(50)] 
         [Column("numero_formulario")]
         public string? NumeroFormulario { get; set; } = string.Empty;
@@ -72,8 +88,15 @@ namespace FormulariRif_G.Models
         public string? CaratteristicheChimiche { get; set; }
 
         // Proprietà di navigazione
-        public Cliente? Cliente { get; set; }
-        public ClienteIndirizzo? ClienteIndirizzo { get; set; }
+        public Cliente? Produttore { get; set; }
+        public ClienteIndirizzo? ProduttoreIndirizzo { get; set; }
+
+        public Cliente? Destinatario { get; set; }
+        public ClienteIndirizzo? DestinatarioIndirizzo { get; set; }
+
+        public Cliente? Trasportatore { get; set; }
+        public ClienteIndirizzo? TrasportatoreIndirizzo { get; set; }
+
         public Automezzo? Automezzo { get; set; }
     }
 }
