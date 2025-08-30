@@ -409,55 +409,55 @@ namespace FormulariRif_G.Forms
                     var auto_condRepo = _serviceProvider.GetRequiredService<IGenericRepository<Autom_Cond>>();
                     var auto_rimRepo = _serviceProvider.GetRequiredService<IGenericRepository<Autom_Rim>>();
 
-                    //for (int i = 0; i < 5000; i++)
-                    //{
-                    //    var cliente = new Cliente
-                    //    {
-                    //        RagSoc = Faker.Company.Name(),
-                    //        CodiceFiscale = Faker.Identification.SocialSecurityNumber(),
-                    //        PartitaIva = GeneratePartitaIva(),
-                    //        IsTestData = true
-                    //    };
-                    //    await clienteRepo.AddAsync(cliente);
-                    //    await clienteRepo.SaveChangesAsync();
+                    for (int i = 0; i < 5000; i++)
+                    {
+                        var cliente = new Cliente
+                        {
+                            RagSoc = Faker.Company.Name(),
+                            CodiceFiscale = Faker.Identification.SocialSecurityNumber(),
+                            PartitaIva = GeneratePartitaIva(),
+                            IsTestData = true
+                        };
+                        await clienteRepo.AddAsync(cliente);
+                        await clienteRepo.SaveChangesAsync();
 
-                    //    // Genera 1-3 indirizzi per ogni cliente di test
-                    //    var numIndirizzi = new Random().Next(1, 4);
-                    //    for (int k = 0; k < numIndirizzi; k++)
-                    //    {
-                    //        var indirizzo = new ClienteIndirizzo
-                    //        {
-                    //            IdCli = cliente.Id,
-                    //            Indirizzo = Faker.Address.StreetAddress(),
-                    //            Comune = Faker.Address.City(),
-                    //            Cap = Convert.ToInt32(Faker.Address.ZipCode().Substring(0, Math.Min(5, Faker.Address.ZipCode().Length))),
-                    //            Predefinito = (k == 0), // Il primo indirizzo è predefinito
-                    //            IsTestData = true
-                    //        };
-                    //        await clienteIndirizzoRepo.AddAsync(indirizzo);
-                    //    }
-                    //    await clienteIndirizzoRepo.SaveChangesAsync();
+                        // Genera 1-3 indirizzi per ogni cliente di test
+                        var numIndirizzi = new Random().Next(1, 4);
+                        for (int k = 0; k < numIndirizzi; k++)
+                        {
+                            var indirizzo = new ClienteIndirizzo
+                            {
+                                IdCli = cliente.Id,
+                                Indirizzo = Faker.Address.StreetAddress(),
+                                Comune = Faker.Address.City(),
+                                Cap = Convert.ToInt32(Faker.Address.ZipCode().Substring(0, Math.Min(5, Faker.Address.ZipCode().Length))),
+                                Predefinito = (k == 0), // Il primo indirizzo è predefinito
+                                IsTestData = true
+                            };
+                            await clienteIndirizzoRepo.AddAsync(indirizzo);
+                        }
+                        await clienteIndirizzoRepo.SaveChangesAsync();
 
 
-                    //    var numContatti = new Random().Next(1, 4);
-                    //    for (int j = 0; j < numContatti; j++)
-                    //    {
-                    //        var contatto = new ClienteContatto
-                    //        {
-                    //            IdCli = cliente.Id,
-                    //            Predefinito = (j == 0),
-                    //            Contatto = Faker.Name.FullName(),
-                    //            Telefono = Faker.Phone.Number(),
-                    //            Email = Faker.Internet.Email(),
-                    //            IsTestData = true
-                    //        };
-                    //        await clienteContattoRepo.AddAsync(contatto);
-                    //    }
-                    //    await clienteContattoRepo.SaveChangesAsync();
+                        var numContatti = new Random().Next(1, 4);
+                        for (int j = 0; j < numContatti; j++)
+                        {
+                            var contatto = new ClienteContatto
+                            {
+                                IdCli = cliente.Id,
+                                Predefinito = (j == 0),
+                                Contatto = Faker.Name.FullName(),
+                                Telefono = Faker.Phone.Number(),
+                                Email = Faker.Internet.Email(),
+                                IsTestData = true
+                            };
+                            await clienteContattoRepo.AddAsync(contatto);
+                        }
+                        await clienteContattoRepo.SaveChangesAsync();
 
-                    //    progressBar1.Value = i + 1;                        
-                    //    Application.DoEvents();
-                    //}
+                        progressBar1.Value = i + 1;
+                        Application.DoEvents();
+                    }
 
                     // Creo 40 automezzi                    
                     var fk = new Bogus.Faker("it");

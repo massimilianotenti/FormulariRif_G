@@ -31,5 +31,17 @@ namespace FormulariRif_G.Models
         public bool IsTestData { get; set; }
 
         public ICollection<Autom_Cond> ConducentiAutomezzi { get; set; }
+
+        /// <summary>
+        /// Proprietà calcolata per la visualizzazione nell'interfaccia utente.
+        /// </summary>
+        public string DisplayText
+        {
+            get
+            {
+                string tipo = this.Tipo == 0 ? "Dipendente" : "Esterno";
+                return $"{this.Descrizione} ({tipo})";
+            }
+        }
     }
 }

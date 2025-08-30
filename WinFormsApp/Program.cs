@@ -18,8 +18,7 @@ namespace FormulariRif_G
     internal static class Program
     {
         private static IHost? _host;
-
-        [STAThread]
+        
         static async Task Main()
         {
             // Inizializzazione standard dell'applicazione Windows Forms
