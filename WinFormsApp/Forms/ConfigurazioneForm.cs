@@ -72,37 +72,39 @@ namespace FormulariRif_G.Forms
         {
             txtServerName.Text = _configuration["ConnectionStrings:ServerName"] ?? string.Empty;
             txtDatabaseName.Text = _configuration["ConnectionStrings:DatabaseName"] ?? string.Empty;
+            txtDbUsername.Text = _configuration["EncryptedCredentials:EncryptedUsername"];
+            txtDbPassword.Text = _configuration["EncryptedCredentials:EncryptedPassword"];
 
-            var encryptionKey = _configuration["EncryptionKey"];
-            if (!string.IsNullOrEmpty(encryptionKey))
-            {
-                try
-                {
-                    EncryptionHelper.SetKey(encryptionKey);
-                }
-                catch (ArgumentException ex)
-                {
-                    MessageBox.Show($"Errore nella chiave di criptazione: {ex.Message}. Controlla appsettings.json.", "Errore di Criptazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-            }
+            //var encryptionKey = _configuration["EncryptionKey"];
+            //if (!string.IsNullOrEmpty(encryptionKey))
+            //{
+            //    try
+            //    {
+            //        EncryptionHelper.SetKey(encryptionKey);
+            //    }
+            //    catch (ArgumentException ex)
+            //    {
+            //        MessageBox.Show($"Errore nella chiave di criptazione: {ex.Message}. Controlla appsettings.json.", "Errore di Criptazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //    }
+            //}
 
-            var encryptedUsername = _configuration["EncryptedCredentials:EncryptedUsername"];
-            var encryptedPassword = _configuration["EncryptedCredentials:EncryptedPassword"];
+            //var encryptedUsername = _configuration["EncryptedCredentials:EncryptedUsername"];
+            //var encryptedPassword = _configuration["EncryptedCredentials:EncryptedPassword"];
 
-            if (!string.IsNullOrEmpty(encryptedUsername) && !string.IsNullOrEmpty(encryptedPassword))
-            {
-                try
-                {
-                    txtDbUsername.Text = EncryptionHelper.Decrypt(encryptedUsername);
-                    txtDbPassword.Text = EncryptionHelper.Decrypt(encryptedPassword);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Errore durante la decriptazione delle credenziali: {ex.Message}. Potrebbe essere necessaria una nuova configurazione.", "Errore di Criptazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    txtDbUsername.Text = string.Empty;
-                    txtDbPassword.Text = string.Empty;
-                }
-            }
+            //if (!string.IsNullOrEmpty(encryptedUsername) && !string.IsNullOrEmpty(encryptedPassword))
+            //{
+            //    try
+            //    {
+            //        txtDbUsername.Text = EncryptionHelper.Decrypt(encryptedUsername);
+            //        txtDbPassword.Text = EncryptionHelper.Decrypt(encryptedPassword);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show($"Errore durante la decriptazione delle credenziali: {ex.Message}. Potrebbe essere necessaria una nuova configurazione.", "Errore di Criptazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            //        txtDbUsername.Text = string.Empty;
+            //        txtDbPassword.Text = string.Empty;
+            //    }
+            //}
         }
 
         /// <summary>
@@ -328,15 +330,17 @@ namespace FormulariRif_G.Forms
         {
             var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
-            var encryptionKey = _configuration["EncryptionKey"];
-            if (string.IsNullOrEmpty(encryptionKey))
-            {
-                encryptionKey = "SixteenByteKey123!";
-            }
-            EncryptionHelper.SetKey(encryptionKey);
+            //var encryptionKey = _configuration["EncryptionKey"];
+            //if (string.IsNullOrEmpty(encryptionKey))
+            //{
+            //    encryptionKey = "SixteenByteKey123!";
+            //}
+            //EncryptionHelper.SetKey(encryptionKey);
 
-            var encryptedUsername = EncryptionHelper.Encrypt(txtDbUsername.Text.Trim());
-            var encryptedPassword = EncryptionHelper.Encrypt(txtDbPassword.Text.Trim());
+            //var encryptedUsername = EncryptionHelper.Encrypt(txtDbUsername.Text.Trim());
+            //var encryptedPassword = EncryptionHelper.Encrypt(txtDbPassword.Text.Trim());
+            var encryptedUsername = txtDbUsername.Text.Trim();
+            var encryptedPassword = txtDbPassword.Text.Trim();
 
             var newSettings = new
             {
@@ -349,8 +353,8 @@ namespace FormulariRif_G.Forms
                 {
                     EncryptedUsername = encryptedUsername,
                     EncryptedPassword = encryptedPassword
-                },
-                EncryptionKey = encryptionKey
+                }
+                //, EncryptionKey = encryptionKey
             };
 
             var options = new JsonSerializerOptions { WriteIndented = true };
@@ -484,6 +488,7 @@ namespace FormulariRif_G.Forms
                 finally
                 {
                     this.Cursor = Cursors.Default;
+                    progressBar1.Visible = false;
                 }
             }
         }

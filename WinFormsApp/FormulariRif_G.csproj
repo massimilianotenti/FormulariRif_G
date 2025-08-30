@@ -47,4 +47,10 @@
 	  <Folder Include="Migrations\" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Update="Forms\ConfigurazioneAzienda.cs">
+	    <SubType>Form</SubType>
+	  </Compile>
+	</ItemGroup>
+
 </Project>

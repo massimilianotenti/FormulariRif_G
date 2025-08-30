@@ -40,45 +40,22 @@ namespace FormulariRif_G
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
 
-                // Gestione della chiave di criptazione
-                //var encryptionKey = configuration["EncryptionKey"];
-                //if (string.IsNullOrEmpty(encryptionKey))
-                //{
-                //    MessageBox.Show("Chiave di criptazione non trovata in appsettings.json. Impossibile procedere.", "Errore di Configurazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    return;
-                //}
-                //try
-                //{
-                //    EncryptionHelper.SetKey(encryptionKey);
-                //}
-                //catch (ArgumentException ex)
-                //{
-                //    MessageBox.Show($"Errore nella chiave di criptazione: {ex.Message}", "Errore di Configurazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                //    return;
-                //}
-
                 // Recupero delle credenziali criptate dalla configurazione
                 string? serverName = configuration["ConnectionStrings:ServerName"];
                 string? databaseName = configuration["ConnectionStrings:DatabaseName"];
-                string? encryptedUsername = configuration["EncryptedCredentials:EncryptedUsername"];
-                string? encryptedPassword = configuration["EncryptedCredentials:EncryptedPassword"];
+                string? dbUsername = configuration["EncryptedCredentials:EncryptedUsername"];
+                string? dbPassword = configuration["EncryptedCredentials:EncryptedPassword"];
 
-                string? dbUsername = null;
-                string? dbPassword = null;
                 string? connectionString = null;
+                // Flag per indicare se � necessaria la configurazione iniziale
+                bool configNeeded = false; 
 
-                bool configNeeded = false; // Flag per indicare se � necessaria la configurazione iniziale
-
-                // Tenta di decriptare le credenziali e testare la connessione
+                // testa la connessione
                 if (!string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(databaseName) &&
-                    !string.IsNullOrEmpty(encryptedUsername) && !string.IsNullOrEmpty(encryptedPassword))
+                    !string.IsNullOrEmpty(dbUsername) && !string.IsNullOrEmpty(dbPassword))
                 {
                     try
                     {
-                        dbUsername = EncryptionHelper.Decrypt(encryptedUsername);
-                        dbPassword = EncryptionHelper.Decrypt(encryptedPassword);
-                        //dbUsername = encryptedUsername;
-                        //dbPassword = encryptedPassword;
                         connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
 
                         // Test della connessione al database
@@ -107,7 +84,8 @@ namespace FormulariRif_G
                     _host = Host.CreateDefaultBuilder()
                         .ConfigureAppConfiguration((context, config) =>
                         {
-                            config.AddConfiguration(configuration); // Usa la configurazione esistente
+                            // Usa la configurazione esistente
+                            config.AddConfiguration(configuration); 
                         })
                         .ConfigureServices((context, services) =>
                         {
@@ -132,7 +110,8 @@ namespace FormulariRif_G
                 }
 
                 // --- Logica per l'Avvio Completo dell'Applicazione dopo la Configurazione (o se gi� presente) ---
-                if (restartApp || !configNeeded) // Se � stato richiesto un riavvio o se la configurazione non era necessaria
+                // Se � stato richiesto un riavvio o se la configurazione non era necessaria
+                if (restartApp || !configNeeded) 
                 {
                     // Se c'� stato un riavvio, ricarica la configurazione (potrebbe essere cambiata)
                     if (restartApp)
@@ -145,15 +124,11 @@ namespace FormulariRif_G
                         // Riprova a decriptare le credenziali con la nuova configurazione
                         serverName = configuration["ConnectionStrings:ServerName"];
                         databaseName = configuration["ConnectionStrings:DatabaseName"];
-                        encryptedUsername = configuration["EncryptedCredentials:EncryptedUsername"];
-                        encryptedPassword = configuration["EncryptedCredentials:EncryptedPassword"];
+                        dbUsername = configuration["EncryptedCredentials:EncryptedUsername"];
+                        dbPassword = configuration["EncryptedCredentials:EncryptedPassword"];
 
                         try
                         {
-                            dbUsername = EncryptionHelper.Decrypt(encryptedUsername!); // Usare '!' per indicare che non sar� null
-                            dbPassword = EncryptionHelper.Decrypt(encryptedPassword!); // Usare '!' per indicare che non sar� null
-                            //dbUsername = encryptedUsername!; // Usare '!' per indicare che non sar� null
-                            //dbPassword = encryptedPassword!; // Usare '!' per indicare che non sar� null
                             connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
                         }
                         catch (Exception ex)

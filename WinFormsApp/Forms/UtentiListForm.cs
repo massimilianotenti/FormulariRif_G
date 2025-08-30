@@ -47,18 +47,26 @@ namespace FormulariRif_G.Forms
 
                 dataGridViewUtenti.DataSource = utenti.ToList();
                 dataGridViewUtenti.Columns["Id"].Visible = false;
-                if (dataGridViewUtenti.Columns.Contains("Password"))
+                // Crea una nuova colonna di tipo DataGridViewCheckBoxColumn
+                if (dataGridViewUtenti.Columns.Contains("Admin"))                
+                    dataGridViewUtenti.Columns.Remove("Admin");                                
+                var adminColumn = new DataGridViewCheckBoxColumn
                 {
-                    dataGridViewUtenti.Columns["Password"].Visible = false;
-                }
-                if (dataGridViewUtenti.Columns.Contains("PasswordSalt"))
-                {
-                    dataGridViewUtenti.Columns["PasswordSalt"].Visible = false;
-                }
-                if (dataGridViewUtenti.Columns.Contains("MustChangePassword"))
-                {
-                    dataGridViewUtenti.Columns["MustChangePassword"].Visible = false;
-                }
+                    DataPropertyName = "Admin", 
+                    HeaderText = "Amministratore", 
+                    Name = "AdminColumn", 
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells, 
+                    TrueValue = true,
+                    FalseValue = false,                    
+                };
+                if (!dataGridViewUtenti.Columns.Contains("AdminColumn"))
+                    dataGridViewUtenti.Columns.Add(adminColumn);
+                if (dataGridViewUtenti.Columns.Contains("Password"))                
+                    dataGridViewUtenti.Columns["Password"].Visible = false;                
+                if (dataGridViewUtenti.Columns.Contains("PasswordSalt"))                
+                    dataGridViewUtenti.Columns["PasswordSalt"].Visible = false;                
+                if (dataGridViewUtenti.Columns.Contains("MustChangePassword"))                
+                    dataGridViewUtenti.Columns["MustChangePassword"].Visible = false;                
             }
             catch (Exception ex)
             {
