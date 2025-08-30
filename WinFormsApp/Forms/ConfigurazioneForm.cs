@@ -3,6 +3,7 @@
 // le credenziali (criptate) e i dati della tabella di configurazione dell'applicazione.
 // Include anche la funzionalità per generare dati di test.
 using Faker;
+using Bogus;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
 using FormulariRif_G.Utils;
@@ -41,11 +42,24 @@ namespace FormulariRif_G.Forms
         // Proprietà per esporre i dati di configurazione dell'applicazione
         public Configurazione AppConfigData { get; private set; }
 
+        private readonly IGenericRepository<Automezzo> _automezzoRepository;
+        private readonly IGenericRepository<Conducente> _conducenteRepository;
+        private readonly IGenericRepository<Autom_Cond> _automCondRepository;
+        private readonly IGenericRepository<Rimorchio> _rimorchioRepository;
+        private readonly IGenericRepository<Autom_Rim> _automRimRepository;
+
         public ConfigurazioneForm(IConfiguration configuration, IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _configuration = configuration;
             _serviceProvider = serviceProvider;
+
+            // I repository vengono risolti qui per essere disponibili in tutta la classe
+            _automezzoRepository = _serviceProvider.GetRequiredService<IGenericRepository<Automezzo>>();
+            _conducenteRepository = _serviceProvider.GetRequiredService<IGenericRepository<Conducente>>();
+            _automCondRepository = _serviceProvider.GetRequiredService<IGenericRepository<Autom_Cond>>();
+            _rimorchioRepository = _serviceProvider.GetRequiredService<IGenericRepository<Rimorchio>>();
+            _automRimRepository = _serviceProvider.GetRequiredService<IGenericRepository<Autom_Rim>>();
 
             AppConfigData = new Configurazione(); // Inizializza l'oggetto per esporre i dati
             this.Load += ConfigurazioneForm_Load;
@@ -74,37 +88,6 @@ namespace FormulariRif_G.Forms
             txtDatabaseName.Text = _configuration["ConnectionStrings:DatabaseName"] ?? string.Empty;
             txtDbUsername.Text = _configuration["EncryptedCredentials:EncryptedUsername"];
             txtDbPassword.Text = _configuration["EncryptedCredentials:EncryptedPassword"];
-
-            //var encryptionKey = _configuration["EncryptionKey"];
-            //if (!string.IsNullOrEmpty(encryptionKey))
-            //{
-            //    try
-            //    {
-            //        EncryptionHelper.SetKey(encryptionKey);
-            //    }
-            //    catch (ArgumentException ex)
-            //    {
-            //        MessageBox.Show($"Errore nella chiave di criptazione: {ex.Message}. Controlla appsettings.json.", "Errore di Criptazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    }
-            //}
-
-            //var encryptedUsername = _configuration["EncryptedCredentials:EncryptedUsername"];
-            //var encryptedPassword = _configuration["EncryptedCredentials:EncryptedPassword"];
-
-            //if (!string.IsNullOrEmpty(encryptedUsername) && !string.IsNullOrEmpty(encryptedPassword))
-            //{
-            //    try
-            //    {
-            //        txtDbUsername.Text = EncryptionHelper.Decrypt(encryptedUsername);
-            //        txtDbPassword.Text = EncryptionHelper.Decrypt(encryptedPassword);
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        MessageBox.Show($"Errore durante la decriptazione delle credenziali: {ex.Message}. Potrebbe essere necessaria una nuova configurazione.", "Errore di Criptazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //        txtDbUsername.Text = string.Empty;
-            //        txtDbPassword.Text = string.Empty;
-            //    }
-            //}
         }
 
         /// <summary>
@@ -330,15 +313,6 @@ namespace FormulariRif_G.Forms
         {
             var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
-            //var encryptionKey = _configuration["EncryptionKey"];
-            //if (string.IsNullOrEmpty(encryptionKey))
-            //{
-            //    encryptionKey = "SixteenByteKey123!";
-            //}
-            //EncryptionHelper.SetKey(encryptionKey);
-
-            //var encryptedUsername = EncryptionHelper.Encrypt(txtDbUsername.Text.Trim());
-            //var encryptedPassword = EncryptionHelper.Encrypt(txtDbPassword.Text.Trim());
             var encryptedUsername = txtDbUsername.Text.Trim();
             var encryptedPassword = txtDbPassword.Text.Trim();
 
@@ -427,56 +401,154 @@ namespace FormulariRif_G.Forms
 
                     var clienteRepo = _serviceProvider.GetRequiredService<IGenericRepository<Cliente>>();
                     var clienteContattoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteContatto>>();
-                    var clienteIndirizzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>(); // Nuovo repository                    
+                    var clienteIndirizzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>();
 
-                    for (int i = 0; i < 5000; i++)
+                    var automezzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<Automezzo>>();
+                    var conducenteRepo = _serviceProvider.GetRequiredService<IGenericRepository<Conducente>>();
+                    var rimorchioRepo = _serviceProvider.GetRequiredService<IGenericRepository<Rimorchio>>();
+                    var auto_condRepo = _serviceProvider.GetRequiredService<IGenericRepository<Autom_Cond>>();
+                    var auto_rimRepo = _serviceProvider.GetRequiredService<IGenericRepository<Autom_Rim>>();
+
+                    //for (int i = 0; i < 5000; i++)
+                    //{
+                    //    var cliente = new Cliente
+                    //    {
+                    //        RagSoc = Faker.Company.Name(),
+                    //        CodiceFiscale = Faker.Identification.SocialSecurityNumber(),
+                    //        PartitaIva = GeneratePartitaIva(),
+                    //        IsTestData = true
+                    //    };
+                    //    await clienteRepo.AddAsync(cliente);
+                    //    await clienteRepo.SaveChangesAsync();
+
+                    //    // Genera 1-3 indirizzi per ogni cliente di test
+                    //    var numIndirizzi = new Random().Next(1, 4);
+                    //    for (int k = 0; k < numIndirizzi; k++)
+                    //    {
+                    //        var indirizzo = new ClienteIndirizzo
+                    //        {
+                    //            IdCli = cliente.Id,
+                    //            Indirizzo = Faker.Address.StreetAddress(),
+                    //            Comune = Faker.Address.City(),
+                    //            Cap = Convert.ToInt32(Faker.Address.ZipCode().Substring(0, Math.Min(5, Faker.Address.ZipCode().Length))),
+                    //            Predefinito = (k == 0), // Il primo indirizzo è predefinito
+                    //            IsTestData = true
+                    //        };
+                    //        await clienteIndirizzoRepo.AddAsync(indirizzo);
+                    //    }
+                    //    await clienteIndirizzoRepo.SaveChangesAsync();
+
+
+                    //    var numContatti = new Random().Next(1, 4);
+                    //    for (int j = 0; j < numContatti; j++)
+                    //    {
+                    //        var contatto = new ClienteContatto
+                    //        {
+                    //            IdCli = cliente.Id,
+                    //            Predefinito = (j == 0),
+                    //            Contatto = Faker.Name.FullName(),
+                    //            Telefono = Faker.Phone.Number(),
+                    //            Email = Faker.Internet.Email(),
+                    //            IsTestData = true
+                    //        };
+                    //        await clienteContattoRepo.AddAsync(contatto);
+                    //    }
+                    //    await clienteContattoRepo.SaveChangesAsync();
+
+                    //    progressBar1.Value = i + 1;                        
+                    //    Application.DoEvents();
+                    //}
+
+                    // Creo 40 automezzi                    
+                    var fk = new Bogus.Faker("it");
+                    for (int i = 1; i <= 40; i++)
                     {
-                        var cliente = new Cliente
+                        var automezzo = new Automezzo
                         {
-                            RagSoc = Faker.Company.Name(),
-                            CodiceFiscale = Faker.Identification.SocialSecurityNumber(),
-                            PartitaIva = GeneratePartitaIva(),
+                            Descrizione = fk.Vehicle.Model() + " " + fk.Vehicle.Type(),
+                            Targa = fk.Vehicle.Vin(),
                             IsTestData = true
                         };
-                        await clienteRepo.AddAsync(cliente);
-                        await clienteRepo.SaveChangesAsync();
+                        await automezzoRepo.AddAsync(automezzo);
+                        await automezzoRepo.SaveChangesAsync();
+                    }
 
-                        // Genera 1-3 indirizzi per ogni cliente di test
-                        var numIndirizzi = new Random().Next(1, 4);
-                        for (int k = 0; k < numIndirizzi; k++)
+
+                    // Creo 100 rimorchi
+                    for (int i = 1; i <= 100; i++)
+                    {
+                        var rimorchio = new Rimorchio
                         {
-                            var indirizzo = new ClienteIndirizzo
-                            {
-                                IdCli = cliente.Id,
-                                Indirizzo = Faker.Address.StreetAddress(),
-                                Comune = Faker.Address.City(),
-                                Cap = Convert.ToInt32(Faker.Address.ZipCode().Substring(0, Math.Min(5, Faker.Address.ZipCode().Length))),
-                                Predefinito = (k == 0), // Il primo indirizzo è predefinito
-                                IsTestData = true
-                            };
-                            await clienteIndirizzoRepo.AddAsync(indirizzo);
-                        }
-                        await clienteIndirizzoRepo.SaveChangesAsync();
+                            Descrizione = fk.Vehicle.Manufacturer() + " " + i.ToString(),
+                            Targa = fk.Vehicle.Vin(),
+                            IsTestData = true
+                        };
+                        await rimorchioRepo.AddAsync(rimorchio);
+                        await rimorchioRepo.SaveChangesAsync();
+                    }
 
-
-                        var numContatti = new Random().Next(1, 4);
-                        for (int j = 0; j < numContatti; j++)
+                    // Creo 10 conducenti dipendenti
+                    for (int i = 0; i < 10; i++)
+                    {
+                        var conducente = new Conducente
                         {
-                            var contatto = new ClienteContatto
-                            {
-                                IdCli = cliente.Id,
-                                Predefinito = (j == 0),
-                                Contatto = Faker.Name.FullName(),
-                                Telefono = Faker.Phone.Number(),
-                                Email = Faker.Internet.Email(),
-                                IsTestData = true
-                            };
-                            await clienteContattoRepo.AddAsync(contatto);
-                        }
-                        await clienteContattoRepo.SaveChangesAsync();
+                            Descrizione = Faker.Name.FullName(),
+                            Contatto = Faker.Phone.Number(),
+                            Tipo = 0,
+                            IsTestData = true
+                        };
+                        await conducenteRepo.AddAsync(conducente);
+                        await conducenteRepo.SaveChangesAsync();
+                    }
 
-                        progressBar1.Value = i + 1;                        
-                        Application.DoEvents();
+                    // Creo 100 conducenti esterni
+                    for (int i = 0; i < 100; i++)
+                    {
+                        var conducente = new Conducente
+                        {
+                            Descrizione = Faker.Name.FullName(),
+                            Contatto = Faker.Phone.Number(),
+                            Tipo = 1,
+                            IsTestData = true
+                        };
+                        await conducenteRepo.AddAsync(conducente);
+                        await conducenteRepo.SaveChangesAsync();
+                    }
+
+                    // Creo gli abbinamenti
+                    var random = new Random();
+                    var automezziIds = (await _automezzoRepository.FindAsync(a => a.IsTestData)).Select(a => a.Id).ToList();
+                    var conducentiIds = (await _conducenteRepository.FindAsync(c => c.IsTestData)).Select(c => c.Id).ToList();
+                    var rimorchiIds = (await _rimorchioRepository.FindAsync(c => c.IsTestData)).Select(c => c.Id).ToList();
+
+                    var associazioni = new List<Autom_Cond>();
+                    foreach (var id in automezziIds)
+                    {
+                        int numeroConducenti = random.Next(1, 11);
+                        var conducentiDaAssiociare = conducentiIds.OrderBy(c => random.Next()).Take(numeroConducenti).ToList();
+                        foreach (var conducenteId in conducentiDaAssiociare)
+                        {
+                            associazioni.Add(new Autom_Cond
+                            {
+                                Id_Automezzo = id,
+                                Id_Conducente = conducenteId
+                            });
+                        }
+                    }
+
+                    var associazioniRim = new List<Autom_Rim>();
+                    foreach (var id in automezziIds)
+                    {
+                        int numeroRim = random.Next(1, 21);
+                        var rimorchiDaAssiociare = rimorchiIds.OrderBy(c => random.Next()).Take(numeroRim).ToList();
+                        foreach (var rimorchioId in rimorchiDaAssiociare)
+                        {
+                            associazioniRim.Add(new Autom_Rim
+                            {
+                                Id_Automezzo = id,
+                                Id_Rimorchio = rimorchioId
+                            });
+                        }
                     }
 
                     MessageBox.Show("Dati di test generati con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -492,6 +564,7 @@ namespace FormulariRif_G.Forms
                 }
             }
         }
+        
 
         private static string GeneratePartitaIva()
         {

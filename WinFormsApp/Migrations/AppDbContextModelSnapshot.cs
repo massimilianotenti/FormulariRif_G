@@ -32,11 +32,36 @@ namespace FormulariRif_G.Migrations
                         .HasColumnType("int")
                         .HasColumnName("id_cond");
 
+                    b.Property<bool>("IsTestData")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_test_data");
+
                     b.HasKey("Id_Automezzo", "Id_Conducente");
 
                     b.HasIndex("Id_Conducente");
 
                     b.ToTable("autom_cond");
+                });
+
+            modelBuilder.Entity("FormulariRif_G.Models.Autom_Rim", b =>
+                {
+                    b.Property<int>("Id_Automezzo")
+                        .HasColumnType("int")
+                        .HasColumnName("id_autom");
+
+                    b.Property<int>("Id_Rimorchio")
+                        .HasColumnType("int")
+                        .HasColumnName("id_rim");
+
+                    b.Property<bool>("IsTestData")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_test_data");
+
+                    b.HasKey("Id_Automezzo", "Id_Rimorchio");
+
+                    b.HasIndex("Id_Rimorchio");
+
+                    b.ToTable("autom_rim");
                 });
 
             modelBuilder.Entity("FormulariRif_G.Models.Automezzo", b =>
@@ -52,6 +77,10 @@ namespace FormulariRif_G.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("descrizione");
+
+                    b.Property<bool>("IsTestData")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_test_data");
 
                     b.Property<string>("Targa")
                         .IsRequired()
@@ -215,13 +244,17 @@ namespace FormulariRif_G.Migrations
                         .HasColumnType("nvarchar(250)")
                         .HasColumnName("descrizione");
 
+                    b.Property<bool>("IsTestData")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_test_data");
+
                     b.Property<int>("Tipo")
                         .HasColumnType("int")
                         .HasColumnName("tipo");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Conducenti");
+                    b.ToTable("conducenti");
                 });
 
             modelBuilder.Entity("FormulariRif_G.Models.Configurazione", b =>
@@ -432,6 +465,35 @@ namespace FormulariRif_G.Migrations
                     b.ToTable("formulari_rifiuti");
                 });
 
+            modelBuilder.Entity("FormulariRif_G.Models.Rimorchio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Descrizione")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("descrizione");
+
+                    b.Property<bool>("IsTestData")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_test_data");
+
+                    b.Property<string>("Targa")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("targa");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("rimorchi");
+                });
+
             modelBuilder.Entity("FormulariRif_G.Models.Utente", b =>
                 {
                     b.Property<int>("Id")
@@ -494,6 +556,25 @@ namespace FormulariRif_G.Migrations
                     b.Navigation("Automezzo");
 
                     b.Navigation("Conducente");
+                });
+
+            modelBuilder.Entity("FormulariRif_G.Models.Autom_Rim", b =>
+                {
+                    b.HasOne("FormulariRif_G.Models.Automezzo", "Automezzo")
+                        .WithMany("AutomezziRimorchi")
+                        .HasForeignKey("Id_Automezzo")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FormulariRif_G.Models.Rimorchio", "Rimorchio")
+                        .WithMany("RimorchioAutomezzi")
+                        .HasForeignKey("Id_Rimorchio")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Automezzo");
+
+                    b.Navigation("Rimorchio");
                 });
 
             modelBuilder.Entity("FormulariRif_G.Models.ClienteContatto", b =>
@@ -580,6 +661,8 @@ namespace FormulariRif_G.Migrations
             modelBuilder.Entity("FormulariRif_G.Models.Automezzo", b =>
                 {
                     b.Navigation("AutomezziConducenti");
+
+                    b.Navigation("AutomezziRimorchi");
                 });
 
             modelBuilder.Entity("FormulariRif_G.Models.Cliente", b =>
@@ -592,6 +675,11 @@ namespace FormulariRif_G.Migrations
             modelBuilder.Entity("FormulariRif_G.Models.Conducente", b =>
                 {
                     b.Navigation("ConducentiAutomezzi");
+                });
+
+            modelBuilder.Entity("FormulariRif_G.Models.Rimorchio", b =>
+                {
+                    b.Navigation("RimorchioAutomezzi");
                 });
 #pragma warning restore 612, 618
         }

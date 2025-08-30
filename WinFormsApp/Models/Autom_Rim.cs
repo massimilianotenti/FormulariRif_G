@@ -8,21 +8,22 @@ using System.Threading.Tasks;
 
 namespace FormulariRif_G.Models
 {
-    [Table("autom_cond")]
-    public class Autom_Cond
+    [Table("autom_rim")]
+    public class Autom_Rim
     {
         [Required]
         [Column("id_autom")]
         public int Id_Automezzo { get; set; }
 
         [Required]
-        [Column("id_cond")]
-        public int Id_Conducente { get; set; }
+        [Column("id_rim")]
+        public int Id_Rimorchio { get; set; }
 
         [Column("is_test_data")]
         public bool IsTestData { get; set; }
 
         public Automezzo Automezzo { get; set; }
-        public Conducente Conducente { get; set; }
+        public Rimorchio Rimorchio { get; set; }
+
     }
 }

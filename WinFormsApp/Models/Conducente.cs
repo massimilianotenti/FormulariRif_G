@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace FormulariRif_G.Models
 {
-    [Table("Conducenti")]
+    [Table("conducenti")]
     public class Conducente
     {
         [Key]
@@ -26,6 +26,9 @@ namespace FormulariRif_G.Models
         [Required]
         [Column("tipo")]
         public int Tipo { get; set; }
+
+        [Column("is_test_data")]
+        public bool IsTestData { get; set; }
 
         public ICollection<Autom_Cond> ConducentiAutomezzi { get; set; }
     }

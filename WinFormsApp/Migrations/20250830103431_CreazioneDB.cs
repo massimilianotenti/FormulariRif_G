@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormulariRif_G.Migrations
 {
     /// <inheritdoc />
-    public partial class CreazioneDatabase : Migration
+    public partial class CreazioneDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -18,7 +18,8 @@ namespace FormulariRif_G.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     descrizione = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    targa = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false)
+                    targa = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,18 +46,19 @@ namespace FormulariRif_G.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Conducenti",
+                name: "conducenti",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     descrizione = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     contatto = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    tipo = table.Column<int>(type: "int", nullable: false)
+                    tipo = table.Column<int>(type: "int", nullable: false),
+                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Conducenti", x => x.Id);
+                    table.PrimaryKey("PK_conducenti", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -86,6 +88,21 @@ namespace FormulariRif_G.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_configurazione", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "rimorchi",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    descrizione = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
+                    targa = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_rimorchi", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -159,21 +176,47 @@ namespace FormulariRif_G.Migrations
                 columns: table => new
                 {
                     id_autom = table.Column<int>(type: "int", nullable: false),
-                    id_cond = table.Column<int>(type: "int", nullable: false)
+                    id_cond = table.Column<int>(type: "int", nullable: false),
+                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_autom_cond", x => new { x.id_autom, x.id_cond });
                     table.ForeignKey(
-                        name: "FK_autom_cond_Conducenti_id_cond",
-                        column: x => x.id_cond,
-                        principalTable: "Conducenti",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_autom_cond_automezzi_id_autom",
                         column: x => x.id_autom,
                         principalTable: "automezzi",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_autom_cond_conducenti_id_cond",
+                        column: x => x.id_cond,
+                        principalTable: "conducenti",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "autom_rim",
+                columns: table => new
+                {
+                    id_autom = table.Column<int>(type: "int", nullable: false),
+                    id_rim = table.Column<int>(type: "int", nullable: false),
+                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_autom_rim", x => new { x.id_autom, x.id_rim });
+                    table.ForeignKey(
+                        name: "FK_autom_rim_automezzi_id_autom",
+                        column: x => x.id_autom,
+                        principalTable: "automezzi",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_autom_rim_rimorchi_id_rim",
+                        column: x => x.id_rim,
+                        principalTable: "rimorchi",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -258,6 +301,11 @@ namespace FormulariRif_G.Migrations
                 column: "id_cond");
 
             migrationBuilder.CreateIndex(
+                name: "IX_autom_rim_id_rim",
+                table: "autom_rim",
+                column: "id_rim");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_clienti_contatti_id_cli",
                 table: "clienti_contatti",
                 column: "id_cli");
@@ -310,6 +358,9 @@ namespace FormulariRif_G.Migrations
                 name: "autom_cond");
 
             migrationBuilder.DropTable(
+                name: "autom_rim");
+
+            migrationBuilder.DropTable(
                 name: "clienti_contatti");
 
             migrationBuilder.DropTable(
@@ -322,7 +373,10 @@ namespace FormulariRif_G.Migrations
                 name: "utenti");
 
             migrationBuilder.DropTable(
-                name: "Conducenti");
+                name: "conducenti");
+
+            migrationBuilder.DropTable(
+                name: "rimorchi");
 
             migrationBuilder.DropTable(
                 name: "automezzi");

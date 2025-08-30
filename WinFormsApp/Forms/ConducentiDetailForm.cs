@@ -141,12 +141,6 @@ namespace FormulariRif_G.Forms
                 txtDescrizione.Focus();
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(txtContatto.Text))
-            {
-                MessageBox.Show("Contatto è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtContatto.Focus();
-                return false;
-            }
             if (!rdbDipendente.Checked && !rdbTrasportatoreEsterno.Checked)
             {
                 MessageBox.Show("Selezionare il tipo di conducente (Dipendente o Trasportatore Esterno).", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);

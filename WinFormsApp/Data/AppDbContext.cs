@@ -31,6 +31,10 @@ namespace FormulariRif_G.Data
 
         public DbSet<Autom_Cond> FKAutomCond { get; set; }
 
+        public DbSet<Rimorchio> Rimorchi { get; set; }
+
+        public DbSet<Autom_Rim> FKAutomRim { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,8 +62,7 @@ namespace FormulariRif_G.Data
             // Configurazione per la colonna is_test_data per Cliente
             modelBuilder.Entity<Cliente>(entity =>
             {
-                entity.Property(e => e.IsTestData).HasColumnName("is_test_data");
-                // NUOVO: Aggiunto mapping per CodiceFiscale
+                entity.Property(e => e.IsTestData).HasColumnName("is_test_data");                
                 entity.Property(e => e.CodiceFiscale).HasColumnName("codice_fiscale");
             });
 
@@ -71,8 +74,7 @@ namespace FormulariRif_G.Data
             
             modelBuilder.Entity<Configurazione>(entity =>
             {
-                entity.Property(e => e.DatiTest).HasColumnName("dati_test");
-                // NUOVO: Mapping per le nuove proprietà di Configurazione
+                entity.Property(e => e.DatiTest).HasColumnName("dati_test");                
                 entity.Property(e => e.PartitaIva).HasColumnName("partita_iva");
                 entity.Property(e => e.CodiceFiscale).HasColumnName("codice_fiscale");
                 entity.Property(e => e.NumeroIscrizioneAlbo).HasColumnName("numero_iscrizione_albo");
@@ -92,20 +94,36 @@ namespace FormulariRif_G.Data
                 entity.Property(e => e.Tipo).HasColumnName("tipo");
             });
 
-            modelBuilder.Entity<Autom_Cond>()
-                .HasKey(ac => new { ac.Id_Automezzo, ac.Id_Conducente });
+            modelBuilder.Entity<Rimorchio>(entity =>
+            {
+                entity.Property(e => e.Descrizione).HasColumnName("descrizione");
+                entity.Property(e => e.Targa).HasColumnName("targa");
+            });
 
-            // Configura la relazione tra Autom_Cond e Automezzo
+            //Relazione automezzi/conducenti
+            modelBuilder.Entity<Autom_Cond>()
+                .HasKey(ac => new { ac.Id_Automezzo, ac.Id_Conducente });            
             modelBuilder.Entity<Autom_Cond>()
                 .HasOne(ac => ac.Automezzo)
                 .WithMany(a => a.AutomezziConducenti)
                 .HasForeignKey(ac => ac.Id_Automezzo);
-
-            // Configura la relazione tra Autom_Cond e Conducente
             modelBuilder.Entity<Autom_Cond>()
                 .HasOne(ac => ac.Conducente)
                 .WithMany(c => c.ConducentiAutomezzi)
                 .HasForeignKey(ac => ac.Id_Conducente);
+
+            //Relazione automezzi/rimorchi
+            modelBuilder.Entity<Autom_Rim>()
+                .HasKey(ac => new { ac.Id_Automezzo, ac.Id_Rimorchio });
+            modelBuilder.Entity<Autom_Rim>()
+                .HasOne(ac => ac.Automezzo)
+                .WithMany(a => a.AutomezziRimorchi)
+                .HasForeignKey(ac => ac.Id_Automezzo);
+            modelBuilder.Entity<Autom_Rim>()
+                .HasOne(ac => ac.Rimorchio)
+                .WithMany(c => c.RimorchioAutomezzi)
+                .HasForeignKey(ac => ac.Id_Rimorchio);
+
 
             // NUOVO: Configurazione per ClienteIndirizzo
             modelBuilder.Entity<ClienteIndirizzo>(entity =>
