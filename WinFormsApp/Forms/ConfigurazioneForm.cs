@@ -35,6 +35,7 @@ namespace FormulariRif_G.Forms
         private Label label2;
         public TextBox txtRagSoc2;
         private readonly IServiceProvider _serviceProvider;
+        private ProgressBar progressBar1;
         private static readonly Random _random = new Random();
 
         // Proprietà per esporre i dati di configurazione dell'applicazione
@@ -415,6 +416,11 @@ namespace FormulariRif_G.Forms
             {
                 try
                 {
+                    this.Cursor = Cursors.WaitCursor;
+                    progressBar1.Visible = true; 
+                    progressBar1.Maximum = 5000; 
+                    progressBar1.Value = 0; 
+
                     var clienteRepo = _serviceProvider.GetRequiredService<IGenericRepository<Cliente>>();
                     var clienteContattoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteContatto>>();
                     var clienteIndirizzoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteIndirizzo>>(); // Nuovo repository                    
@@ -424,7 +430,7 @@ namespace FormulariRif_G.Forms
                         var cliente = new Cliente
                         {
                             RagSoc = Faker.Company.Name(),
-                            CodiceFiscale = Faker.Identification.SocialSecurityNumber(),          
+                            CodiceFiscale = Faker.Identification.SocialSecurityNumber(),
                             PartitaIva = GeneratePartitaIva(),
                             IsTestData = true
                         };
@@ -464,6 +470,9 @@ namespace FormulariRif_G.Forms
                             await clienteContattoRepo.AddAsync(contatto);
                         }
                         await clienteContattoRepo.SaveChangesAsync();
+
+                        progressBar1.Value = i + 1;                        
+                        Application.DoEvents();
                     }
 
                     MessageBox.Show("Dati di test generati con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -471,6 +480,10 @@ namespace FormulariRif_G.Forms
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Errore durante la generazione dei dati di test: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Default;
                 }
             }
         }
@@ -563,6 +576,7 @@ namespace FormulariRif_G.Forms
             txtDestNumIscr = new TextBox();
             label1 = new Label();
             tabPage4 = new TabPage();
+            progressBar1 = new ProgressBar();
             ((System.ComponentModel.ISupportInitialize)numCap).BeginInit();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -1052,11 +1066,20 @@ namespace FormulariRif_G.Forms
             tabPage4.Text = "Trasportatore";
             tabPage4.UseVisualStyleBackColor = true;
             // 
+            // progressBar1
+            // 
+            progressBar1.Location = new Point(168, 384);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(171, 30);
+            progressBar1.TabIndex = 5;
+            progressBar1.Visible = false;
+            // 
             // ConfigurazioneForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(524, 440);
+            Controls.Add(progressBar1);
             Controls.Add(tabControl1);
             Controls.Add(btnGeneraDatiTest);
             Controls.Add(btnSalvaConfigurazione);

@@ -41,21 +41,21 @@ namespace FormulariRif_G
                     .Build();
 
                 // Gestione della chiave di criptazione
-                var encryptionKey = configuration["EncryptionKey"];
-                if (string.IsNullOrEmpty(encryptionKey))
-                {
-                    MessageBox.Show("Chiave di criptazione non trovata in appsettings.json. Impossibile procedere.", "Errore di Configurazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-                try
-                {
-                    EncryptionHelper.SetKey(encryptionKey);
-                }
-                catch (ArgumentException ex)
-                {
-                    MessageBox.Show($"Errore nella chiave di criptazione: {ex.Message}", "Errore di Configurazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
+                //var encryptionKey = configuration["EncryptionKey"];
+                //if (string.IsNullOrEmpty(encryptionKey))
+                //{
+                //    MessageBox.Show("Chiave di criptazione non trovata in appsettings.json. Impossibile procedere.", "Errore di Configurazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //    return;
+                //}
+                //try
+                //{
+                //    EncryptionHelper.SetKey(encryptionKey);
+                //}
+                //catch (ArgumentException ex)
+                //{
+                //    MessageBox.Show($"Errore nella chiave di criptazione: {ex.Message}", "Errore di Configurazione", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                //    return;
+                //}
 
                 // Recupero delle credenziali criptate dalla configurazione
                 string? serverName = configuration["ConnectionStrings:ServerName"];
@@ -77,6 +77,8 @@ namespace FormulariRif_G
                     {
                         dbUsername = EncryptionHelper.Decrypt(encryptedUsername);
                         dbPassword = EncryptionHelper.Decrypt(encryptedPassword);
+                        //dbUsername = encryptedUsername;
+                        //dbPassword = encryptedPassword;
                         connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
 
                         // Test della connessione al database
@@ -150,6 +152,8 @@ namespace FormulariRif_G
                         {
                             dbUsername = EncryptionHelper.Decrypt(encryptedUsername!); // Usare '!' per indicare che non sar� null
                             dbPassword = EncryptionHelper.Decrypt(encryptedPassword!); // Usare '!' per indicare che non sar� null
+                            //dbUsername = encryptedUsername!; // Usare '!' per indicare che non sar� null
+                            //dbPassword = encryptedPassword!; // Usare '!' per indicare che non sar� null
                             connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
                         }
                         catch (Exception ex)
@@ -178,15 +182,20 @@ namespace FormulariRif_G
                             existingConfig = new Configurazione
                             {
                                 DatiTest = false,
-                                RagSoc1 = "Azienda Standard",
-                                Indirizzo = "Via Roma 1",
-                                Comune = "Milano",
-                                Cap = 20100,
+                                RagSoc1 = "LAMBERTI MARCO",
+                                RagSoc2 = "Recupero Materiali Ferroso",
+                                Indirizzo = "U.O. C.S. OSSAIA, 40",
+                                Comune = "CORTONA (AR)",
+                                Cap = 52044,
                                 Email = "info@azienda.com",
-                                PartitaIva = "01234567890",
-                                CodiceFiscale = "RSSMRA80A01H501Z",
-                                NumeroIscrizioneAlbo = "ABC/123",
-                                DataIscrizioneAlbo = DateTime.Now
+                                PartitaIva = "01563000510",
+                                CodiceFiscale = "LMBMRC79S16D077Q",
+                                DestR = "13",
+                                DestAutoComunic = "DD 10000 del 06/10/2016",
+                                DestTipo1 = "OP. REG PROG. SEM. ART. 214 e 216",
+                                DestTipo2 = "152/2006 e P.P.R. 69/203",
+                                NumeroIscrizioneAlbo = @"F / 02143",
+                                DataIscrizioneAlbo = new DateTime(2025, 05, 08)
                             };
                             await configRepo.AddAsync(existingConfig);
                             await configRepo.SaveChangesAsync();

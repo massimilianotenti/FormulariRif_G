@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace FormulariRif_G.Models
 {
-    [Table("cliente_indirizzi")]
+    [Table("clienti_indirizzi")]
     public class ClienteIndirizzo
     {
         public int Id { get; set; }
