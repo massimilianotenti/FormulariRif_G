@@ -12,7 +12,17 @@ namespace FormulariRif_G.Data
         {
         }
 
-        
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                var folder = Environment.SpecialFolder.LocalApplicationData;
+                var path = Environment.GetFolderPath(folder);
+                var dbPath = System.IO.Path.Join(path, "formulari_rifiuti.db");
+                optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            }
+        }
+
         public DbSet<Cliente> Clienti { get; set; }
         
         public DbSet<ClienteContatto> ClientiContatti { get; set; }

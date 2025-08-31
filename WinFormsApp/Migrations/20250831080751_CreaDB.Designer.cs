@@ -3,7 +3,6 @@ using System;
 using FormulariRif_G.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -12,31 +11,27 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormulariRif_G.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250830103431_CreazioneDB")]
-    partial class CreazioneDB
+    [Migration("20250831080751_CreaDB")]
+    partial class CreaDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.8");
 
             modelBuilder.Entity("FormulariRif_G.Models.Autom_Cond", b =>
                 {
                     b.Property<int>("Id_Automezzo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_autom");
 
                     b.Property<int>("Id_Conducente")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_cond");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.HasKey("Id_Automezzo", "Id_Conducente");
@@ -49,15 +44,15 @@ namespace FormulariRif_G.Migrations
             modelBuilder.Entity("FormulariRif_G.Models.Autom_Rim", b =>
                 {
                     b.Property<int>("Id_Automezzo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_autom");
 
                     b.Property<int>("Id_Rimorchio")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_rim");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.HasKey("Id_Automezzo", "Id_Rimorchio");
@@ -71,24 +66,22 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Descrizione")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("descrizione");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.Property<string>("Targa")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("targa");
 
                     b.HasKey("Id");
@@ -100,43 +93,41 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Auto_Comunicazione")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("auto_comunicazione");
 
                     b.Property<string>("CodiceFiscale")
                         .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("codice_fiscale");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.Property<string>("Iscrizione_Albo")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("iscrizione_albo");
 
                     b.Property<string>("PartitaIva")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("partita_iva");
 
                     b.Property<string>("RagSoc")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("rag_soc");
 
                     b.Property<string>("Tipo")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("tipo");
 
                     b.HasKey("Id");
@@ -148,10 +139,8 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Contatto")
                         .IsRequired()
@@ -165,15 +154,15 @@ namespace FormulariRif_G.Migrations
                         .HasColumnName("email");
 
                     b.Property<int>("IdCli")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_cli");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.Property<bool>("Predefinito")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("predefinito");
 
                     b.Property<string>("Telefono")
@@ -192,32 +181,30 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("Cap")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("cap");
 
                     b.Property<string>("Comune")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("comune");
 
                     b.Property<int>("IdCli")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_cli");
 
                     b.Property<string>("Indirizzo")
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("indirizzo");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.Property<bool>("Predefinito")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("predefinito");
 
                     b.HasKey("Id");
@@ -231,28 +218,26 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Contatto")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("contatto");
 
                     b.Property<string>("Descrizione")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("descrizione");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.Property<int>("Tipo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("tipo");
 
                     b.HasKey("Id");
@@ -264,91 +249,89 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<int>("Cap")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("cap");
 
                     b.Property<string>("CodiceFiscale")
                         .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("codice_fiscale");
 
                     b.Property<string>("Comune")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("comune");
 
                     b.Property<DateTime?>("DataIscrizioneAlbo")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("TEXT")
                         .HasColumnName("data_iscrizione_albo");
 
                     b.Property<bool?>("DatiTest")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("dati_test");
 
                     b.Property<string>("DestAutoComunic")
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("dest_auto_comunic");
 
                     b.Property<string>("DestD")
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("dest_d");
 
                     b.Property<string>("DestNumeroIscrizioneAlbo")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("dest_numero_iscrizione_albo");
 
                     b.Property<string>("DestR")
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("dest_r");
 
                     b.Property<string>("DestTipo1")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("dest_tipo1");
 
                     b.Property<string>("DestTipo2")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("dest_tipo2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("email");
 
                     b.Property<string>("Indirizzo")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("indirizzo");
 
                     b.Property<string>("NumeroIscrizioneAlbo")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("numero_iscrizione_albo");
 
                     b.Property<string>("PartitaIva")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("partita_iva");
 
                     b.Property<string>("RagSoc1")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("rag_soc1");
 
                     b.Property<string>("RagSoc2")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("rag_soc2");
 
                     b.HasKey("Id");
@@ -360,93 +343,91 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool?>("AllaRinfusa")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("alla_rinfusa");
 
                     b.Property<string>("CarattPericolosita")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("caratteristiche_pericolosita");
 
                     b.Property<string>("CaratteristicheChimiche")
                         .HasMaxLength(25)
-                        .HasColumnType("nvarchar(25)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("caratteristiche_chimiche");
 
                     b.Property<string>("CodiceEER")
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("codice_eer");
 
                     b.Property<DateTime>("Data")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("TEXT")
                         .HasColumnName("data");
 
                     b.Property<string>("Descrizione")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("descrizione");
 
                     b.Property<int>("IdAutomezzo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_automezzo");
 
                     b.Property<int>("IdDestinatario")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_destinatario");
 
                     b.Property<int>("IdDestinatarioIndirizzo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_destinatario_indirizzo");
 
                     b.Property<int>("IdProduttore")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_produttore");
 
                     b.Property<int>("IdProduttoreIndirizzo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_produttore_indirizzo");
 
                     b.Property<int>("IdTrasportatore")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_trasportatore");
 
                     b.Property<int>("IdTrasportatoreIndirizzo")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id_trasportatore_indirizzo");
 
                     b.Property<int?>("Kg_Lt")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("kg_litri");
 
                     b.Property<int?>("NumeroColli")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("numero_colli");
 
                     b.Property<string>("NumeroFormulario")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("numero_formulario");
 
                     b.Property<bool?>("PesoVerificato")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("peso_verificato");
 
                     b.Property<int?>("Provenienza")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("provenienza");
 
                     b.Property<decimal?>("Quantita")
-                        .HasColumnType("decimal(18,2)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("quantita");
 
                     b.Property<int?>("SatoFisico")
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("stato_fisico");
 
                     b.HasKey("Id");
@@ -472,24 +453,22 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Descrizione")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("descrizione");
 
                     b.Property<bool>("IsTestData")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("is_test_data");
 
                     b.Property<string>("Targa")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("targa");
 
                     b.HasKey("Id");
@@ -501,40 +480,38 @@ namespace FormulariRif_G.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("id");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
                     b.Property<bool?>("Admin")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("admin");
 
                     b.Property<string>("Email")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("email");
 
                     b.Property<bool>("MustChangePassword")
-                        .HasColumnType("bit")
+                        .HasColumnType("INTEGER")
                         .HasColumnName("must_change_password");
 
                     b.Property<string>("NomeUtente")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("utente");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("password");
 
                     b.Property<string>("PasswordSalt")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("TEXT")
                         .HasColumnName("passwordsalt");
 
                     b.HasKey("Id");

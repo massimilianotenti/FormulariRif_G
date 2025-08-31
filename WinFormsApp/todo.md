@@ -37,15 +37,18 @@
 
 ## Architettura e Performance
 
+* **Gestione modifiche al Database
+    * [x] Nell'appsettings.json sono stati tolti i dati di connessione cryptati, in questo modo si può gestire le modifiche al database
 * **Migrazione Database (Valutazione):**
-    * [ ] Valutare il passaggio da SQL Server a **SQLite**, in quanto SQL Server 2022 Express non è compatibile con Windows 7, presente sulla macchina del cliente.
+    * [x] Valutare il passaggio da SQL Server a **SQLite**, in quanto SQL Server 2022 Express non è compatibile con Windows 7, presente sulla macchina del cliente.
 * **Debug Funzioni di Caricamento Asincrone:**
     * [ ] Indagare e risolvere i problemi di caricamento (es. "data source già aperto") che si verificano con le funzioni asincrone lanciate al `load` (ad esempio, nella lista dei formulari).
     * [ ] Verificare se il problema è legato alla latenza, data la differenza di comportamento tra computer desktop e notebook.
     * [ ] Controllare se l'evento `load` e `on change` del campo di ricerca scattano contemporaneamente.
 * **Filtro Dati di Test:**
     * [ ] Assicurarsi che le form di produzione non mostrino i dati di test (attualmente vengono esclusi nell'elenco clienti ma inclusi nel formulario).
-    * [ ] Valutare la creazione di un comando specifico per popolare il DB con dati di test solo negli ambienti di sviluppo.
+    * [x] Creando database nuovo dal cliente e non creando i dati di test dalla form di configurazione si elimina qualsiasi problema sulla visualizzazione dei dati di test  
+    * [x] Valutare la creazione di un comando specifico per popolare il DB con dati di test solo negli ambienti di sviluppo.
 
 ---
 

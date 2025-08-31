@@ -7,7 +7,7 @@ using Bogus;
 using FormulariRif_G.Data;
 using FormulariRif_G.Models;
 using FormulariRif_G.Utils;
-using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -278,7 +278,7 @@ namespace FormulariRif_G.Forms
 
             try
             {
-                using (var conn = new SqlConnection(testConnectionString))
+                using (var conn = new SqliteConnection(testConnectionString))
                 {
                     await conn.OpenAsync();
                     conn.Close();

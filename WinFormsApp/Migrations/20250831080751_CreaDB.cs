@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FormulariRif_G.Migrations
 {
     /// <inheritdoc />
-    public partial class CreazioneDB : Migration
+    public partial class CreaDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,11 +15,11 @@ namespace FormulariRif_G.Migrations
                 name: "automezzi",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    descrizione = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    targa = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    descrizione = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    targa = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,15 +30,15 @@ namespace FormulariRif_G.Migrations
                 name: "clienti",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    rag_soc = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    partita_iva = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    codice_fiscale = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: true),
-                    iscrizione_albo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    auto_comunicazione = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    tipo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    rag_soc = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    partita_iva = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
+                    codice_fiscale = table.Column<string>(type: "TEXT", maxLength: 16, nullable: true),
+                    iscrizione_albo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    auto_comunicazione = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    tipo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,12 +49,12 @@ namespace FormulariRif_G.Migrations
                 name: "conducenti",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    descrizione = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    contatto = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    tipo = table.Column<int>(type: "int", nullable: false),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    descrizione = table.Column<string>(type: "TEXT", maxLength: 250, nullable: false),
+                    contatto = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    tipo = table.Column<int>(type: "INTEGER", nullable: false),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -65,25 +65,25 @@ namespace FormulariRif_G.Migrations
                 name: "configurazione",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    dati_test = table.Column<bool>(type: "bit", nullable: true),
-                    rag_soc1 = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    rag_soc2 = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    indirizzo = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    comune = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    cap = table.Column<int>(type: "int", nullable: false),
-                    email = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    partita_iva = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
-                    codice_fiscale = table.Column<string>(type: "nvarchar(16)", maxLength: 16, nullable: true),
-                    dest_numero_iscrizione_albo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    dest_r = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    dest_d = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    dest_auto_comunic = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true),
-                    dest_tipo1 = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    dest_tipo2 = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    numero_iscrizione_albo = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    data_iscrizione_albo = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    dati_test = table.Column<bool>(type: "INTEGER", nullable: true),
+                    rag_soc1 = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    rag_soc2 = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    indirizzo = table.Column<string>(type: "TEXT", maxLength: 255, nullable: true),
+                    comune = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    cap = table.Column<int>(type: "INTEGER", nullable: false),
+                    email = table.Column<string>(type: "TEXT", maxLength: 100, nullable: true),
+                    partita_iva = table.Column<string>(type: "TEXT", maxLength: 20, nullable: true),
+                    codice_fiscale = table.Column<string>(type: "TEXT", maxLength: 16, nullable: true),
+                    dest_numero_iscrizione_albo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    dest_r = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
+                    dest_d = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
+                    dest_auto_comunic = table.Column<string>(type: "TEXT", maxLength: 30, nullable: true),
+                    dest_tipo1 = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    dest_tipo2 = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    numero_iscrizione_albo = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    data_iscrizione_albo = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -94,11 +94,11 @@ namespace FormulariRif_G.Migrations
                 name: "rimorchi",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    descrizione = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                    targa = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    descrizione = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    targa = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -109,14 +109,14 @@ namespace FormulariRif_G.Migrations
                 name: "utenti",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    admin = table.Column<bool>(type: "bit", nullable: true),
-                    utente = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    password = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    passwordsalt = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    email = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    must_change_password = table.Column<bool>(type: "bit", nullable: false)
+                    id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    admin = table.Column<bool>(type: "INTEGER", nullable: true),
+                    utente = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                    password = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    passwordsalt = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false),
+                    email = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    must_change_password = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -127,14 +127,14 @@ namespace FormulariRif_G.Migrations
                 name: "clienti_contatti",
                 columns: table => new
                 {
-                    id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    id_cli = table.Column<int>(type: "int", nullable: false),
-                    predefinito = table.Column<bool>(type: "bit", nullable: false),
+                    id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    id_cli = table.Column<int>(type: "INTEGER", nullable: false),
+                    predefinito = table.Column<bool>(type: "INTEGER", nullable: false),
                     contatto = table.Column<string>(type: "nchar(100)", maxLength: 100, nullable: false),
                     telefono = table.Column<string>(type: "nchar(50)", maxLength: 50, nullable: true),
                     email = table.Column<string>(type: "nchar(50)", maxLength: 50, nullable: true),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -151,14 +151,14 @@ namespace FormulariRif_G.Migrations
                 name: "clienti_indirizzi",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    id_cli = table.Column<int>(type: "int", nullable: false),
-                    indirizzo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    comune = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    cap = table.Column<int>(type: "int", nullable: true),
-                    predefinito = table.Column<bool>(type: "bit", nullable: false),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    id_cli = table.Column<int>(type: "INTEGER", nullable: false),
+                    indirizzo = table.Column<string>(type: "TEXT", nullable: true),
+                    comune = table.Column<string>(type: "TEXT", nullable: true),
+                    cap = table.Column<int>(type: "INTEGER", nullable: true),
+                    predefinito = table.Column<bool>(type: "INTEGER", nullable: false),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -175,9 +175,9 @@ namespace FormulariRif_G.Migrations
                 name: "autom_cond",
                 columns: table => new
                 {
-                    id_autom = table.Column<int>(type: "int", nullable: false),
-                    id_cond = table.Column<int>(type: "int", nullable: false),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    id_autom = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_cond = table.Column<int>(type: "INTEGER", nullable: false),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -200,9 +200,9 @@ namespace FormulariRif_G.Migrations
                 name: "autom_rim",
                 columns: table => new
                 {
-                    id_autom = table.Column<int>(type: "int", nullable: false),
-                    id_rim = table.Column<int>(type: "int", nullable: false),
-                    is_test_data = table.Column<bool>(type: "bit", nullable: false)
+                    id_autom = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_rim = table.Column<int>(type: "INTEGER", nullable: false),
+                    is_test_data = table.Column<bool>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -225,28 +225,28 @@ namespace FormulariRif_G.Migrations
                 name: "formulari_rifiuti",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    data = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    id_produttore = table.Column<int>(type: "int", nullable: false),
-                    id_produttore_indirizzo = table.Column<int>(type: "int", nullable: false),
-                    id_destinatario = table.Column<int>(type: "int", nullable: false),
-                    id_destinatario_indirizzo = table.Column<int>(type: "int", nullable: false),
-                    id_trasportatore = table.Column<int>(type: "int", nullable: false),
-                    id_trasportatore_indirizzo = table.Column<int>(type: "int", nullable: false),
-                    numero_formulario = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    id_automezzo = table.Column<int>(type: "int", nullable: false),
-                    codice_eer = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    stato_fisico = table.Column<int>(type: "int", nullable: true),
-                    provenienza = table.Column<int>(type: "int", nullable: true),
-                    caratteristiche_pericolosita = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true),
-                    descrizione = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    quantita = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    kg_litri = table.Column<int>(type: "int", nullable: true),
-                    peso_verificato = table.Column<bool>(type: "bit", nullable: true),
-                    numero_colli = table.Column<int>(type: "int", nullable: true),
-                    alla_rinfusa = table.Column<bool>(type: "bit", nullable: true),
-                    caratteristiche_chimiche = table.Column<string>(type: "nvarchar(25)", maxLength: 25, nullable: true)
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    data = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    id_produttore = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_produttore_indirizzo = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_destinatario = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_destinatario_indirizzo = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_trasportatore = table.Column<int>(type: "INTEGER", nullable: false),
+                    id_trasportatore_indirizzo = table.Column<int>(type: "INTEGER", nullable: false),
+                    numero_formulario = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    id_automezzo = table.Column<int>(type: "INTEGER", nullable: false),
+                    codice_eer = table.Column<string>(type: "TEXT", maxLength: 10, nullable: true),
+                    stato_fisico = table.Column<int>(type: "INTEGER", nullable: true),
+                    provenienza = table.Column<int>(type: "INTEGER", nullable: true),
+                    caratteristiche_pericolosita = table.Column<string>(type: "TEXT", maxLength: 25, nullable: true),
+                    descrizione = table.Column<string>(type: "TEXT", maxLength: 50, nullable: true),
+                    quantita = table.Column<decimal>(type: "TEXT", nullable: true),
+                    kg_litri = table.Column<int>(type: "INTEGER", nullable: true),
+                    peso_verificato = table.Column<bool>(type: "INTEGER", nullable: true),
+                    numero_colli = table.Column<int>(type: "INTEGER", nullable: true),
+                    alla_rinfusa = table.Column<bool>(type: "INTEGER", nullable: true),
+                    caratteristiche_chimiche = table.Column<string>(type: "TEXT", maxLength: 25, nullable: true)
                 },
                 constraints: table =>
                 {

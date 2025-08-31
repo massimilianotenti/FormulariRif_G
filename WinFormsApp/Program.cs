@@ -9,7 +9,7 @@ using FormulariRif_G.Data; // Contiene il tuo DbContext (AppDbContext) e IGeneri
 using FormulariRif_G.Forms; // Per le tue Form (MainForm, LoginForm, ConfigurazioneForm, etc.)
 using FormulariRif_G.Models; // Per i tuoi modelli (Configurazione, Utente, Cliente, etc.)
 using FormulariRif_G.Utils; // Per CurrentUser, PasswordHasher, EncryptionHelper
-using Microsoft.Data.SqlClient;
+using Microsoft.Data.Sqlite;
 using System.Text.Json;
 using FormulariRif_G.Service; // NUOVO: Namespace per il FormManager (da aggiungere tu)
 
@@ -28,67 +28,113 @@ namespace FormulariRif_G
 
             bool restartApp = true;
 
+
+
             // Ciclo principale dell'applicazione per la gestione della riconfigurazione
             while (restartApp)
             {
-                restartApp = false; // Reset per ogni iterazione
+                //restartApp = false; // Reset per ogni iterazione
 
-                // Carica la configurazione iniziale (appsettings.json)
+                //// Carica la configurazione iniziale (appsettings.json)
+                //var configuration = new ConfigurationBuilder()
+                //    .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                //    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                //    .Build();
+
+                //// Recupero delle credenziali criptate dalla configurazione
+                //string? serverName = configuration["ConnectionStrings:ServerName"];
+                //string? databaseName = configuration["ConnectionStrings:DatabaseName"];
+                //string? dbUsername = configuration["EncryptedCredentials:EncryptedUsername"];
+                //string? dbPassword = configuration["EncryptedCredentials:EncryptedPassword"];
+
+                //string? connectionString = null;
+                //// Flag per indicare se � necessaria la configurazione iniziale
+                //bool configNeeded = false; 
+
+                //// testa la connessione
+                //if (!string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(databaseName) &&
+                //    !string.IsNullOrEmpty(dbUsername) && !string.IsNullOrEmpty(dbPassword))
+                //{
+                //    try
+                //    {
+                //        connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
+
+                //        // Test della connessione al database
+                //        using (var conn = new SqliteConnection(connectionString))
+                //        {
+                //            await conn.OpenAsync();
+                //            conn.Close();
+                //        }
+                //    }
+                //    catch (Exception)
+                //    {
+                //        // Se la decriptazione fallisce o la connessione non riesce, la configurazione � necessaria
+                //        configNeeded = true;
+                //    }
+                //}
+                //else
+                //{
+                //    // Se mancano dati nella configurazione, la configurazione � necessaria
+                //    configNeeded = true;
+                //}
+
+                //// --- Logica per la Configurazione Iniziale dell'Applicazione ---
+                //if (configNeeded)
+                //{
+                //    // Crea un host temporaneo per mostrare solo la ConfigurazioneForm
+                //    _host = Host.CreateDefaultBuilder()
+                //        .ConfigureAppConfiguration((context, config) =>
+                //        {
+                //            // Usa la configurazione esistente
+                //            config.AddConfiguration(configuration); 
+                //        })
+                //        .ConfigureServices((context, services) =>
+                //        {
+                //            // Registra solo ConfigurazioneForm, senza il DbContext in questo stage
+                //            services.AddTransient<ConfigurazioneForm>();
+                //        }).Build();
+
+                //    using (var scope = _host.Services.CreateScope())
+                //    {
+                //        var configForm = scope.ServiceProvider.GetRequiredService<ConfigurazioneForm>();
+                //        if (configForm.ShowDialog() == DialogResult.OK)
+                //        {
+                //            // Se la configurazione � stata salvata con successo, riavvia l'applicazione
+                //            restartApp = true;
+                //        }
+                //        else
+                //        {
+                //            // Se l'utente annulla la configurazione, esci dall'applicazione
+                //            Application.Exit();
+                //        }
+                //    }
+                //}
+
+                restartApp = false;
+
                 var configuration = new ConfigurationBuilder()
                     .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                     .Build();
 
-                // Recupero delle credenziali criptate dalla configurazione
-                string? serverName = configuration["ConnectionStrings:ServerName"];
-                string? databaseName = configuration["ConnectionStrings:DatabaseName"];
-                string? dbUsername = configuration["EncryptedCredentials:EncryptedUsername"];
-                string? dbPassword = configuration["EncryptedCredentials:EncryptedPassword"];
-
-                string? connectionString = null;
-                // Flag per indicare se � necessaria la configurazione iniziale
-                bool configNeeded = false; 
-
-                // testa la connessione
-                if (!string.IsNullOrEmpty(serverName) && !string.IsNullOrEmpty(databaseName) &&
-                    !string.IsNullOrEmpty(dbUsername) && !string.IsNullOrEmpty(dbPassword))
-                {
-                    try
-                    {
-                        connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
-
-                        // Test della connessione al database
-                        using (var conn = new SqlConnection(connectionString))
-                        {
-                            await conn.OpenAsync();
-                            conn.Close();
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // Se la decriptazione fallisce o la connessione non riesce, la configurazione � necessaria
-                        configNeeded = true;
-                    }
-                }
-                else
-                {
-                    // Se mancano dati nella configurazione, la configurazione � necessaria
-                    configNeeded = true;
-                }
+                string? connectionString = configuration.GetConnectionString("DefaultConnection");
 
                 // --- Logica per la Configurazione Iniziale dell'Applicazione ---
+                // A differenza di prima, non serve testare la connessione con credenziali,
+                // ma verificare se la stringa di connessione esiste.
+                bool configNeeded = string.IsNullOrEmpty(connectionString);
+
                 if (configNeeded)
                 {
-                    // Crea un host temporaneo per mostrare solo la ConfigurazioneForm
+                    // La logica per mostrare la ConfigurazioneForm rimane simile, ma il modulo
+                    // di configurazione ora dovrebbe salvare solo la stringa di connessione SQLite.
                     _host = Host.CreateDefaultBuilder()
                         .ConfigureAppConfiguration((context, config) =>
                         {
-                            // Usa la configurazione esistente
-                            config.AddConfiguration(configuration); 
+                            config.AddConfiguration(configuration);
                         })
                         .ConfigureServices((context, services) =>
                         {
-                            // Registra solo ConfigurazioneForm, senza il DbContext in questo stage
                             services.AddTransient<ConfigurazioneForm>();
                         }).Build();
 
@@ -97,12 +143,10 @@ namespace FormulariRif_G
                         var configForm = scope.ServiceProvider.GetRequiredService<ConfigurazioneForm>();
                         if (configForm.ShowDialog() == DialogResult.OK)
                         {
-                            // Se la configurazione � stata salvata con successo, riavvia l'applicazione
                             restartApp = true;
                         }
                         else
                         {
-                            // Se l'utente annulla la configurazione, esci dall'applicazione
                             Application.Exit();
                         }
                     }
@@ -112,38 +156,58 @@ namespace FormulariRif_G
                 // Se � stato richiesto un riavvio o se la configurazione non era necessaria
                 if (restartApp || !configNeeded) 
                 {
-                    // Se c'� stato un riavvio, ricarica la configurazione (potrebbe essere cambiata)
+                    //// Se c'� stato un riavvio, ricarica la configurazione (potrebbe essere cambiata)
+                    //if (restartApp)
+                    //{
+                    //    configuration = new ConfigurationBuilder()
+                    //        .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                    //        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                    //        .Build();
+
+                    //    // Riprova a decriptare le credenziali con la nuova configurazione
+                    //    serverName = configuration["ConnectionStrings:ServerName"];
+                    //    databaseName = configuration["ConnectionStrings:DatabaseName"];
+                    //    dbUsername = configuration["EncryptedCredentials:EncryptedUsername"];
+                    //    dbPassword = configuration["EncryptedCredentials:EncryptedPassword"];
+
+                    //    try
+                    //    {
+                    //        connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
+                    //    }
+                    //    catch (Exception ex)
+                    //    {
+                    //        MessageBox.Show($"Errore durante la decriptazione delle credenziali dopo il salvataggio: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //        Application.Exit();
+                    //    }
+                    //}
+
                     if (restartApp)
                     {
+                        // Ricarica la configurazione se è stata modificata
                         configuration = new ConfigurationBuilder()
                             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
                             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                             .Build();
-
-                        // Riprova a decriptare le credenziali con la nuova configurazione
-                        serverName = configuration["ConnectionStrings:ServerName"];
-                        databaseName = configuration["ConnectionStrings:DatabaseName"];
-                        dbUsername = configuration["EncryptedCredentials:EncryptedUsername"];
-                        dbPassword = configuration["EncryptedCredentials:EncryptedPassword"];
-
-                        try
-                        {
-                            connectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Errore durante la decriptazione delle credenziali dopo il salvataggio: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            Application.Exit();
-                        }
+                        connectionString = configuration.GetConnectionString("DefaultConnection");
                     }
 
-                    // IMPORTANTE: Dispone il vecchio host temporaneo prima di crearne uno nuovo completo
                     _host?.Dispose();
-                    // Crea l'host completo con tutti i servizi registrati, inclusi DbContext e FormManager
+
+                    // Il metodo che crea l'host ora deve passare solo la stringa di connessione,
+                    // non le credenziali di SQL Server
                     _host = CreateFullHostBuilder(configuration, connectionString!).Build();
 
-                    // Applica le migrazioni del database (se necessarie)
                     await ApplyMigrations(_host.Services);
+                    await EnsureDefaultUserExists(_host.Services.CreateScope().ServiceProvider);
+
+
+                    //// IMPORTANTE: Dispone il vecchio host temporaneo prima di crearne uno nuovo completo
+                    //_host?.Dispose();
+                    //// Crea l'host completo con tutti i servizi registrati, inclusi DbContext e FormManager
+                    //_host = CreateFullHostBuilder(configuration, connectionString!).Build();
+
+                    //// Applica le migrazioni del database (se necessarie)
+                    //await ApplyMigrations(_host.Services);
 
                     // Assicura l'esistenza dell'utente di default e della configurazione aziendale
                     using (var dbScope = _host.Services.CreateScope())
@@ -219,11 +283,17 @@ namespace FormulariRif_G
                 .ConfigureServices((context, services) =>
                 {
                     // Registrazione del DbContext con la stringa di connessione e lifetime Scoped
+                    //services.AddDbContext<AppDbContext>(options =>
+                    //{
+                    //    // options.UseLazyLoadingProxies(); // Abilita il lazy loading (se vuoi usarlo, assicurati del pacchetto NuGet)
+                    //    options.UseSqlServer(connectionString);
+                    //}, ServiceLifetime.Scoped); // <-- Imposta il lifetime a Scoped
+
                     services.AddDbContext<AppDbContext>(options =>
                     {
-                        // options.UseLazyLoadingProxies(); // Abilita il lazy loading (se vuoi usarlo, assicurati del pacchetto NuGet)
-                        options.UseSqlServer(connectionString);
-                    }, ServiceLifetime.Scoped); // <-- Imposta il lifetime a Scoped
+                        // options.UseLazyLoadingProxies(); // Abilita il lazy loading (se vuoi usarlo)
+                        options.UseSqlite(connectionString);
+                    }, ServiceLifetime.Scoped);
 
                     // Registrazione del Generic Repository
                     services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
