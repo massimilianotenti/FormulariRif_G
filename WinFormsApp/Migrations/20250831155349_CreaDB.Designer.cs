@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FormulariRif_G.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250831080751_CreaDB")]
+    [Migration("20250831155349_CreaDB")]
     partial class CreaDB
     {
         /// <inheritdoc />

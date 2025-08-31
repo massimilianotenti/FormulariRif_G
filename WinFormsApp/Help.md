@@ -1,4 +1,18 @@
-﻿Per la aggiornare il database servono questi pacchetti:
+﻿Per Sqlite
+
+Per la aggiornare il database servono questi pacchetti:
+- Microsoft.EntityFrameworkCore.Sqlite
+- Microsoft.EntityFrameworkCore.Tools
+- Microsoft.EntityFrameworkCore.Desig
+
+Nel terminale della Console di Gestione Pacchetti
+
+```EntityFrameworkCore\Add-Migration [NomeDellaMigration]```
+
+
+Per MS SQL Server
+
+Per la aggiornare il database servono questi pacchetti:
 - Microsoft.EntityFrameworkCore.SqlServer
 - Microsoft.EntityFrameworkCore.Tools
 - Microsoft.EntityFrameworkCore.Desig

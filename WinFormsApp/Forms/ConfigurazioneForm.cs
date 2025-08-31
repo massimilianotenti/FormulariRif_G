@@ -46,6 +46,9 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Conducente> _conducenteRepository;
         private readonly IGenericRepository<Autom_Cond> _automCondRepository;
         private readonly IGenericRepository<Rimorchio> _rimorchioRepository;
+        private Button btTestSqlite;
+        private TextBox txtDbSqlite;
+        private Label label6;
         private readonly IGenericRepository<Autom_Rim> _automRimRepository;
 
         public ConfigurazioneForm(IConfiguration configuration, IServiceProvider serviceProvider)
@@ -84,10 +87,11 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void LoadAppSettingsData()
         {
-            txtServerName.Text = _configuration["ConnectionStrings:ServerName"] ?? string.Empty;
-            txtDatabaseName.Text = _configuration["ConnectionStrings:DatabaseName"] ?? string.Empty;
-            txtDbUsername.Text = _configuration["EncryptedCredentials:EncryptedUsername"];
-            txtDbPassword.Text = _configuration["EncryptedCredentials:EncryptedPassword"];
+            //txtServerName.Text = _configuration["ConnectionStrings:ServerName"] ?? string.Empty;
+            //txtDatabaseName.Text = _configuration["ConnectionStrings:DatabaseName"] ?? string.Empty;
+            //txtDbUsername.Text = _configuration["EncryptedCredentials:EncryptedUsername"];
+            //txtDbPassword.Text = _configuration["EncryptedCredentials:EncryptedPassword"];
+            txtDbSqlite.Text = _configuration["ConnectionStrings:DefaultConnection"] ?? string.Empty;
         }
 
         /// <summary>
@@ -103,7 +107,7 @@ namespace FormulariRif_G.Forms
                 var loadedConfig = configs.FirstOrDefault();
 
                 if (loadedConfig != null)
-                {                    
+                {
                     AppConfigData = loadedConfig;
                     //Dati azienda
                     chkDatiTest.Checked = AppConfigData.DatiTest ?? false;
@@ -112,7 +116,7 @@ namespace FormulariRif_G.Forms
                     txtIndirizzo.Text = AppConfigData.Indirizzo;
                     txtComune.Text = AppConfigData.Comune;
                     numCap.Value = AppConfigData.Cap;
-                    txtEmail.Text = AppConfigData.Email;                 
+                    txtEmail.Text = AppConfigData.Email;
                     txtPartitaIva.Text = AppConfigData.PartitaIva;
                     txtCodiceFiscale.Text = AppConfigData.CodiceFiscale;
                     // Destinatario
@@ -123,9 +127,9 @@ namespace FormulariRif_G.Forms
                     txtDestTipoR1.Text = AppConfigData.DestTipo1;
                     txtDestTipoR2.Text = AppConfigData.DestTipo2;
                     // Trasportatore
-                    txtNumeroIscrizioneAlbo.Text = AppConfigData.NumeroIscrizioneAlbo;                    
-                    if(AppConfigData.DataIscrizioneAlbo.HasValue)                   
-                        dtpDataIscrizioneAlbo.Value = AppConfigData.DataIscrizioneAlbo.Value;                   
+                    txtNumeroIscrizioneAlbo.Text = AppConfigData.NumeroIscrizioneAlbo;
+                    if (AppConfigData.DataIscrizioneAlbo.HasValue)
+                        dtpDataIscrizioneAlbo.Value = AppConfigData.DataIscrizioneAlbo.Value;
                     else
                         dtpDataIscrizioneAlbo.Text = string.Empty;
                 }
@@ -138,7 +142,7 @@ namespace FormulariRif_G.Forms
                     txtIndirizzo.Text = string.Empty;
                     txtComune.Text = string.Empty;
                     numCap.Value = 0;
-                    txtEmail.Text = string.Empty;                    
+                    txtEmail.Text = string.Empty;
                     txtPartitaIva.Text = string.Empty;
                     txtCodiceFiscale.Text = string.Empty;
 
@@ -188,23 +192,23 @@ namespace FormulariRif_G.Forms
             AppConfigData.Indirizzo = txtIndirizzo.Text.Trim();
             AppConfigData.Comune = txtComune.Text.Trim();
             AppConfigData.Cap = (int)numCap.Value;
-            AppConfigData.Email = txtEmail.Text.Trim();            
+            AppConfigData.Email = txtEmail.Text.Trim();
             AppConfigData.PartitaIva = txtPartitaIva.Text.Trim();
             AppConfigData.CodiceFiscale = txtCodiceFiscale.Text.Trim();
 
-            AppConfigData.DestNumeroIscrizioneAlbo= txtDestNumIscr.Text.Trim();
+            AppConfigData.DestNumeroIscrizioneAlbo = txtDestNumIscr.Text.Trim();
             AppConfigData.DestR = txtDestR.Text.Trim();
             AppConfigData.DestD = txtDestD.Text.Trim();
-            AppConfigData.DestAutoComunic= txtDestAutoCom.Text.Trim();
+            AppConfigData.DestAutoComunic = txtDestAutoCom.Text.Trim();
             AppConfigData.DestTipo1 = txtDestTipoR1.Text.Trim();
             AppConfigData.DestTipo2 = txtDestTipoR2.Text.Trim();
 
             AppConfigData.NumeroIscrizioneAlbo = txtNumeroIscrizioneAlbo.Text.Trim();
-            if(dtpDataIscrizioneAlbo.Value == null || dtpDataIscrizioneAlbo.Value == DateTime.MinValue)            
-                AppConfigData.DataIscrizioneAlbo = null;             
+            if (dtpDataIscrizioneAlbo.Value == null || dtpDataIscrizioneAlbo.Value == DateTime.MinValue)
+                AppConfigData.DataIscrizioneAlbo = null;
             else
                 AppConfigData.DataIscrizioneAlbo = dtpDataIscrizioneAlbo.Value;
-            
+
             try
             {
                 // Risolvi il repository per Configurazione
@@ -224,7 +228,7 @@ namespace FormulariRif_G.Forms
                     existingConfig.Indirizzo = AppConfigData.Indirizzo;
                     existingConfig.Comune = AppConfigData.Comune;
                     existingConfig.Cap = AppConfigData.Cap;
-                    existingConfig.Email = AppConfigData.Email;                    
+                    existingConfig.Email = AppConfigData.Email;
                     existingConfig.PartitaIva = AppConfigData.PartitaIva;
                     existingConfig.CodiceFiscale = AppConfigData.CodiceFiscale;
 
@@ -259,26 +263,20 @@ namespace FormulariRif_G.Forms
         /// <returns>True se la connessione ha successo, altrimenti False.</returns>
         private async Task<bool> TestDbConnectionAsync(bool suppressMessageBox = false)
         {
-            var serverName = txtServerName.Text.Trim();
-            var databaseName = txtDatabaseName.Text.Trim();
-            var dbUsername = txtDbUsername.Text.Trim();
-            var dbPassword = txtDbPassword.Text.Trim();
+            var dbNameCon = txtDbSqlite.Text.Trim();            
 
-            if (string.IsNullOrWhiteSpace(serverName) || string.IsNullOrWhiteSpace(databaseName) ||
-                string.IsNullOrWhiteSpace(dbUsername) || string.IsNullOrWhiteSpace(dbPassword))
+            if (string.IsNullOrWhiteSpace(dbNameCon))
             {
                 if (!suppressMessageBox)
                 {
                     MessageBox.Show("Compila tutti i campi di connessione al database per testare.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 return false;
-            }
-
-            string testConnectionString = $"Server={serverName};Database={databaseName};User Id={dbUsername};Password={dbPassword};TrustServerCertificate=True;";
+            }            
 
             try
             {
-                using (var conn = new SqliteConnection(testConnectionString))
+                using (var conn = new SqliteConnection(dbNameCon))
                 {
                     await conn.OpenAsync();
                     conn.Close();
@@ -292,6 +290,14 @@ namespace FormulariRif_G.Forms
                     MessageBox.Show($"Test connessione fallito: {ex.Message}", "Errore Connessione", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 return false;
+            }
+        }
+
+        private async void btTestSqlite_Click(object sender, EventArgs e)
+        {
+            if (await TestDbConnectionAsync())
+            {
+                MessageBox.Show("Connessione al database riuscita!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -313,22 +319,14 @@ namespace FormulariRif_G.Forms
         {
             var appSettingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "appsettings.json");
 
-            var encryptedUsername = txtDbUsername.Text.Trim();
-            var encryptedPassword = txtDbPassword.Text.Trim();
+            var dbSqlite = txtDbSqlite.Text.Trim();            
 
             var newSettings = new
             {
                 ConnectionStrings = new
                 {
-                    ServerName = txtServerName.Text.Trim(),
-                    DatabaseName = txtDatabaseName.Text.Trim()
-                },
-                EncryptedCredentials = new
-                {
-                    EncryptedUsername = encryptedUsername,
-                    EncryptedPassword = encryptedPassword
-                }
-                //, EncryptionKey = encryptionKey
+                    DefaultConnection = txtDbSqlite.Text.Trim()
+                }                
             };
 
             var options = new JsonSerializerOptions { WriteIndented = true };
@@ -342,30 +340,12 @@ namespace FormulariRif_G.Forms
         /// <returns>True se l'input è valido, altrimenti False.</returns>
         private bool ValidateInput()
         {
-            if (string.IsNullOrWhiteSpace(txtServerName.Text))
-            {
-                MessageBox.Show("Nome Server è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtServerName.Focus();
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(txtDatabaseName.Text))
+            if (string.IsNullOrWhiteSpace(txtDbSqlite.Text))
             {
                 MessageBox.Show("Nome Database è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtDatabaseName.Focus();
+                txtServerName.Focus();
                 return false;
-            }
-            if (string.IsNullOrWhiteSpace(txtDbUsername.Text))
-            {
-                MessageBox.Show("Username Database è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtDbUsername.Focus();
-                return false;
-            }
-            if (string.IsNullOrWhiteSpace(txtDbPassword.Text))
-            {
-                MessageBox.Show("Password Database è un campo obbligatorio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                txtDbPassword.Focus();
-                return false;
-            }
+            }            
 
             if (string.IsNullOrWhiteSpace(txtRagSoc1.Text))
             {
@@ -378,7 +358,7 @@ namespace FormulariRif_G.Forms
                 MessageBox.Show("CAP (Configurazione) è un campo obbligatorio e non può essere 0.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 numCap.Focus();
                 return false;
-            }            
+            }
 
             return true;
         }
@@ -395,9 +375,9 @@ namespace FormulariRif_G.Forms
                 try
                 {
                     this.Cursor = Cursors.WaitCursor;
-                    progressBar1.Visible = true; 
-                    progressBar1.Maximum = 5000; 
-                    progressBar1.Value = 0; 
+                    progressBar1.Visible = true;
+                    progressBar1.Maximum = 5000;
+                    progressBar1.Value = 0;
 
                     var clienteRepo = _serviceProvider.GetRequiredService<IGenericRepository<Cliente>>();
                     var clienteContattoRepo = _serviceProvider.GetRequiredService<IGenericRepository<ClienteContatto>>();
@@ -564,7 +544,7 @@ namespace FormulariRif_G.Forms
                 }
             }
         }
-        
+
 
         private static string GeneratePartitaIva()
         {
@@ -639,6 +619,9 @@ namespace FormulariRif_G.Forms
             btnGeneraDatiTest = new Button();
             tabControl1 = new TabControl();
             tabPage1 = new TabPage();
+            btTestSqlite = new Button();
+            txtDbSqlite = new TextBox();
+            label6 = new Label();
             tabPage2 = new TabPage();
             txtRagSoc2 = new TextBox();
             tabPage3 = new TabPage();
@@ -666,9 +649,11 @@ namespace FormulariRif_G.Forms
             // btnTestConnessione
             // 
             btnTestConnessione.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnTestConnessione.Location = new Point(355, 130);
+            btnTestConnessione.Enabled = false;
+            btnTestConnessione.Location = new Point(659, 277);
+            btnTestConnessione.Margin = new Padding(6);
             btnTestConnessione.Name = "btnTestConnessione";
-            btnTestConnessione.Size = new Size(95, 23);
+            btnTestConnessione.Size = new Size(176, 49);
             btnTestConnessione.TabIndex = 8;
             btnTestConnessione.Text = "Test Connessione";
             btnTestConnessione.UseVisualStyleBackColor = true;
@@ -677,251 +662,283 @@ namespace FormulariRif_G.Forms
             // txtDbPassword
             // 
             txtDbPassword.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDbPassword.Location = new Point(132, 130);
+            txtDbPassword.Enabled = false;
+            txtDbPassword.Location = new Point(245, 277);
+            txtDbPassword.Margin = new Padding(6);
             txtDbPassword.MaxLength = 20;
             txtDbPassword.Name = "txtDbPassword";
-            txtDbPassword.Size = new Size(217, 23);
+            txtDbPassword.Size = new Size(400, 39);
             txtDbPassword.TabIndex = 7;
             txtDbPassword.UseSystemPasswordChar = true;
             // 
             // lblDbPassword
             // 
             lblDbPassword.AutoSize = true;
-            lblDbPassword.Location = new Point(27, 133);
+            lblDbPassword.Location = new Point(50, 284);
+            lblDbPassword.Margin = new Padding(6, 0, 6, 0);
             lblDbPassword.Name = "lblDbPassword";
-            lblDbPassword.Size = new Size(86, 15);
+            lblDbPassword.Size = new Size(168, 32);
             lblDbPassword.TabIndex = 6;
             lblDbPassword.Text = "Password (DB):";
             // 
             // txtDbUsername
             // 
             txtDbUsername.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDbUsername.Location = new Point(132, 95);
+            txtDbUsername.Enabled = false;
+            txtDbUsername.Location = new Point(245, 203);
+            txtDbUsername.Margin = new Padding(6);
             txtDbUsername.MaxLength = 50;
             txtDbUsername.Name = "txtDbUsername";
-            txtDbUsername.Size = new Size(318, 23);
+            txtDbUsername.Size = new Size(587, 39);
             txtDbUsername.TabIndex = 5;
             // 
             // lblDbUsername
             // 
             lblDbUsername.AutoSize = true;
-            lblDbUsername.Location = new Point(27, 98);
+            lblDbUsername.Location = new Point(50, 209);
+            lblDbUsername.Margin = new Padding(6, 0, 6, 0);
             lblDbUsername.Name = "lblDbUsername";
-            lblDbUsername.Size = new Size(89, 15);
+            lblDbUsername.Size = new Size(178, 32);
             lblDbUsername.TabIndex = 4;
             lblDbUsername.Text = "Username (DB):";
             // 
             // txtDatabaseName
             // 
             txtDatabaseName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDatabaseName.Location = new Point(132, 60);
+            txtDatabaseName.Enabled = false;
+            txtDatabaseName.Location = new Point(245, 128);
+            txtDatabaseName.Margin = new Padding(6);
             txtDatabaseName.MaxLength = 255;
             txtDatabaseName.Name = "txtDatabaseName";
-            txtDatabaseName.Size = new Size(318, 23);
+            txtDatabaseName.Size = new Size(587, 39);
             txtDatabaseName.TabIndex = 3;
             // 
             // lblDatabaseName
             // 
             lblDatabaseName.AutoSize = true;
-            lblDatabaseName.Location = new Point(27, 63);
+            lblDatabaseName.Location = new Point(50, 134);
+            lblDatabaseName.Margin = new Padding(6, 0, 6, 0);
             lblDatabaseName.Name = "lblDatabaseName";
-            lblDatabaseName.Size = new Size(94, 15);
+            lblDatabaseName.Size = new Size(190, 32);
             lblDatabaseName.TabIndex = 2;
             lblDatabaseName.Text = "Nome Database:";
             // 
             // txtServerName
             // 
             txtServerName.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtServerName.Location = new Point(132, 25);
+            txtServerName.Enabled = false;
+            txtServerName.Location = new Point(245, 53);
+            txtServerName.Margin = new Padding(6);
             txtServerName.MaxLength = 255;
             txtServerName.Name = "txtServerName";
-            txtServerName.Size = new Size(318, 23);
+            txtServerName.Size = new Size(587, 39);
             txtServerName.TabIndex = 1;
             // 
             // lblServerName
             // 
             lblServerName.AutoSize = true;
-            lblServerName.Location = new Point(27, 28);
+            lblServerName.Location = new Point(50, 60);
+            lblServerName.Margin = new Padding(6, 0, 6, 0);
             lblServerName.Name = "lblServerName";
-            lblServerName.Size = new Size(78, 15);
+            lblServerName.Size = new Size(159, 32);
             lblServerName.TabIndex = 0;
             lblServerName.Text = "Nome Server:";
             // 
             // dtpDataIscrizioneAlbo
             // 
             dtpDataIscrizioneAlbo.Format = DateTimePickerFormat.Short;
-            dtpDataIscrizioneAlbo.Location = new Point(132, 61);
+            dtpDataIscrizioneAlbo.Location = new Point(245, 130);
+            dtpDataIscrizioneAlbo.Margin = new Padding(6);
             dtpDataIscrizioneAlbo.Name = "dtpDataIscrizioneAlbo";
-            dtpDataIscrizioneAlbo.Size = new Size(320, 23);
+            dtpDataIscrizioneAlbo.Size = new Size(591, 39);
             dtpDataIscrizioneAlbo.TabIndex = 18;
             // 
             // lblDataIscrizioneAlbo
             // 
             lblDataIscrizioneAlbo.AutoSize = true;
-            lblDataIscrizioneAlbo.Location = new Point(27, 64);
+            lblDataIscrizioneAlbo.Location = new Point(50, 137);
+            lblDataIscrizioneAlbo.Margin = new Padding(6, 0, 6, 0);
             lblDataIscrizioneAlbo.Name = "lblDataIscrizioneAlbo";
-            lblDataIscrizioneAlbo.Size = new Size(82, 15);
+            lblDataIscrizioneAlbo.Size = new Size(163, 32);
             lblDataIscrizioneAlbo.TabIndex = 17;
             lblDataIscrizioneAlbo.Text = "Data Isc. Albo:";
             // 
             // txtNumeroIscrizioneAlbo
             // 
-            txtNumeroIscrizioneAlbo.Location = new Point(132, 26);
+            txtNumeroIscrizioneAlbo.Location = new Point(245, 55);
+            txtNumeroIscrizioneAlbo.Margin = new Padding(6);
             txtNumeroIscrizioneAlbo.MaxLength = 50;
             txtNumeroIscrizioneAlbo.Name = "txtNumeroIscrizioneAlbo";
-            txtNumeroIscrizioneAlbo.Size = new Size(320, 23);
+            txtNumeroIscrizioneAlbo.Size = new Size(591, 39);
             txtNumeroIscrizioneAlbo.TabIndex = 16;
             // 
             // lblNumeroIscrizioneAlbo
             // 
             lblNumeroIscrizioneAlbo.AutoSize = true;
-            lblNumeroIscrizioneAlbo.Location = new Point(27, 29);
+            lblNumeroIscrizioneAlbo.Location = new Point(50, 62);
+            lblNumeroIscrizioneAlbo.Margin = new Padding(6, 0, 6, 0);
             lblNumeroIscrizioneAlbo.Name = "lblNumeroIscrizioneAlbo";
-            lblNumeroIscrizioneAlbo.Size = new Size(88, 15);
+            lblNumeroIscrizioneAlbo.Size = new Size(172, 32);
             lblNumeroIscrizioneAlbo.TabIndex = 15;
             lblNumeroIscrizioneAlbo.Text = "Num. Isc. Albo:";
             // 
             // txtCodiceFiscale
             // 
             txtCodiceFiscale.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtCodiceFiscale.Location = new Point(132, 262);
+            txtCodiceFiscale.Location = new Point(245, 559);
+            txtCodiceFiscale.Margin = new Padding(6);
             txtCodiceFiscale.MaxLength = 16;
             txtCodiceFiscale.Name = "txtCodiceFiscale";
-            txtCodiceFiscale.Size = new Size(320, 23);
+            txtCodiceFiscale.Size = new Size(591, 39);
             txtCodiceFiscale.TabIndex = 14;
             // 
             // lblCodiceFiscale
             // 
             lblCodiceFiscale.AutoSize = true;
-            lblCodiceFiscale.Location = new Point(27, 264);
+            lblCodiceFiscale.Location = new Point(50, 563);
+            lblCodiceFiscale.Margin = new Padding(6, 0, 6, 0);
             lblCodiceFiscale.Name = "lblCodiceFiscale";
-            lblCodiceFiscale.Size = new Size(85, 15);
+            lblCodiceFiscale.Size = new Size(169, 32);
             lblCodiceFiscale.TabIndex = 13;
             lblCodiceFiscale.Text = "Codice Fiscale:";
             // 
             // txtPartitaIva
             // 
             txtPartitaIva.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtPartitaIva.Location = new Point(132, 226);
+            txtPartitaIva.Location = new Point(245, 482);
+            txtPartitaIva.Margin = new Padding(6);
             txtPartitaIva.MaxLength = 20;
             txtPartitaIva.Name = "txtPartitaIva";
-            txtPartitaIva.Size = new Size(320, 23);
+            txtPartitaIva.Size = new Size(591, 39);
             txtPartitaIva.TabIndex = 12;
             // 
             // lblPartitaIva
             // 
             lblPartitaIva.AutoSize = true;
-            lblPartitaIva.Location = new Point(27, 230);
+            lblPartitaIva.Location = new Point(50, 491);
+            lblPartitaIva.Margin = new Padding(6, 0, 6, 0);
             lblPartitaIva.Name = "lblPartitaIva";
-            lblPartitaIva.Size = new Size(64, 15);
+            lblPartitaIva.Size = new Size(127, 32);
             lblPartitaIva.TabIndex = 11;
             lblPartitaIva.Text = "Partita IVA:";
             // 
             // txtEmail
             // 
             txtEmail.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtEmail.Location = new Point(132, 192);
+            txtEmail.Location = new Point(245, 410);
+            txtEmail.Margin = new Padding(6);
             txtEmail.MaxLength = 100;
             txtEmail.Name = "txtEmail";
-            txtEmail.Size = new Size(320, 23);
+            txtEmail.Size = new Size(591, 39);
             txtEmail.TabIndex = 10;
             // 
             // lblEmail
             // 
             lblEmail.AutoSize = true;
-            lblEmail.Location = new Point(27, 195);
+            lblEmail.Location = new Point(50, 416);
+            lblEmail.Margin = new Padding(6, 0, 6, 0);
             lblEmail.Name = "lblEmail";
-            lblEmail.Size = new Size(44, 15);
+            lblEmail.Size = new Size(86, 32);
             lblEmail.TabIndex = 9;
             lblEmail.Text = "E-mail:";
             // 
             // numCap
             // 
             numCap.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            numCap.Location = new Point(132, 157);
+            numCap.Location = new Point(245, 335);
+            numCap.Margin = new Padding(6);
             numCap.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
             numCap.Name = "numCap";
-            numCap.Size = new Size(120, 23);
+            numCap.Size = new Size(223, 39);
             numCap.TabIndex = 8;
             // 
             // lblCap
             // 
             lblCap.AutoSize = true;
-            lblCap.Location = new Point(27, 144);
+            lblCap.Location = new Point(50, 307);
+            lblCap.Margin = new Padding(6, 0, 6, 0);
             lblCap.Name = "lblCap";
-            lblCap.Size = new Size(33, 15);
+            lblCap.Size = new Size(62, 32);
             lblCap.TabIndex = 7;
             lblCap.Text = "CAP:";
             // 
             // txtComune
             // 
             txtComune.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtComune.Location = new Point(132, 121);
+            txtComune.Location = new Point(245, 258);
+            txtComune.Margin = new Padding(6);
             txtComune.MaxLength = 50;
             txtComune.Name = "txtComune";
-            txtComune.Size = new Size(320, 23);
+            txtComune.Size = new Size(591, 39);
             txtComune.TabIndex = 6;
             // 
             // lblComune
             // 
             lblComune.AutoSize = true;
-            lblComune.Location = new Point(27, 125);
+            lblComune.Location = new Point(50, 267);
+            lblComune.Margin = new Padding(6, 0, 6, 0);
             lblComune.Name = "lblComune";
-            lblComune.Size = new Size(56, 15);
+            lblComune.Size = new Size(110, 32);
             lblComune.TabIndex = 5;
             lblComune.Text = "Comune:";
             // 
             // txtIndirizzo
             // 
             txtIndirizzo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtIndirizzo.Location = new Point(132, 87);
+            txtIndirizzo.Location = new Point(245, 186);
+            txtIndirizzo.Margin = new Padding(6);
             txtIndirizzo.MaxLength = 100;
             txtIndirizzo.Name = "txtIndirizzo";
-            txtIndirizzo.Size = new Size(320, 23);
+            txtIndirizzo.Size = new Size(591, 39);
             txtIndirizzo.TabIndex = 4;
             // 
             // lblIndirizzo
             // 
             lblIndirizzo.AutoSize = true;
-            lblIndirizzo.Location = new Point(27, 90);
+            lblIndirizzo.Location = new Point(50, 192);
+            lblIndirizzo.Margin = new Padding(6, 0, 6, 0);
             lblIndirizzo.Name = "lblIndirizzo";
-            lblIndirizzo.Size = new Size(54, 15);
+            lblIndirizzo.Size = new Size(109, 32);
             lblIndirizzo.TabIndex = 3;
             lblIndirizzo.Text = "Indirizzo:";
             // 
             // txtRagSoc1
             // 
             txtRagSoc1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRagSoc1.Location = new Point(132, 23);
+            txtRagSoc1.Location = new Point(245, 49);
+            txtRagSoc1.Margin = new Padding(6);
             txtRagSoc1.MaxLength = 255;
             txtRagSoc1.Name = "txtRagSoc1";
-            txtRagSoc1.Size = new Size(320, 23);
+            txtRagSoc1.Size = new Size(591, 39);
             txtRagSoc1.TabIndex = 2;
             // 
             // lblRagSoc
             // 
             lblRagSoc.AutoSize = true;
-            lblRagSoc.Location = new Point(27, 26);
+            lblRagSoc.Location = new Point(50, 55);
+            lblRagSoc.Margin = new Padding(6, 0, 6, 0);
             lblRagSoc.Name = "lblRagSoc";
-            lblRagSoc.Size = new Size(93, 15);
+            lblRagSoc.Size = new Size(188, 32);
             lblRagSoc.TabIndex = 1;
             lblRagSoc.Text = "Ragione Sociale:";
             // 
             // chkDatiTest
             // 
             chkDatiTest.AutoSize = true;
-            chkDatiTest.Location = new Point(22, 361);
+            chkDatiTest.Location = new Point(41, 770);
+            chkDatiTest.Margin = new Padding(6);
             chkDatiTest.Name = "chkDatiTest";
-            chkDatiTest.Size = new Size(108, 19);
+            chkDatiTest.Size = new Size(212, 36);
             chkDatiTest.TabIndex = 0;
             chkDatiTest.Text = "Abilita Dati Test";
             chkDatiTest.UseVisualStyleBackColor = true;
             // 
             // btnSalvaConfigurazione
             // 
-            btnSalvaConfigurazione.Location = new Point(345, 384);
+            btnSalvaConfigurazione.Location = new Point(641, 819);
+            btnSalvaConfigurazione.Margin = new Padding(6);
             btnSalvaConfigurazione.Name = "btnSalvaConfigurazione";
-            btnSalvaConfigurazione.Size = new Size(150, 30);
+            btnSalvaConfigurazione.Size = new Size(279, 64);
             btnSalvaConfigurazione.TabIndex = 2;
             btnSalvaConfigurazione.Text = "Salva Configurazione";
             btnSalvaConfigurazione.UseVisualStyleBackColor = true;
@@ -929,9 +946,10 @@ namespace FormulariRif_G.Forms
             // 
             // btnGeneraDatiTest
             // 
-            btnGeneraDatiTest.Location = new Point(12, 384);
+            btnGeneraDatiTest.Location = new Point(22, 819);
+            btnGeneraDatiTest.Margin = new Padding(6);
             btnGeneraDatiTest.Name = "btnGeneraDatiTest";
-            btnGeneraDatiTest.Size = new Size(150, 30);
+            btnGeneraDatiTest.Size = new Size(279, 64);
             btnGeneraDatiTest.TabIndex = 3;
             btnGeneraDatiTest.Text = "Genera Dati Test";
             btnGeneraDatiTest.UseVisualStyleBackColor = true;
@@ -943,15 +961,18 @@ namespace FormulariRif_G.Forms
             tabControl1.Controls.Add(tabPage2);
             tabControl1.Controls.Add(tabPage3);
             tabControl1.Controls.Add(tabPage4);
-            tabControl1.Location = new Point(12, 6);
-            tabControl1.Margin = new Padding(2, 1, 2, 1);
+            tabControl1.Location = new Point(22, 13);
+            tabControl1.Margin = new Padding(4, 2, 4, 2);
             tabControl1.Name = "tabControl1";
             tabControl1.SelectedIndex = 0;
-            tabControl1.Size = new Size(487, 341);
+            tabControl1.Size = new Size(904, 727);
             tabControl1.TabIndex = 4;
             // 
             // tabPage1
             // 
+            tabPage1.Controls.Add(btTestSqlite);
+            tabPage1.Controls.Add(txtDbSqlite);
+            tabPage1.Controls.Add(label6);
             tabPage1.Controls.Add(btnTestConnessione);
             tabPage1.Controls.Add(txtServerName);
             tabPage1.Controls.Add(txtDbPassword);
@@ -961,14 +982,46 @@ namespace FormulariRif_G.Forms
             tabPage1.Controls.Add(txtDbUsername);
             tabPage1.Controls.Add(txtDatabaseName);
             tabPage1.Controls.Add(lblDbUsername);
-            tabPage1.Location = new Point(4, 24);
-            tabPage1.Margin = new Padding(2, 1, 2, 1);
+            tabPage1.Location = new Point(8, 46);
+            tabPage1.Margin = new Padding(4, 2, 4, 2);
             tabPage1.Name = "tabPage1";
-            tabPage1.Padding = new Padding(2, 1, 2, 1);
-            tabPage1.Size = new Size(479, 313);
+            tabPage1.Padding = new Padding(4, 2, 4, 2);
+            tabPage1.Size = new Size(888, 673);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Configurazione Database";
             tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // btTestSqlite
+            // 
+            btTestSqlite.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btTestSqlite.Location = new Point(656, 478);
+            btTestSqlite.Margin = new Padding(6);
+            btTestSqlite.Name = "btTestSqlite";
+            btTestSqlite.Size = new Size(176, 49);
+            btTestSqlite.TabIndex = 11;
+            btTestSqlite.Text = "Test Connessione";
+            btTestSqlite.UseVisualStyleBackColor = true;
+            btTestSqlite.Click += btTestSqlite_Click;
+            // 
+            // txtDbSqlite
+            // 
+            txtDbSqlite.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtDbSqlite.Location = new Point(245, 416);
+            txtDbSqlite.Margin = new Padding(6);
+            txtDbSqlite.MaxLength = 255;
+            txtDbSqlite.Name = "txtDbSqlite";
+            txtDbSqlite.Size = new Size(587, 39);
+            txtDbSqlite.TabIndex = 10;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Location = new Point(50, 423);
+            label6.Margin = new Padding(6, 0, 6, 0);
+            label6.Name = "label6";
+            label6.Size = new Size(117, 32);
+            label6.TabIndex = 9;
+            label6.Text = "Database:";
             // 
             // tabPage2
             // 
@@ -987,11 +1040,11 @@ namespace FormulariRif_G.Forms
             tabPage2.Controls.Add(txtEmail);
             tabPage2.Controls.Add(numCap);
             tabPage2.Controls.Add(lblEmail);
-            tabPage2.Location = new Point(4, 24);
-            tabPage2.Margin = new Padding(2, 1, 2, 1);
+            tabPage2.Location = new Point(8, 46);
+            tabPage2.Margin = new Padding(4, 2, 4, 2);
             tabPage2.Name = "tabPage2";
-            tabPage2.Padding = new Padding(2, 1, 2, 1);
-            tabPage2.Size = new Size(479, 313);
+            tabPage2.Padding = new Padding(4, 2, 4, 2);
+            tabPage2.Size = new Size(888, 673);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "Dati Azienda";
             tabPage2.UseVisualStyleBackColor = true;
@@ -999,10 +1052,11 @@ namespace FormulariRif_G.Forms
             // txtRagSoc2
             // 
             txtRagSoc2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRagSoc2.Location = new Point(132, 55);
+            txtRagSoc2.Location = new Point(245, 117);
+            txtRagSoc2.Margin = new Padding(6);
             txtRagSoc2.MaxLength = 255;
             txtRagSoc2.Name = "txtRagSoc2";
-            txtRagSoc2.Size = new Size(320, 23);
+            txtRagSoc2.Size = new Size(591, 39);
             txtRagSoc2.TabIndex = 16;
             // 
             // tabPage3
@@ -1018,115 +1072,115 @@ namespace FormulariRif_G.Forms
             tabPage3.Controls.Add(label2);
             tabPage3.Controls.Add(txtDestNumIscr);
             tabPage3.Controls.Add(label1);
-            tabPage3.Location = new Point(4, 24);
-            tabPage3.Margin = new Padding(2, 1, 2, 1);
+            tabPage3.Location = new Point(8, 46);
+            tabPage3.Margin = new Padding(4, 2, 4, 2);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(479, 313);
+            tabPage3.Size = new Size(888, 673);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "Destinatario";
             tabPage3.UseVisualStyleBackColor = true;
             // 
             // txtDestD
             // 
-            txtDestD.Location = new Point(230, 59);
-            txtDestD.Margin = new Padding(2, 1, 2, 1);
+            txtDestD.Location = new Point(427, 126);
+            txtDestD.Margin = new Padding(4, 2, 4, 2);
             txtDestD.MaxLength = 3;
             txtDestD.Name = "txtDestD";
-            txtDestD.Size = new Size(80, 23);
+            txtDestD.Size = new Size(145, 39);
             txtDestD.TabIndex = 10;
             // 
             // txtDestR
             // 
-            txtDestR.Location = new Point(133, 59);
-            txtDestR.Margin = new Padding(2, 1, 2, 1);
+            txtDestR.Location = new Point(247, 126);
+            txtDestR.Margin = new Padding(4, 2, 4, 2);
             txtDestR.MaxLength = 3;
             txtDestR.Name = "txtDestR";
-            txtDestR.Size = new Size(80, 23);
+            txtDestR.Size = new Size(145, 39);
             txtDestR.TabIndex = 9;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(28, 60);
-            label5.Margin = new Padding(2, 0, 2, 0);
+            label5.Location = new Point(52, 128);
+            label5.Margin = new Padding(4, 0, 4, 0);
             label5.Name = "label5";
-            label5.Size = new Size(84, 15);
+            label5.Size = new Size(175, 32);
             label5.TabIndex = 8;
             label5.Text = "Destinaz. R e D";
             // 
             // txtDestTipoR2
             // 
-            txtDestTipoR2.Location = new Point(133, 160);
-            txtDestTipoR2.Margin = new Padding(2, 1, 2, 1);
+            txtDestTipoR2.Location = new Point(247, 341);
+            txtDestTipoR2.Margin = new Padding(4, 2, 4, 2);
             txtDestTipoR2.MaxLength = 50;
             txtDestTipoR2.Name = "txtDestTipoR2";
-            txtDestTipoR2.Size = new Size(318, 23);
+            txtDestTipoR2.Size = new Size(587, 39);
             txtDestTipoR2.TabIndex = 7;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(28, 162);
-            label4.Margin = new Padding(2, 0, 2, 0);
+            label4.Location = new Point(52, 346);
+            label4.Margin = new Padding(4, 0, 4, 0);
             label4.Name = "label4";
-            label4.Size = new Size(66, 15);
+            label4.Size = new Size(134, 32);
             label4.TabIndex = 6;
             label4.Text = "Tipo Riga 2";
             // 
             // txtDestTipoR1
             // 
-            txtDestTipoR1.Location = new Point(133, 126);
-            txtDestTipoR1.Margin = new Padding(2, 1, 2, 1);
+            txtDestTipoR1.Location = new Point(247, 269);
+            txtDestTipoR1.Margin = new Padding(4, 2, 4, 2);
             txtDestTipoR1.MaxLength = 50;
             txtDestTipoR1.Name = "txtDestTipoR1";
-            txtDestTipoR1.Size = new Size(318, 23);
+            txtDestTipoR1.Size = new Size(587, 39);
             txtDestTipoR1.TabIndex = 5;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(28, 128);
-            label3.Margin = new Padding(2, 0, 2, 0);
+            label3.Location = new Point(52, 273);
+            label3.Margin = new Padding(4, 0, 4, 0);
             label3.Name = "label3";
-            label3.Size = new Size(66, 15);
+            label3.Size = new Size(134, 32);
             label3.TabIndex = 4;
             label3.Text = "Tipo Riga 1";
             // 
             // txtDestAutoCom
             // 
-            txtDestAutoCom.Location = new Point(133, 93);
-            txtDestAutoCom.Margin = new Padding(2, 1, 2, 1);
+            txtDestAutoCom.Location = new Point(247, 198);
+            txtDestAutoCom.Margin = new Padding(4, 2, 4, 2);
             txtDestAutoCom.MaxLength = 30;
             txtDestAutoCom.Name = "txtDestAutoCom";
-            txtDestAutoCom.Size = new Size(318, 23);
+            txtDestAutoCom.Size = new Size(587, 39);
             txtDestAutoCom.TabIndex = 3;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(28, 95);
-            label2.Margin = new Padding(2, 0, 2, 0);
+            label2.Location = new Point(52, 203);
+            label2.Margin = new Padding(4, 0, 4, 0);
             label2.Name = "label2";
-            label2.Size = new Size(95, 15);
+            label2.Size = new Size(186, 32);
             label2.TabIndex = 2;
             label2.Text = "Aut. Comunicaz.";
             // 
             // txtDestNumIscr
             // 
-            txtDestNumIscr.Location = new Point(133, 27);
-            txtDestNumIscr.Margin = new Padding(2, 1, 2, 1);
+            txtDestNumIscr.Location = new Point(247, 58);
+            txtDestNumIscr.Margin = new Padding(4, 2, 4, 2);
             txtDestNumIscr.MaxLength = 50;
             txtDestNumIscr.Name = "txtDestNumIscr";
-            txtDestNumIscr.Size = new Size(318, 23);
+            txtDestNumIscr.Size = new Size(587, 39);
             txtDestNumIscr.TabIndex = 1;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(28, 29);
-            label1.Margin = new Padding(2, 0, 2, 0);
+            label1.Location = new Point(52, 62);
+            label1.Margin = new Padding(4, 0, 4, 0);
             label1.Name = "label1";
-            label1.Size = new Size(89, 15);
+            label1.Size = new Size(175, 32);
             label1.TabIndex = 0;
             label1.Text = "Num. Iscr. Albo";
             // 
@@ -1136,33 +1190,35 @@ namespace FormulariRif_G.Forms
             tabPage4.Controls.Add(txtNumeroIscrizioneAlbo);
             tabPage4.Controls.Add(lblNumeroIscrizioneAlbo);
             tabPage4.Controls.Add(lblDataIscrizioneAlbo);
-            tabPage4.Location = new Point(4, 24);
-            tabPage4.Margin = new Padding(2, 1, 2, 1);
+            tabPage4.Location = new Point(8, 46);
+            tabPage4.Margin = new Padding(4, 2, 4, 2);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(479, 313);
+            tabPage4.Size = new Size(888, 673);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "Trasportatore";
             tabPage4.UseVisualStyleBackColor = true;
             // 
             // progressBar1
             // 
-            progressBar1.Location = new Point(168, 384);
+            progressBar1.Location = new Point(312, 819);
+            progressBar1.Margin = new Padding(6);
             progressBar1.Name = "progressBar1";
-            progressBar1.Size = new Size(171, 30);
+            progressBar1.Size = new Size(318, 64);
             progressBar1.TabIndex = 5;
             progressBar1.Visible = false;
             // 
             // ConfigurazioneForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(524, 440);
+            ClientSize = new Size(973, 939);
             Controls.Add(progressBar1);
             Controls.Add(tabControl1);
             Controls.Add(btnGeneraDatiTest);
             Controls.Add(btnSalvaConfigurazione);
             Controls.Add(chkDatiTest);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ConfigurazioneForm";
@@ -1214,5 +1270,7 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label lblDataIscrizioneAlbo; // Nuovo
 
         #endregion
+
+        
     }
 }

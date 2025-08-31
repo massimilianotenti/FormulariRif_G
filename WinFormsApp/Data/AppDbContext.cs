@@ -95,7 +95,7 @@ namespace FormulariRif_G.Data
             {
                 entity.Property(e => e.Descrizione).HasColumnName("descrizione");
                 entity.Property(e => e.Targa).HasColumnName("targa");
-            });
+            });            
 
             modelBuilder.Entity<Conducente>(entity =>
             {
@@ -134,8 +134,7 @@ namespace FormulariRif_G.Data
                 .WithMany(c => c.RimorchioAutomezzi)
                 .HasForeignKey(ac => ac.Id_Rimorchio);
 
-
-            // NUOVO: Configurazione per ClienteIndirizzo
+                        
             modelBuilder.Entity<ClienteIndirizzo>(entity =>
             {
                 entity.Property(e => e.IdCli).HasColumnName("id_cli");
