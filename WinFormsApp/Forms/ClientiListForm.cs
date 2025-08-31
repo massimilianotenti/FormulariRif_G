@@ -48,6 +48,7 @@ namespace FormulariRif_G.Forms
         private async void ClientiListForm_Load(object? sender, EventArgs e)
         {
             await LoadClientiAsync();
+            txtRicerca?.Focus();
         }
 
         /// <summary>
@@ -351,6 +352,7 @@ namespace FormulariRif_G.Forms
             this.dataGridViewClienti.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewClienti.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewClienti.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewClienti.Location = new System.Drawing.Point(12, 60);
             this.dataGridViewClienti.MultiSelect = false;

@@ -246,6 +246,9 @@ namespace FormulariRif_G
                     services.AddTransient<FormulariRifiutiDetailForm>();
                     services.AddTransient<ConducentiListForm>();
                     services.AddTransient<ConducentiDetailForm>();
+                    services.AddTransient<RimorchiListForm>();
+                    services.AddTransient<RimorchiDetailForm>();
+
                     // Aggiungi qui eventuali altri Form del tuo progetto
 
                     // Registrazione del FormManager come Singleton

@@ -2,6 +2,7 @@
 // Questo form visualizza un elenco di conducenti, permette la ricerca e le operazioni CRUD.
 using Microsoft.Extensions.DependencyInjection;
 using FormulariRif_G.Data;
+using Microsoft.EntityFrameworkCore;
 using FormulariRif_G.Models;
 using FormulariRif_G.Service;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace FormulariRif_G.Forms
     {
         private readonly IGenericRepository<Conducente> _conducenteRepository;
         private readonly FormManager _formManager;
+        private readonly System.Windows.Forms.Timer _searchDebounceTimer;
 
         public ConducentiListForm(IGenericRepository<Conducente> conducenteRepository, FormManager formManager)
         {
@@ -20,11 +22,26 @@ namespace FormulariRif_G.Forms
             _formManager = formManager;
             this.Load += ConducentiListForm_Load;
             this.dataGridViewConducenti.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridViewConducenti_CellFormatting);
+
+            // Inizializza il timer per il "debouncing" della ricerca
+            _searchDebounceTimer = new System.Windows.Forms.Timer();
+            _searchDebounceTimer.Interval = 500; // Ritardo di 500ms prima di avviare la ricerca
+            _searchDebounceTimer.Tick += SearchDebounceTimer_Tick;
         }
 
         private async void ConducentiListForm_Load(object? sender, EventArgs e)
         {
+            // Popola la ComboBox di filtro prima di collegare l'evento per evitare un caricamento doppio all'avvio.
+            PopulateTipoFiltro();
+
+            // Ora che la ComboBox è popolata, possiamo collegare l'evento per le interazioni future dell'utente.
+            if (this.cmbTipoFiltro != null)
+            {
+                this.cmbTipoFiltro.SelectedIndexChanged += CmbTipoFiltro_SelectedIndexChanged;
+            }
             await LoadConducentiAsync();
+            // Imposta il focus sul campo di ricerca all'apertura del form
+            txtRicerca?.Focus();
         }
 
         /// <summary>
@@ -34,11 +51,32 @@ namespace FormulariRif_G.Forms
         {
             try
             {
-                IEnumerable<Conducente> conducenti;
-                conducenti = await _conducenteRepository.GetAllAsync();
+                // Utilizziamo IQueryable per costruire la query in modo dinamico ed efficiente
+                IQueryable<Conducente> query = _conducenteRepository.AsQueryable();
 
-                dataGridViewConducenti.DataSource = conducenti.ToList();
-                dataGridViewConducenti.Columns["Id"].Visible = false;
+                // 1. Applica il filtro per tipo
+                if (cmbTipoFiltro.SelectedValue is int tipoValue)
+                {
+                    query = query.Where(c => c.Tipo == tipoValue);
+                }
+
+                // 2. Applica il filtro per testo (concatenato al precedente)
+                var searchText = txtRicerca?.Text.Trim() ?? "";
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    string lowerSearchText = searchText.ToLower();
+                    query = query.Where(c =>
+                        c.Descrizione.ToLower().Contains(lowerSearchText) ||
+                        (c.Contatto != null && c.Contatto.ToLower().Contains(lowerSearchText)));
+                }
+
+                // Esegui la query e popola la griglia
+                var conducenti = await query.OrderBy(c => c.Descrizione).ToListAsync();
+                dataGridViewConducenti.DataSource = conducenti;
+                if (dataGridViewConducenti.Columns["Id"] != null) dataGridViewConducenti.Columns["Id"].Visible = false;
+                if (dataGridViewConducenti.Columns.Contains("IstestData")) dataGridViewConducenti.Columns["IstestData"].Visible = false;
+                if (dataGridViewConducenti.Columns.Contains("ConducentiAutomezzi")) dataGridViewConducenti.Columns["ConducentiAutomezzi"].Visible = false;
+                if (dataGridViewConducenti.Columns.Contains("DisplayText")) dataGridViewConducenti.Columns["DisplayText"].Visible = false;   
             }
             catch (Exception ex)
             {
@@ -171,31 +209,44 @@ namespace FormulariRif_G.Forms
         }
 
         /// <summary>
+        /// Popola la ComboBox per il filtro del tipo di conducente.
+        /// </summary>
+        private void PopulateTipoFiltro()
+        {
+            var filtroItems = new Dictionary<string, int?>
+            {
+                { "Tutti i Tipi", null }, // Opzione per non filtrare
+                { "Dipendenti", 0 },
+                { "Trasportatori Esterni", 1 }
+            };
+
+            cmbTipoFiltro.DataSource = new BindingSource(filtroItems, null);
+            cmbTipoFiltro.DisplayMember = "Key";
+            cmbTipoFiltro.ValueMember = "Value";
+        }
+
+        private async void CmbTipoFiltro_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            await LoadConducentiAsync();
+        }
+        /// <summary>
         /// Gestisce il cambio di testo nel campo di ricerca.
         /// </summary>
-        private async void txtRicerca_TextChanged(object sender, EventArgs e)
+        private void txtRicerca_TextChanged(object sender, EventArgs e)
         {
-            try
-            {
-                var searchText = txtRicerca.Text.Trim();
-                IEnumerable<Conducente> filteredConducenti;
+            // Ad ogni pressione di un tasto, riavvia il timer.
+            // La ricerca vera e propria avverrà solo quando l'utente smette di digitare.
+            _searchDebounceTimer.Stop();
+            _searchDebounceTimer.Start();
+        }
 
-                if (string.IsNullOrEmpty(searchText))
-                {
-                    filteredConducenti = await _conducenteRepository.GetAllAsync();
-                }
-                else
-                {
-                    filteredConducenti = await _conducenteRepository.FindAsync(c =>
-                        c.Descrizione.Contains(searchText) ||
-                        (c.Contatto != null && c.Contatto.Contains(searchText)));
-                }
-                dataGridViewConducenti.DataSource = filteredConducenti.ToList();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Errore durante la ricerca: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+        /// <summary>
+        /// Eseguito quando il timer di debouncing scatta, avvia il caricamento dei dati filtrati.
+        /// </summary>
+        private async void SearchDebounceTimer_Tick(object? sender, EventArgs e)
+        {
+            _searchDebounceTimer.Stop(); // Il timer ha fatto il suo dovere, lo fermiamo.
+            await LoadConducentiAsync();
         }
 
         #region Windows Form Designer generated code
@@ -215,6 +266,12 @@ namespace FormulariRif_G.Forms
             {
                 components.Dispose();
             }
+            // È buona norma effettuare il Dispose anche del timer per liberare le risorse
+            if (disposing && (_searchDebounceTimer != null))
+            {
+                _searchDebounceTimer.Tick -= SearchDebounceTimer_Tick;
+                _searchDebounceTimer.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -232,6 +289,8 @@ namespace FormulariRif_G.Forms
             this.btnAggiorna = new System.Windows.Forms.Button();
             this.txtRicerca = new System.Windows.Forms.TextBox();
             this.lblRicerca = new System.Windows.Forms.Label();
+            this.lblTipoFiltro = new System.Windows.Forms.Label();
+            this.cmbTipoFiltro = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewConducenti)).BeginInit();
             this.SuspendLayout();
             //
@@ -242,6 +301,7 @@ namespace FormulariRif_G.Forms
             this.dataGridViewConducenti.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewConducenti.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewConducenti.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewConducenti.Location = new System.Drawing.Point(12, 60);
             this.dataGridViewConducenti.MultiSelect = false;
@@ -312,7 +372,7 @@ namespace FormulariRif_G.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtRicerca.Location = new System.Drawing.Point(70, 22);
             this.txtRicerca.Name = "txtRicerca";
-            this.txtRicerca.Size = new System.Drawing.Size(702, 23);
+            this.txtRicerca.Size = new System.Drawing.Size(450, 23);
             this.txtRicerca.TabIndex = 6;
             this.txtRicerca.TextChanged += new System.EventHandler(this.txtRicerca_TextChanged);
             //
@@ -325,11 +385,33 @@ namespace FormulariRif_G.Forms
             this.lblRicerca.TabIndex = 7;
             this.lblRicerca.Text = "Ricerca:";
             //
+            // lblTipoFiltro
+            //
+            this.lblTipoFiltro.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblTipoFiltro.AutoSize = true;
+            this.lblTipoFiltro.Location = new System.Drawing.Point(530, 25);
+            this.lblTipoFiltro.Name = "lblTipoFiltro";
+            this.lblTipoFiltro.Size = new System.Drawing.Size(33, 15);
+            this.lblTipoFiltro.TabIndex = 8;
+            this.lblTipoFiltro.Text = "Tipo:";
+            //
+            // cmbTipoFiltro
+            //
+            this.cmbTipoFiltro.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbTipoFiltro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbTipoFiltro.FormattingEnabled = true;
+            this.cmbTipoFiltro.Location = new System.Drawing.Point(570, 22);
+            this.cmbTipoFiltro.Name = "cmbTipoFiltro";
+            this.cmbTipoFiltro.Size = new System.Drawing.Size(202, 23);
+            this.cmbTipoFiltro.TabIndex = 9;
+            //
             // ConducentiListForm
             //
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 511);
+            this.Controls.Add(this.cmbTipoFiltro);
+            this.Controls.Add(this.lblTipoFiltro);
             this.Controls.Add(this.lblRicerca);
             this.Controls.Add(this.txtRicerca);
             this.Controls.Add(this.btnAggiorna);
@@ -355,6 +437,8 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Button btnAggiorna;
         private System.Windows.Forms.TextBox txtRicerca;
         private System.Windows.Forms.Label lblRicerca;
+        private Label lblTipoFiltro;
+        private ComboBox cmbTipoFiltro;
 
         #endregion
     }

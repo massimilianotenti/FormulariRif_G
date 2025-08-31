@@ -30,6 +30,7 @@ namespace FormulariRif_G.Forms
         private async void UtentiListForm_Load(object? sender, EventArgs e)
         {
             await LoadUtentiAsync();
+            txtRicerca?.Focus();
         }
 
         /// <summary>
@@ -284,6 +285,7 @@ namespace FormulariRif_G.Forms
             this.dataGridViewUtenti.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.dataGridViewUtenti.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dataGridViewUtenti.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridViewUtenti.Location = new System.Drawing.Point(12, 60);
             this.dataGridViewUtenti.MultiSelect = false;

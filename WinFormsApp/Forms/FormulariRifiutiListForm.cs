@@ -44,7 +44,7 @@ namespace FormulariRif_G.Forms
         private async void FormulariRifiutiListForm_Load(object? sender, EventArgs e)
         {
             dtpDaData.Value = DateTime.Now.AddDays(-60);
-            await LoadFormulariRifiutiAsync();
+            await LoadFormulariRifiutiAsync();            
         }
 
         /// <summary>
@@ -253,6 +253,7 @@ namespace FormulariRif_G.Forms
             dataGridViewFormulari.AllowUserToAddRows = false;
             dataGridViewFormulari.AllowUserToDeleteRows = false;
             dataGridViewFormulari.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewFormulari.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewFormulari.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewFormulari.Location = new Point(12, 49);
             dataGridViewFormulari.MultiSelect = false;

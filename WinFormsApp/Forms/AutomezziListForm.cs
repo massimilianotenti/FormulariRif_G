@@ -65,6 +65,7 @@ namespace FormulariRif_G.Forms
         private async void AutomezziListForm_Load(object? sender, EventArgs e)
         {
             await LoadAutomezziAsync();
+            txtRicerca?.Focus();
         }
 
         /// <summary>
@@ -328,6 +329,7 @@ namespace FormulariRif_G.Forms
             dataGridViewAutomezzi.AllowUserToAddRows = false;
             dataGridViewAutomezzi.AllowUserToDeleteRows = false;
             dataGridViewAutomezzi.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewAutomezzi.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             dataGridViewAutomezzi.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewAutomezzi.Location = new Point(22, 103);
             dataGridViewAutomezzi.Margin = new Padding(6, 6, 6, 6);
