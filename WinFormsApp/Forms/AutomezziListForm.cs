@@ -9,27 +9,43 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Threading.Tasks; // Necessario per Task e async/await
 // using Microsoft.EntityFrameworkCore; // Non strettamente necessario qui a meno di .Include() su relazioni complesse
-using System.ComponentModel; // Necessario per BindingList
+using System.ComponentModel;
+using Microsoft.EntityFrameworkCore; // Necessario per BindingList
 
 namespace FormulariRif_G.Forms
 {
+
     public partial class AutomezziListForm : Form
     {
-        private readonly IGenericRepository<Automezzo> _automezzoRepository;
+        private readonly IGenericRepository<Automezzo> _automezzoRepository;        
+        private readonly IGenericRepository<Conducente> _conducenteRepository;
+        private readonly IGenericRepository<Autom_Cond> _automCondRepository;
+        private readonly IGenericRepository<Rimorchio> _rimorchioRepository;
+        private readonly IGenericRepository<Autom_Rim> _automRimRepository;
+        
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository;
         private readonly IServiceProvider _serviceProvider;
+        private readonly System.Windows.Forms.Timer _searchDebounceTimer;
 
         // Dichiarazioni dei controlli (corrispondenti al tuo Designer.cs)
         private System.Windows.Forms.DataGridView dataGridViewAutomezzi;
         private System.Windows.Forms.Button btnNuovo;
         private System.Windows.Forms.Button btnModifica;
         private System.Windows.Forms.Button btnElimina;
+        private Label lblRicerca;
+        private TextBox txtRicerca;
         private System.Windows.Forms.Button btnAggiorna;
 
-        public AutomezziListForm(IGenericRepository<Automezzo> automezzoRepository,
-                                 IServiceProvider serviceProvider)
+        public AutomezziListForm(IGenericRepository<Automezzo> automezzoRepository, IGenericRepository<Conducente> conducenteRepository, IGenericRepository<Autom_Cond> automCondRepository, IGenericRepository<Rimorchio> rimorchioRepository, IGenericRepository<Autom_Rim> automRimRepository, IGenericRepository<Configurazione> configurazioneRepository, IServiceProvider serviceProvider)
+        
         {
             InitializeComponent();
             _automezzoRepository = automezzoRepository;
+            _conducenteRepository = conducenteRepository;
+            _automCondRepository = automCondRepository;
+            _rimorchioRepository = rimorchioRepository;
+            _automRimRepository = automRimRepository;
+            _configurazioneRepository = configurazioneRepository;
             _serviceProvider = serviceProvider;
 
             // Collega gli handler degli eventi ai pulsanti e al form Load.
@@ -38,6 +54,12 @@ namespace FormulariRif_G.Forms
             if (btnModifica != null) btnModifica.Click += btnModifica_Click;
             if (btnElimina != null) btnElimina.Click += btnElimina_Click;
             if (btnAggiorna != null) btnAggiorna.Click += btnAggiorna_Click;
+            if (txtRicerca != null) txtRicerca.TextChanged += TxtRicerca_TextChanged;
+
+            // Inizializza il timer per il "debouncing" della ricerca
+            _searchDebounceTimer = new System.Windows.Forms.Timer();
+            _searchDebounceTimer.Interval = 500; // Ritardo di 500ms prima di avviare la ricerca
+            _searchDebounceTimer.Tick += SearchDebounceTimer_Tick;
         }
 
         private async void AutomezziListForm_Load(object? sender, EventArgs e)
@@ -50,16 +72,89 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async Task LoadAutomezziAsync()
         {
+            //try
+            //{
+            //    var automezzi = await _automezzoRepository.GetAllAsync();
+            //    // Assicurati che il DataSource sia impostato correttamente
+            //    dataGridViewAutomezzi.DataSource = new BindingList<Automezzo>(automezzi.ToList());
+
+            //    // Nasconde la colonna "Id" se esiste
+            //    if (dataGridViewAutomezzi.Columns.Contains("Id"))
+            //    {
+            //        dataGridViewAutomezzi.Columns["Id"].Visible = false;
+            //    }
+            //    // Puoi nascondere altre colonne qui, ad esempio:
+            //    // if (dataGridViewAutomezzi.Columns.Contains("ProprietaNonMostrare"))
+            //    // {
+            //    //     dataGridViewAutomezzi.Columns["ProprietaNonMostrare"].Visible = false;
+            //    // }
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show($"Errore durante il caricamento degli automezzi: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
             try
             {
-                var automezzi = await _automezzoRepository.GetAllAsync();
-                // Assicurati che il DataSource sia impostato correttamente
-                dataGridViewAutomezzi.DataSource = new BindingList<Automezzo>(automezzi.ToList());
+                var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
+                bool showTestData = configurazione?.DatiTest ?? false;
+
+                IQueryable<Automezzo> query = _automezzoRepository.AsQueryable();
+
+                if (!showTestData)
+                {
+                    query = query.Where(a => a.IsTestData == false);
+                }
+
+                // Applica il filtro di ricerca se è stato inserito del testo
+                string searchTerm = txtRicerca.Text.Trim();
+                if (!string.IsNullOrEmpty(searchTerm))
+                {
+                    string lowerSearchTerm = searchTerm.ToLower();
+                    query = query.Where(a => a.Descrizione.ToLower().Contains(lowerSearchTerm) || a.Targa.ToLower().Contains(lowerSearchTerm));
+                }
+
+                var automezzi = await query.OrderBy(a => a.Descrizione).ToListAsync();
+
+                // 3. Prepara le query per le associazioni, filtrando i dati di test se necessario
+                IQueryable<Autom_Cond> automCondQuery = _automCondRepository.AsQueryable();
+                IQueryable<Autom_Rim> automRimQuery = _automRimRepository.AsQueryable();
+
+                if (!showTestData)
+                {
+                    var validConducenteIds = _conducenteRepository.AsQueryable().Where(c => !c.IsTestData).Select(c => c.Id);
+                    automCondQuery = automCondQuery.Where(ac => validConducenteIds.Contains(ac.Id_Conducente));
+
+                    var validRimorchioIds = _rimorchioRepository.AsQueryable().Where(r => !r.IsTestData).Select(r => r.Id);
+                    automRimQuery = automRimQuery.Where(ar => validRimorchioIds.Contains(ar.Id_Rimorchio));
+                }
+                var allValidAutomCond = await automCondQuery.ToListAsync();
+                var allValidAutomRim = await automRimQuery.ToListAsync();
+
+                // 4. Popola le proprietà [NotMapped] per ogni automezzo
+                foreach (var automezzo in automezzi)
+                {
+                    automezzo.NumeroConducenti = allValidAutomCond.Count(ac => ac.Id_Automezzo == automezzo.Id);
+                    automezzo.NumeroRimorchi = allValidAutomRim.Count(ar => ar.Id_Automezzo == automezzo.Id);
+                }
+                dataGridViewAutomezzi.DataSource = automezzi;
 
                 // Nasconde la colonna "Id" se esiste
                 if (dataGridViewAutomezzi.Columns.Contains("Id"))
                 {
                     dataGridViewAutomezzi.Columns["Id"].Visible = false;
+                }
+                if (dataGridViewAutomezzi.Columns.Contains("IsTestData"))
+                {
+                    dataGridViewAutomezzi.Columns["IsTestData"].Visible = false;
+                }
+                // Nascondi anche le proprietà di navigazione che non sono utili nella griglia
+                if (dataGridViewAutomezzi.Columns.Contains("AutomezziConducenti"))
+                {
+                    dataGridViewAutomezzi.Columns["AutomezziConducenti"].Visible = false;
+                }
+                if (dataGridViewAutomezzi.Columns.Contains("AutomezziRimorchi"))
+                {
+                    dataGridViewAutomezzi.Columns["AutomezziRimorchi"].Visible = false;
                 }
                 // Puoi nascondere altre colonne qui, ad esempio:
                 // if (dataGridViewAutomezzi.Columns.Contains("ProprietaNonMostrare"))
@@ -97,7 +192,7 @@ namespace FormulariRif_G.Forms
         {
             if (dataGridViewAutomezzi.SelectedRows.Count > 0)
             {
-                // Recupera l'automezzo selezionato dalla riga della DataGridView
+                // Ora possiamo recuperare l'oggetto Automezzo direttamente
                 var selectedAutomezzo = dataGridViewAutomezzi.SelectedRows[0].DataBoundItem as Automezzo;
                 if (selectedAutomezzo != null)
                 {
@@ -125,6 +220,7 @@ namespace FormulariRif_G.Forms
         {
             if (dataGridViewAutomezzi.SelectedRows.Count > 0)
             {
+                // Ora possiamo recuperare l'oggetto Automezzo direttamente
                 var selectedAutomezzo = dataGridViewAutomezzi.SelectedRows[0].DataBoundItem as Automezzo;
                 if (selectedAutomezzo != null)
                 {
@@ -164,6 +260,26 @@ namespace FormulariRif_G.Forms
             await LoadAutomezziAsync();
         }
 
+        /// <summary>
+        /// Gestisce la modifica del testo nel campo di ricerca, riavviando il timer di debouncing.
+        /// </summary>
+        private void TxtRicerca_TextChanged(object? sender, EventArgs e)
+        {
+            // Ad ogni pressione di un tasto, riavvia il timer.
+            // La ricerca vera e propria avverrà solo quando l'utente smette di digitare.
+            _searchDebounceTimer.Stop();
+            _searchDebounceTimer.Start();
+        }
+
+        /// <summary>
+        /// Eseguito quando il timer di debouncing scatta, avvia il caricamento dei dati filtrati.
+        /// </summary>
+        private async void SearchDebounceTimer_Tick(object? sender, EventArgs e)
+        {
+            _searchDebounceTimer.Stop(); // Il timer ha fatto il suo dovere, lo fermiamo.
+            await LoadAutomezziAsync();
+        }
+
         // Codice generato dal designer
         #region Windows Form Designer generated code
 
@@ -182,6 +298,12 @@ namespace FormulariRif_G.Forms
             {
                 components.Dispose();
             }
+            // È buona norma effettuare il Dispose anche del timer per liberare le risorse
+            if (disposing && (_searchDebounceTimer != null))
+            {
+                _searchDebounceTimer.Tick -= SearchDebounceTimer_Tick;
+                _searchDebounceTimer.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -191,86 +313,115 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void InitializeComponent()
         {
-            this.dataGridViewAutomezzi = new System.Windows.Forms.DataGridView();
-            this.btnNuovo = new System.Windows.Forms.Button();
-            this.btnModifica = new System.Windows.Forms.Button();
-            this.btnElimina = new System.Windows.Forms.Button();
-            this.btnAggiorna = new System.Windows.Forms.Button();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAutomezzi)).BeginInit();
-            this.SuspendLayout();
-            //
+            dataGridViewAutomezzi = new DataGridView();
+            btnNuovo = new Button();
+            btnModifica = new Button();
+            btnElimina = new Button();
+            btnAggiorna = new Button();
+            lblRicerca = new Label();
+            txtRicerca = new TextBox();
+            ((ISupportInitialize)dataGridViewAutomezzi).BeginInit();
+            SuspendLayout();
+            // 
             // dataGridViewAutomezzi
-            //
-            this.dataGridViewAutomezzi.AllowUserToAddRows = false;
-            this.dataGridViewAutomezzi.AllowUserToDeleteRows = false;
-            this.dataGridViewAutomezzi.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.dataGridViewAutomezzi.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridViewAutomezzi.Location = new System.Drawing.Point(12, 12);
-            this.dataGridViewAutomezzi.MultiSelect = false;
-            this.dataGridViewAutomezzi.Name = "dataGridViewAutomezzi";
-            this.dataGridViewAutomezzi.ReadOnly = true;
-            this.dataGridViewAutomezzi.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridViewAutomezzi.Size = new System.Drawing.Size(760, 400);
-            this.dataGridViewAutomezzi.TabIndex = 0;
-            //
+            // 
+            dataGridViewAutomezzi.AllowUserToAddRows = false;
+            dataGridViewAutomezzi.AllowUserToDeleteRows = false;
+            dataGridViewAutomezzi.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            dataGridViewAutomezzi.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewAutomezzi.Location = new Point(22, 103);
+            dataGridViewAutomezzi.Margin = new Padding(6, 6, 6, 6);
+            dataGridViewAutomezzi.MultiSelect = false;
+            dataGridViewAutomezzi.Name = "dataGridViewAutomezzi";
+            dataGridViewAutomezzi.ReadOnly = true;
+            dataGridViewAutomezzi.RowHeadersWidth = 82;
+            dataGridViewAutomezzi.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridViewAutomezzi.Size = new Size(1411, 776);
+            dataGridViewAutomezzi.TabIndex = 0;
+            // 
             // btnNuovo
-            //
-            this.btnNuovo.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnNuovo.Location = new System.Drawing.Point(12, 420);
-            this.btnNuovo.Name = "btnNuovo";
-            this.btnNuovo.Size = new System.Drawing.Size(75, 30);
-            this.btnNuovo.TabIndex = 1;
-            this.btnNuovo.Text = "Nuovo";
-            this.btnNuovo.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnNuovo.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnNuovo.Location = new Point(22, 896);
+            btnNuovo.Margin = new Padding(6, 6, 6, 6);
+            btnNuovo.Name = "btnNuovo";
+            btnNuovo.Size = new Size(139, 64);
+            btnNuovo.TabIndex = 1;
+            btnNuovo.Text = "Nuovo";
+            btnNuovo.UseVisualStyleBackColor = true;
+            // 
             // btnModifica
-            //
-            this.btnModifica.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnModifica.Location = new System.Drawing.Point(93, 420);
-            this.btnModifica.Name = "btnModifica";
-            this.btnModifica.Size = new System.Drawing.Size(75, 30);
-            this.btnModifica.TabIndex = 2;
-            this.btnModifica.Text = "Modifica";
-            this.btnModifica.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnModifica.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnModifica.Location = new Point(173, 896);
+            btnModifica.Margin = new Padding(6, 6, 6, 6);
+            btnModifica.Name = "btnModifica";
+            btnModifica.Size = new Size(139, 64);
+            btnModifica.TabIndex = 2;
+            btnModifica.Text = "Modifica";
+            btnModifica.UseVisualStyleBackColor = true;
+            // 
             // btnElimina
-            //
-            this.btnElimina.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btnElimina.Location = new System.Drawing.Point(174, 420);
-            this.btnElimina.Name = "btnElimina";
-            this.btnElimina.Size = new System.Drawing.Size(75, 30);
-            this.btnElimina.TabIndex = 3;
-            this.btnElimina.Text = "Elimina";
-            this.btnElimina.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnElimina.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            btnElimina.Location = new Point(323, 896);
+            btnElimina.Margin = new Padding(6, 6, 6, 6);
+            btnElimina.Name = "btnElimina";
+            btnElimina.Size = new Size(139, 64);
+            btnElimina.TabIndex = 3;
+            btnElimina.Text = "Elimina";
+            btnElimina.UseVisualStyleBackColor = true;
+            // 
             // btnAggiorna
-            //
-            this.btnAggiorna.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAggiorna.Location = new System.Drawing.Point(697, 420);
-            this.btnAggiorna.Name = "btnAggiorna";
-            this.btnAggiorna.Size = new System.Drawing.Size(75, 30);
-            this.btnAggiorna.TabIndex = 4;
-            this.btnAggiorna.Text = "Aggiorna";
-            this.btnAggiorna.UseVisualStyleBackColor = true;
-            //
+            // 
+            btnAggiorna.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnAggiorna.Location = new Point(1294, 896);
+            btnAggiorna.Margin = new Padding(6, 6, 6, 6);
+            btnAggiorna.Name = "btnAggiorna";
+            btnAggiorna.Size = new Size(139, 64);
+            btnAggiorna.TabIndex = 4;
+            btnAggiorna.Text = "Aggiorna";
+            btnAggiorna.UseVisualStyleBackColor = true;
+            // 
+            // lblRicerca
+            // 
+            lblRicerca.AutoSize = true;
+            lblRicerca.Location = new Point(25, 39);
+            lblRicerca.Margin = new Padding(6, 0, 6, 0);
+            lblRicerca.Name = "lblRicerca";
+            lblRicerca.Size = new Size(94, 32);
+            lblRicerca.TabIndex = 9;
+            lblRicerca.Text = "Ricerca:";
+            // 
+            // txtRicerca
+            // 
+            txtRicerca.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtRicerca.Location = new Point(133, 33);
+            txtRicerca.Margin = new Padding(6);
+            txtRicerca.Name = "txtRicerca";
+            txtRicerca.Size = new Size(1300, 39);
+            txtRicerca.TabIndex = 8;
+            // 
             // AutomezziListForm
-            //
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 461);
-            this.Controls.Add(this.btnAggiorna);
-            this.Controls.Add(this.btnElimina);
-            this.Controls.Add(this.btnModifica);
-            this.Controls.Add(this.btnNuovo);
-            this.Controls.Add(this.dataGridViewAutomezzi);
-            this.MinimumSize = new System.Drawing.Size(800, 500);
-            this.Name = "AutomezziListForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Gestione Automezzi";
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAutomezzi)).EndInit();
-            this.ResumeLayout(false);
+            // 
+            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(1456, 983);
+            Controls.Add(lblRicerca);
+            Controls.Add(txtRicerca);
+            Controls.Add(btnAggiorna);
+            Controls.Add(btnElimina);
+            Controls.Add(btnModifica);
+            Controls.Add(btnNuovo);
+            Controls.Add(dataGridViewAutomezzi);
+            Margin = new Padding(6, 6, 6, 6);
+            MinimumSize = new Size(1463, 986);
+            Name = "AutomezziListForm";
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "Gestione Automezzi";
+            ((ISupportInitialize)dataGridViewAutomezzi).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
 
         }
 

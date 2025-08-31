@@ -1,5 +1,6 @@
 ﻿// File: Models/Automezzo.cs
 // Rappresenta un automezzo nel sistema.
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -23,6 +24,14 @@ namespace FormulariRif_G.Models
 
         [Column("is_test_data")]
         public bool IsTestData { get; set; }
+        
+        [NotMapped] // Dice a Entity Framework di ignorare questa proprietà.
+        [DisplayName("Conducenti")]
+        public int NumeroConducenti { get; set; }
+
+        [NotMapped] // Dice a Entity Framework di ignorare questa proprietà.
+        [DisplayName("Rimorchi")]
+        public int NumeroRimorchi { get; set; }
 
         public ICollection<Autom_Cond> AutomezziConducenti { get; set; }
 

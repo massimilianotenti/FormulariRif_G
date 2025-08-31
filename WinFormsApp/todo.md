@@ -4,8 +4,8 @@
     * [x] Implementare la gestione delle anagrafiche conducenti, associando uno o più conducenti (dipendenti o trasportatori esterni) a ciascun mezzo.
     * [ ] quando inserisco un formulario devo poi indicare il conducente scegliendo tra quelli associati al mezzo
 * **Centralizzazione Anagrafiche Soggetti:**
-    * [ ] Assicurarsi che produttore, destinatario e trasportatore attingano da un'unica anagrafica soggetti.
-    * [ ] Prevedere la possibilità che un soggetto possa ricoprire più ruoli contemporaneamente (es. destinatario che è anche trasportatore, o produttore che è anche trasportatore).
+    * [x] Assicurarsi che produttore, destinatario e trasportatore attingano da un'unica anagrafica soggetti.
+    * [x] Prevedere la possibilità che un soggetto possa ricoprire più ruoli contemporaneamente (es. destinatario che è anche trasportatore, o produttore che è anche trasportatore).
 * **Flag Detentore:**
     * [ ] Prevedere un flag "detentore" sul modulo, spuntabile sul produttore se è anche il detentore dei rifiuti.
 * **Codice R13/R4:**
@@ -19,8 +19,8 @@
 * **Stato Fisico:**
     * [ ] Lo stato fisico deve essere una lettera, non un valore numerico.
 * **Gestione Automezzi e Rimorchi:**
-    * [ ] La targa è fissa per l'automezzo.
-    * [ ] Il rimorchio è variabile: un automezzo può avere uno o più rimorchi.
+    * [x] La targa è fissa per l'automezzo.
+    * [x] Il rimorchio è variabile: un automezzo può avere uno o più rimorchi.
 * **Unità Locale:**
     * [ ] L'unità locale deve essere tabellata tra gli indirizzi dei soggetti. La ragione sociale, partita IVA e indirizzo della sede principale vanno nella parte superiore del modulo, mentre l'unità locale (uno degli indirizzi dell'anagrafica del soggetto) va nel rigo dedicato.
 

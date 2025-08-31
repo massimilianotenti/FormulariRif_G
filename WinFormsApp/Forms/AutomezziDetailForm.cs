@@ -326,7 +326,7 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void TxtConducenteSearch_KeyDown(object? sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Down)
             {
                 // Se la dropdown è aperta, significa che ci sono risultati da navigare
                 if (cmbConducentiResult.DroppedDown)
@@ -349,7 +349,7 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private void TxtRimorchioSearch_KeyDown(object? sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Down)
             {
                 // Se la dropdown è aperta, significa che ci sono risultati da navigare
                 if (cmbRimorchiResult.DroppedDown)
@@ -645,7 +645,6 @@ namespace FormulariRif_G.Forms
             lblTarga = new Label();
             txtTarga = new TextBox();
             btnSalva = new Button();
-            // Se hai un pulsante Annulla nel tuo designer, devi dichiararlo qui.
             btnAnnulla = new Button();
             txtConducenteSearch = new TextBox();
             lblCercaConducente = new Label();
@@ -662,173 +661,189 @@ namespace FormulariRif_G.Forms
             lstRimorchiAssociati = new ListBox();
             btnRimuoviRimorchio = new Button();
             SuspendLayout();
-            //
+            // 
             // lblDescrizione
-            //
+            // 
             lblDescrizione.AutoSize = true;
-            lblDescrizione.Location = new Point(12, 15);
+            lblDescrizione.Location = new Point(22, 32);
+            lblDescrizione.Margin = new Padding(6, 0, 6, 0);
             lblDescrizione.Name = "lblDescrizione";
-            lblDescrizione.Size = new Size(70, 15);
+            lblDescrizione.Size = new Size(142, 32);
             lblDescrizione.TabIndex = 0;
             lblDescrizione.Text = "Descrizione:";
-            //
+            // 
             // txtDescrizione
-            //
+            // 
             txtDescrizione.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtDescrizione.Location = new Point(120, 12);
+            txtDescrizione.Location = new Point(223, 26);
+            txtDescrizione.Margin = new Padding(6, 6, 6, 6);
             txtDescrizione.MaxLength = 255;
             txtDescrizione.Name = "txtDescrizione";
-            txtDescrizione.Size = new Size(270, 23);
+            txtDescrizione.Size = new Size(676, 39);
             txtDescrizione.TabIndex = 1;
-            //
+            // 
             // lblTarga
-            //
+            // 
             lblTarga.AutoSize = true;
-            lblTarga.Location = new Point(12, 44);
+            lblTarga.Location = new Point(22, 94);
+            lblTarga.Margin = new Padding(6, 0, 6, 0);
             lblTarga.Name = "lblTarga";
-            lblTarga.Size = new Size(39, 15);
+            lblTarga.Size = new Size(75, 32);
             lblTarga.TabIndex = 2;
             lblTarga.Text = "Targa:";
-            //
+            // 
             // txtTarga
-            //
+            // 
             txtTarga.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtTarga.Location = new Point(120, 41);
+            txtTarga.Location = new Point(223, 87);
+            txtTarga.Margin = new Padding(6, 6, 6, 6);
             txtTarga.MaxLength = 20;
             txtTarga.Name = "txtTarga";
-            txtTarga.Size = new Size(270, 23);
+            txtTarga.Size = new Size(676, 39);
             txtTarga.TabIndex = 3;
-            //
-            // lblCercaConducente
-            //
-            lblCercaConducente.AutoSize = true;
-            lblCercaConducente.Location = new Point(12, 74);
-            lblCercaConducente.Name = "lblCercaConducente";
-            lblCercaConducente.Size = new Size(102, 15);
-            lblCercaConducente.TabIndex = 4;
-            lblCercaConducente.Text = "Cerca Conducente:";
-            //
-            // txtConducenteSearch
-            //
-            txtConducenteSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtConducenteSearch.Location = new Point(120, 71);
-            txtConducenteSearch.Name = "txtConducenteSearch";
-            txtConducenteSearch.Size = new Size(189, 23);
-            txtConducenteSearch.TabIndex = 5;
-            //
-            // cmbConducentiResult
-            //
-            cmbConducentiResult.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            cmbConducentiResult.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbConducentiResult.FormattingEnabled = true;
-            cmbConducentiResult.Location = new Point(120, 100);
-            cmbConducentiResult.Name = "cmbConducentiResult";
-            cmbConducentiResult.Size = new Size(189, 23);
-            cmbConducentiResult.TabIndex = 6;
-            //
-            // btnAggiungiConducente
-            //
-            btnAggiungiConducente.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnAggiungiConducente.Location = new Point(315, 70);
-            btnAggiungiConducente.Name = "btnAggiungiConducente";
-            btnAggiungiConducente.Size = new Size(75, 25);
-            btnAggiungiConducente.TabIndex = 7;
-            btnAggiungiConducente.Text = "Aggiungi";
-            btnAggiungiConducente.UseVisualStyleBackColor = true;
-            //
-            // lblConducentiAssociati
-            //
-            lblConducentiAssociati.AutoSize = true; // Posizione aggiornata
-            lblConducentiAssociati.Location = new Point(12, 132);
-            lblConducentiAssociati.Name = "lblConducentiAssociati";
-            lblConducentiAssociati.Size = new Size(59, 15);
-            lblConducentiAssociati.TabIndex = 8;
-            lblConducentiAssociati.Text = "Associati:";
-            //
-            // lstConducentiAssociati
-            //
-            lstConducentiAssociati.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            lstConducentiAssociati.FormattingEnabled = true;
-            lstConducentiAssociati.ItemHeight = 15;
-            lstConducentiAssociati.Location = new Point(120, 129);
-            lstConducentiAssociati.Name = "lstConducentiAssociati";
-            lstConducentiAssociati.Size = new Size(189, 139);
-            lstConducentiAssociati.TabIndex = 8;
-            //
-            // btnRimuoviConducente
-            //
-            btnRimuoviConducente.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnRimuoviConducente.Location = new Point(315, 129);
-            btnRimuoviConducente.Name = "btnRimuoviConducente";
-            btnRimuoviConducente.Size = new Size(75, 25);
-            btnRimuoviConducente.TabIndex = 9; // TabIndex aggiornati
-            btnRimuoviConducente.Text = "Rimuovi";
-            btnRimuoviConducente.UseVisualStyleBackColor = true;
-            //
+            // 
             // btnSalva
-            //
+            // 
             btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnSalva.Location = new Point(315, 430);
+            btnSalva.Location = new Point(763, 917);
+            btnSalva.Margin = new Padding(6, 6, 6, 6);
             btnSalva.Name = "btnSalva";
-            btnSalva.Size = new Size(75, 30);
+            btnSalva.Size = new Size(139, 64);
             btnSalva.TabIndex = 16;
             btnSalva.Text = "Salva";
             btnSalva.UseVisualStyleBackColor = true;
-            //
+            // 
             // btnAnnulla
-            //
+            // 
             btnAnnulla.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnAnnulla.Location = new Point(234, 430);
+            btnAnnulla.Location = new Point(613, 917);
+            btnAnnulla.Margin = new Padding(6, 6, 6, 6);
             btnAnnulla.Name = "btnAnnulla";
-            btnAnnulla.Size = new Size(75, 30);
+            btnAnnulla.Size = new Size(139, 64);
             btnAnnulla.TabIndex = 17;
             btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
             // 
-            // lblCercaRimorchio
+            // txtConducenteSearch
             // 
-            lblCercaRimorchio.AutoSize = true; // Posizione aggiornata
-            lblCercaRimorchio.Location = new Point(12, 278);
-            lblCercaRimorchio.Name = "lblCercaRimorchio";
-            lblCercaRimorchio.Size = new Size(93, 15);
-            lblCercaRimorchio.TabIndex = 12;
-            lblCercaRimorchio.Text = "Cerca Rimorchio:";
+            txtConducenteSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            txtConducenteSearch.Location = new Point(223, 151);
+            txtConducenteSearch.Margin = new Padding(6, 6, 6, 6);
+            txtConducenteSearch.Name = "txtConducenteSearch";
+            txtConducenteSearch.Size = new Size(526, 39);
+            txtConducenteSearch.TabIndex = 5;
+            // 
+            // lblCercaConducente
+            // 
+            lblCercaConducente.AutoSize = true;
+            lblCercaConducente.Location = new Point(22, 158);
+            lblCercaConducente.Margin = new Padding(6, 0, 6, 0);
+            lblCercaConducente.Name = "lblCercaConducente";
+            lblCercaConducente.Size = new Size(215, 32);
+            lblCercaConducente.TabIndex = 4;
+            lblCercaConducente.Text = "Cerca Conducente:";
+            // 
+            // cmbConducentiResult
+            // 
+            cmbConducentiResult.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            cmbConducentiResult.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbConducentiResult.FormattingEnabled = true;
+            cmbConducentiResult.Location = new Point(223, 213);
+            cmbConducentiResult.Margin = new Padding(6, 6, 6, 6);
+            cmbConducentiResult.Name = "cmbConducentiResult";
+            cmbConducentiResult.Size = new Size(526, 40);
+            cmbConducentiResult.TabIndex = 6;
+            // 
+            // btnAggiungiConducente
+            // 
+            btnAggiungiConducente.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAggiungiConducente.Location = new Point(763, 149);
+            btnAggiungiConducente.Margin = new Padding(6, 6, 6, 6);
+            btnAggiungiConducente.Name = "btnAggiungiConducente";
+            btnAggiungiConducente.Size = new Size(139, 53);
+            btnAggiungiConducente.TabIndex = 7;
+            btnAggiungiConducente.Text = "Aggiungi";
+            btnAggiungiConducente.UseVisualStyleBackColor = true;
+            // 
+            // lblConducentiAssociati
+            // 
+            lblConducentiAssociati.AutoSize = true;
+            lblConducentiAssociati.Location = new Point(22, 282);
+            lblConducentiAssociati.Margin = new Padding(6, 0, 6, 0);
+            lblConducentiAssociati.Name = "lblConducentiAssociati";
+            lblConducentiAssociati.Size = new Size(111, 32);
+            lblConducentiAssociati.TabIndex = 8;
+            lblConducentiAssociati.Text = "Associati:";
+            // 
+            // lstConducentiAssociati
+            // 
+            lstConducentiAssociati.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lstConducentiAssociati.FormattingEnabled = true;
+            lstConducentiAssociati.Location = new Point(223, 275);
+            lstConducentiAssociati.Margin = new Padding(6, 6, 6, 6);
+            lstConducentiAssociati.Name = "lstConducentiAssociati";
+            lstConducentiAssociati.Size = new Size(526, 292);
+            lstConducentiAssociati.TabIndex = 8;
+            // 
+            // btnRimuoviConducente
+            // 
+            btnRimuoviConducente.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnRimuoviConducente.Location = new Point(763, 275);
+            btnRimuoviConducente.Margin = new Padding(6, 6, 6, 6);
+            btnRimuoviConducente.Name = "btnRimuoviConducente";
+            btnRimuoviConducente.Size = new Size(139, 53);
+            btnRimuoviConducente.TabIndex = 9;
+            btnRimuoviConducente.Text = "Rimuovi";
+            btnRimuoviConducente.UseVisualStyleBackColor = true;
             // 
             // txtRimorchioSearch
-            //
-            txtRimorchioSearch = new TextBox();
+            // 
             txtRimorchioSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtRimorchioSearch.Location = new Point(120, 275);
+            txtRimorchioSearch.Location = new Point(223, 587);
+            txtRimorchioSearch.Margin = new Padding(6, 6, 6, 6);
             txtRimorchioSearch.Name = "txtRimorchioSearch";
-            txtRimorchioSearch.Size = new Size(189, 23);
+            txtRimorchioSearch.Size = new Size(526, 39);
             txtRimorchioSearch.TabIndex = 13;
+            // 
+            // lblCercaRimorchio
+            // 
+            lblCercaRimorchio.AutoSize = true;
+            lblCercaRimorchio.Location = new Point(22, 593);
+            lblCercaRimorchio.Margin = new Padding(6, 0, 6, 0);
+            lblCercaRimorchio.Name = "lblCercaRimorchio";
+            lblCercaRimorchio.Size = new Size(193, 32);
+            lblCercaRimorchio.TabIndex = 12;
+            lblCercaRimorchio.Text = "Cerca Rimorchio:";
             // 
             // cmbRimorchiResult
             // 
             cmbRimorchiResult.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             cmbRimorchiResult.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbRimorchiResult.FormattingEnabled = true;
-            cmbRimorchiResult.Location = new Point(120, 304);
+            cmbRimorchiResult.Location = new Point(223, 649);
+            cmbRimorchiResult.Margin = new Padding(6, 6, 6, 6);
             cmbRimorchiResult.Name = "cmbRimorchiResult";
-            cmbRimorchiResult.Size = new Size(189, 23);
+            cmbRimorchiResult.Size = new Size(526, 40);
             cmbRimorchiResult.TabIndex = 14;
             // 
             // btnAggiungiRimorchio
             // 
-            btnAggiungiRimorchio.Anchor = AnchorStyles.Top | AnchorStyles.Right; // Posizione aggiornata
-            btnAggiungiRimorchio.Location = new Point(315, 274);
+            btnAggiungiRimorchio.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnAggiungiRimorchio.Location = new Point(763, 585);
+            btnAggiungiRimorchio.Margin = new Padding(6, 6, 6, 6);
             btnAggiungiRimorchio.Name = "btnAggiungiRimorchio";
-            btnAggiungiRimorchio.Size = new Size(75, 25);
+            btnAggiungiRimorchio.Size = new Size(139, 53);
             btnAggiungiRimorchio.TabIndex = 14;
             btnAggiungiRimorchio.Text = "Aggiungi";
             btnAggiungiRimorchio.UseVisualStyleBackColor = true;
             // 
             // lblRimorchiAssociati
             // 
-            lblRimorchiAssociati.AutoSize = true; // Posizione aggiornata
-            lblRimorchiAssociati.Location = new Point(12, 336);
+            lblRimorchiAssociati.AutoSize = true;
+            lblRimorchiAssociati.Location = new Point(22, 717);
+            lblRimorchiAssociati.Margin = new Padding(6, 0, 6, 0);
             lblRimorchiAssociati.Name = "lblRimorchiAssociati";
-            lblRimorchiAssociati.Size = new Size(59, 15);
+            lblRimorchiAssociati.Size = new Size(111, 32);
             lblRimorchiAssociati.TabIndex = 15;
             lblRimorchiAssociati.Text = "Associati:";
             // 
@@ -836,27 +851,28 @@ namespace FormulariRif_G.Forms
             // 
             lstRimorchiAssociati.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             lstRimorchiAssociati.FormattingEnabled = true;
-            lstRimorchiAssociati.ItemHeight = 15;
-            lstRimorchiAssociati.Location = new Point(120, 333);
+            lstRimorchiAssociati.Location = new Point(223, 710);
+            lstRimorchiAssociati.Margin = new Padding(6, 6, 6, 6);
             lstRimorchiAssociati.Name = "lstRimorchiAssociati";
-            lstRimorchiAssociati.Size = new Size(189, 139);
+            lstRimorchiAssociati.Size = new Size(526, 292);
             lstRimorchiAssociati.TabIndex = 16;
             // 
             // btnRimuoviRimorchio
             // 
             btnRimuoviRimorchio.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            btnRimuoviRimorchio.Location = new Point(315, 333);
+            btnRimuoviRimorchio.Location = new Point(763, 710);
+            btnRimuoviRimorchio.Margin = new Padding(6, 6, 6, 6);
             btnRimuoviRimorchio.Name = "btnRimuoviRimorchio";
-            btnRimuoviRimorchio.Size = new Size(75, 25);
+            btnRimuoviRimorchio.Size = new Size(139, 53);
             btnRimuoviRimorchio.TabIndex = 17;
             btnRimuoviRimorchio.Text = "Rimuovi";
             btnRimuoviRimorchio.UseVisualStyleBackColor = true;
-            //
+            // 
             // AutomezziDetailForm
-            //
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            // 
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(402, 500); // Aumentata altezza per nuovo layout
+            ClientSize = new Size(925, 1067);
             Controls.Add(btnRimuoviRimorchio);
             Controls.Add(lstRimorchiAssociati);
             Controls.Add(lblRimorchiAssociati);
@@ -878,11 +894,12 @@ namespace FormulariRif_G.Forms
             Controls.Add(txtDescrizione);
             Controls.Add(lblDescrizione);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(6, 6, 6, 6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "AutomezziDetailForm";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "Dettagli Automezzo"; // Verrà aggiornato da SetAutomezzo
+            Text = "Dettagli Automezzo";
             ResumeLayout(false);
             PerformLayout();
 
