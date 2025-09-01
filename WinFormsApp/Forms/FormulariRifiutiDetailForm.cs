@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore; // Per l'include delle proprietà di naviga
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 // using System.Drawing.Text; // Non sembra essere usato
 using System.Linq;
@@ -22,12 +23,15 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Cliente> _clienteRepository;
         private readonly IGenericRepository<ClienteIndirizzo> _clienteIndirizzoRepository;
         private readonly IGenericRepository<Automezzo> _automezzoRepository;
+        private const int InitialLoadSize = 200;
         private FormularioRifiuti? _currentFormulario;
         // Flag per evitare che l'evento SelectedIndexChanged si attivi durante il caricamento iniziale dei dati
-        private bool _isLoading = false;
-
+        private bool _isLoading = true; // Inizializzato a true
+        // Flag per evitare che gli eventi di ricerca si attivino durante aggiornamenti programmatici
+        private bool _isProgrammaticChange = false;
         private bool _isFormularioSaved = false;
-
+        private List<Cliente> _allClienti;
+        private List<Automezzo> _allAutomezzi;
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
                                          IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository,
@@ -41,6 +45,29 @@ namespace FormulariRif_G.Forms
             _automezzoRepository = automezzoRepository;
             _configurazioneRepository = configurazioneRepository;
             this.Load += FormulariRifiutiDetailForm_Load;
+            
+            // Collega i gestori di eventi generici per la ricerca
+            txtProduttoreSearch.TextChanged += Search_TextChanged;
+            textBox2.TextChanged += Search_TextChanged; // Destinatario
+            textBox3.TextChanged += Search_TextChanged; // Trasportatore
+            textBox4.TextChanged += Search_TextChanged; // Automezzo
+
+            txtProduttoreSearch.KeyDown += Search_KeyDown;
+            textBox2.KeyDown += Search_KeyDown;
+            textBox3.KeyDown += Search_KeyDown;
+            textBox4.KeyDown += Search_KeyDown;
+
+            cmbProduttore.SelectionChangeCommitted += Combo_SelectionChangeCommitted;
+            cmbDestinatario.SelectionChangeCommitted += Combo_SelectionChangeCommitted;
+            cmbTrasportatore.SelectionChangeCommitted += Combo_SelectionChangeCommitted;
+            cmbAutomezzo.SelectionChangeCommitted += Combo_SelectionChangeCommitted;
+
+            // Associa ogni TextBox alla sua ComboBox e viceversa usando la proprietà Tag
+            txtProduttoreSearch.Tag = cmbProduttore;    cmbProduttore.Tag = txtProduttoreSearch;
+            textBox2.Tag = cmbDestinatario;             cmbDestinatario.Tag = textBox2;
+            textBox3.Tag = cmbTrasportatore;            cmbTrasportatore.Tag = textBox3;
+            textBox4.Tag = cmbAutomezzo;                cmbAutomezzo.Tag = textBox4;
+
         }
 
         private async void FormulariRifiutiDetailForm_Load(object? sender, EventArgs e)
@@ -71,24 +98,31 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async Task LoadFormularioData()
         {
+            _isProgrammaticChange = true;
+
+            // Inizializza le ComboBox con un set di dati limitato, assicurandosi che l'eventuale
+            // valore da preselezionare sia presente nella lista.
+            SetComboBoxDataSource(cmbProduttore, _allClienti, c => c.Id, _currentFormulario?.IdProduttore);
+            SetComboBoxDataSource(cmbDestinatario, _allClienti, c => c.Id, _currentFormulario?.IdDestinatario);
+            SetComboBoxDataSource(cmbTrasportatore, _allClienti, c => c.Id, _currentFormulario?.IdTrasportatore);
+            SetComboBoxDataSource(cmbAutomezzo, _allAutomezzi, a => a.Id, _currentFormulario?.IdAutomezzo);
+
+            // Aggiorna le caselle di testo di ricerca in base alla selezione iniziale delle ComboBox
+            UpdateSearchBoxFromComboBox(cmbProduttore);
+            UpdateSearchBoxFromComboBox(cmbDestinatario);
+            UpdateSearchBoxFromComboBox(cmbTrasportatore);
+            UpdateSearchBoxFromComboBox(cmbAutomezzo);
+
             if (_currentFormulario != null)
             {
                 dtpData.Value = _currentFormulario.Data;
                 txtNumeroFormulario.Text = _currentFormulario.NumeroFormulario;
 
-                // Carica Produttore e relativo indirizzo
-                cmbProduttore.SelectedValue = _currentFormulario.IdProduttore;
+                // I valori delle ComboBox principali sono già stati impostati da SetComboBoxDataSource.
+                // Ora carichiamo solo gli indirizzi dipendenti.
                 await LoadIndirizziAsync(cmbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
-
-                // Carica Destinatario e relativo indirizzo
-                cmbDestinatario.SelectedValue = _currentFormulario.IdDestinatario;
                 await LoadIndirizziAsync(cmbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
-
-                // Carica Trasportatore e relativo indirizzo
-                cmbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
                 await LoadIndirizziAsync(cmbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
-
-                cmbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
 
                 // Caratteristiche del rifiuto
                 txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;
@@ -149,14 +183,15 @@ namespace FormulariRif_G.Forms
             else
             {
                 dtpData.Value = DateTime.Now;
+                // I campi delle ComboBox sono già vuoti grazie a SetComboBoxDataSource con ID null.
+                // Pulisci tutti gli altri campi.
                 txtNumeroFormulario.Text = string.Empty;
-                cmbProduttore.SelectedIndex = -1;
-                cmbProduttoreIndirizzo.SelectedIndex = -1;
-                cmbDestinatario.SelectedIndex = -1;
-                cmbDestinatarioIndirizzo.SelectedIndex = -1;
-                cmbTrasportatore.SelectedIndex = -1;
-                cmbTrasportatoreIndirizzo.SelectedIndex = -1;
-                cmbAutomezzo.SelectedIndex = -1;
+                
+                // Pulisci anche le textbox di ricerca
+                txtProduttoreSearch.Clear();
+                textBox2.Clear();
+                textBox3.Clear();
+                textBox4.Clear();
 
                 // Pulisci campi caratteristiche rifiuto
                 txtCodiceEER.Text = string.Empty;
@@ -175,9 +210,24 @@ namespace FormulariRif_G.Forms
 
                 _isFormularioSaved = false;
             }
+            _isProgrammaticChange = false;
             UpdatePrintButtonState();
         }
 
+        private void UpdateSearchBoxFromComboBox(ComboBox comboBox)
+        {
+            if (comboBox.Tag is TextBox searchBox)
+            {
+                if (comboBox.SelectedItem != null)
+                {
+                    searchBox.Text = comboBox.Text;
+                }
+                else
+                {
+                    searchBox.Clear();
+                }
+            }
+        }
 
         private async void btnSalva_Click(object sender, EventArgs e)
         {
@@ -292,37 +342,60 @@ namespace FormulariRif_G.Forms
         {
             try
             {
-                var tuttiClienti = (await _clienteRepository.GetAllAsync()).ToList();
-
-                // Popola Produttore
-                cmbProduttore.DataSource = new List<Cliente>(tuttiClienti);
+                _allClienti = (await _clienteRepository.GetAllAsync()).ToList();
+                _allAutomezzi = (await _automezzoRepository.GetAllAsync()).ToList();
+                
+                // Imposta i membri per il binding. Il DataSource verrà impostato in LoadFormularioData.
                 cmbProduttore.DisplayMember = "RagSoc";
                 cmbProduttore.ValueMember = "Id";
-                cmbProduttore.SelectedIndex = -1;
 
-                // Popola Destinatario
-                cmbDestinatario.DataSource = new List<Cliente>(tuttiClienti);
                 cmbDestinatario.DisplayMember = "RagSoc";
                 cmbDestinatario.ValueMember = "Id";
-                cmbDestinatario.SelectedIndex = -1;
 
-                // Popola Trasportatore
-                cmbTrasportatore.DataSource = new List<Cliente>(tuttiClienti);
                 cmbTrasportatore.DisplayMember = "RagSoc";
                 cmbTrasportatore.ValueMember = "Id";
-                cmbTrasportatore.SelectedIndex = -1;
 
-                // Popola Automezzi
-                var automezzi = await _automezzoRepository.GetAllAsync();
-                cmbAutomezzo.DataSource = automezzi.ToList();
                 cmbAutomezzo.DisplayMember = "Descrizione"; // O "Targa" a seconda della preferenza
                 cmbAutomezzo.ValueMember = "Id";
-                cmbAutomezzo.SelectedIndex = -1; // Nessuna selezione iniziale
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Errore durante il caricamento delle liste: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>
+        /// Imposta il DataSource di una ComboBox con un sottoinsieme dei dati per migliorare le prestazioni.
+        /// Assicura che l'elemento da selezionare sia presente nella lista.
+        /// </summary>
+        private void SetComboBoxDataSource<T>(ComboBox comboBox, List<T> fullList, Func<T, int> idSelector, int? idToSelect) where T : class
+        {
+            // 1. Crea la lista di visualizzazione iniziale con un numero limitato di elementi.
+            var displayList = fullList.Take(InitialLoadSize).ToList();
+
+            // 2. Se un ID specifico deve essere selezionato, assicurati che l'elemento corrispondente sia nella lista.
+            if (idToSelect.HasValue && idToSelect.Value > 0)
+            {
+                // Se l'elemento non è già presente...
+                if (!displayList.Any(item => idSelector(item) == idToSelect.Value))
+                {
+                    // ...cercalo nella lista completa e aggiungilo.
+                    var itemToAdd = fullList.FirstOrDefault(item => idSelector(item) == idToSelect.Value);
+                    if (itemToAdd != null)
+                    {
+                        displayList.Add(itemToAdd);
+                    }
+                }
+            }
+
+            // 3. Esegui il binding della lista alla ComboBox.
+            comboBox.DataSource = displayList;
+
+            // 4. Imposta il valore selezionato.
+            if (idToSelect.HasValue && idToSelect > 0)
+                comboBox.SelectedValue = idToSelect.Value;
+            else
+                comboBox.SelectedIndex = -1;
         }
 
         private async void cmbProduttore_SelectedIndexChanged(object? sender, EventArgs e)
@@ -379,6 +452,91 @@ namespace FormulariRif_G.Forms
                     MessageBox.Show($"Errore durante il caricamento degli indirizzi: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+        }
+
+        #endregion
+
+        #region Search and Autocomplete Handlers
+
+        private void Search_TextChanged(object sender, EventArgs e)
+        {
+            // Ignora le modifiche se il form sta caricando o se la modifica è programmatica
+            if (_isLoading || _isProgrammaticChange) return;
+
+            var searchBox = sender as TextBox;
+            if (searchBox?.Tag is not ComboBox comboBox) return;
+
+            string searchText = searchBox.Text.Trim();
+            var currentSelectedValue = comboBox.SelectedValue;
+
+            if (string.IsNullOrEmpty(searchText))
+            {
+                // Se la ricerca è vuota, ripristina lo stato iniziale (primi 200 + selezione corrente)
+                var currentSelectedId = comboBox.SelectedValue as int?;
+                if (comboBox == cmbAutomezzo)
+                {
+                    SetComboBoxDataSource(comboBox, _allAutomezzi, a => a.Id, currentSelectedId);
+                }
+                else
+                {
+                    SetComboBoxDataSource(comboBox, _allClienti, c => c.Id, currentSelectedId);
+                }
+                comboBox.DroppedDown = false;
+                return; // Esce per evitare la logica di filtraggio successiva
+            }
+            // Altrimenti, filtra la lista appropriata
+            if (comboBox == cmbAutomezzo)
+            {
+                var filtered = _allAutomezzi
+                    .Where(a => (a.Descrizione != null && a.Descrizione.Contains(searchText, StringComparison.OrdinalIgnoreCase)) ||
+                                (a.Targa != null && a.Targa.Contains(searchText, StringComparison.OrdinalIgnoreCase)))
+                    .ToList();
+                comboBox.DataSource = filtered;
+            }
+            else // È una ComboBox di clienti
+            {
+                var filtered = _allClienti
+                    .Where(c => c.RagSoc.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                comboBox.DataSource = filtered;
+            }
+
+            // Prova a ripristinare la selezione precedente se è ancora nella lista filtrata
+            if (currentSelectedValue != null && comboBox.Items.Cast<object>().Any(i => comboBox.ValueMember != "" && i.GetType().GetProperty(comboBox.ValueMember).GetValue(i).Equals(currentSelectedValue)))
+            {
+                comboBox.SelectedValue = currentSelectedValue;
+            }
+
+            // Apri il dropdown per mostrare i risultati e mantieni il focus sulla textbox
+            if (!comboBox.IsDisposed)
+            {
+                comboBox.DroppedDown = true;
+            }
+            searchBox.Focus();
+            searchBox.Select(searchBox.Text.Length, 0); // Sposta il cursore alla fine
+        }
+
+        private void Search_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (sender is not TextBox searchBox || searchBox.Tag is not ComboBox comboBox) return;
+
+            // Se si preme Freccia Giù o Invio, sposta il focus sulla ComboBox
+            if ((e.KeyCode == Keys.Down || e.KeyCode == Keys.Enter) && comboBox.Items.Count > 0)
+            {
+                comboBox.Focus();
+                e.Handled = true;
+                e.SuppressKeyPress = true; // Sopprime il "ding" di Windows
+            }
+        }
+
+        private void Combo_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            if (_isLoading || sender is not ComboBox comboBox || comboBox.Tag is not TextBox searchBox) return;
+
+            // Aggiorna la textbox di ricerca con il testo della selezione confermata
+            _isProgrammaticChange = true;
+            searchBox.Text = comboBox.Text;
+            _isProgrammaticChange = false;
         }
 
         #endregion
@@ -730,6 +888,10 @@ namespace FormulariRif_G.Forms
             lblTrasportatoreIndirizzo = new Label();
             cmbTrasportatoreIndirizzo = new ComboBox();
             panel1 = new Panel();
+            txtProduttoreSearch = new TextBox();
+            textBox2 = new TextBox();
+            textBox3 = new TextBox();
+            textBox4 = new TextBox();
             grCarattRifiuto.SuspendLayout();
             grAspettoEsteriore.SuspendLayout();
             grKgLitri.SuspendLayout();
@@ -739,26 +901,29 @@ namespace FormulariRif_G.Forms
             // lblData
             // 
             lblData.AutoSize = true;
-            lblData.Location = new Point(20, 25);
-            lblData.Name = "lblData"; // 
-            lblData.Size = new Size(34, 15);
+            lblData.Location = new Point(37, 53);
+            lblData.Margin = new Padding(6, 0, 6, 0);
+            lblData.Name = "lblData";
+            lblData.Size = new Size(68, 32);
             lblData.TabIndex = 0;
             lblData.Text = "Data:";
             // 
             // dtpData
             // 
             dtpData.Format = DateTimePickerFormat.Short;
-            dtpData.Location = new Point(140, 22);
+            dtpData.Location = new Point(260, 47);
+            dtpData.Margin = new Padding(6, 6, 6, 6);
             dtpData.Name = "dtpData";
-            dtpData.Size = new Size(230, 23);
+            dtpData.Size = new Size(424, 39);
             dtpData.TabIndex = 1;
             // 
             // lblProduttore
             // 
             lblProduttore.AutoSize = true;
-            lblProduttore.Location = new Point(20, 57);
+            lblProduttore.Location = new Point(37, 122);
+            lblProduttore.Margin = new Padding(6, 0, 6, 0);
             lblProduttore.Name = "lblProduttore";
-            lblProduttore.Size = new Size(66, 15);
+            lblProduttore.Size = new Size(133, 32);
             lblProduttore.TabIndex = 2;
             lblProduttore.Text = "Produttore:";
             // 
@@ -766,17 +931,19 @@ namespace FormulariRif_G.Forms
             // 
             cmbProduttore.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbProduttore.FormattingEnabled = true;
-            cmbProduttore.Location = new Point(140, 54);
+            cmbProduttore.Location = new Point(444, 114);
+            cmbProduttore.Margin = new Padding(6, 6, 6, 6);
             cmbProduttore.Name = "cmbProduttore";
-            cmbProduttore.Size = new Size(230, 23);
+            cmbProduttore.Size = new Size(393, 40);
             cmbProduttore.TabIndex = 3;
             // 
             // lblProduttoreIndirizzo
             // 
             lblProduttoreIndirizzo.AutoSize = true;
-            lblProduttoreIndirizzo.Location = new Point(489, 57);
+            lblProduttoreIndirizzo.Location = new Point(908, 122);
+            lblProduttoreIndirizzo.Margin = new Padding(6, 0, 6, 0);
             lblProduttoreIndirizzo.Name = "lblProduttoreIndirizzo";
-            lblProduttoreIndirizzo.Size = new Size(54, 15);
+            lblProduttoreIndirizzo.Size = new Size(109, 32);
             lblProduttoreIndirizzo.TabIndex = 4;
             lblProduttoreIndirizzo.Text = "Indirizzo:";
             // 
@@ -784,34 +951,38 @@ namespace FormulariRif_G.Forms
             // 
             cmbProduttoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbProduttoreIndirizzo.FormattingEnabled = true;
-            cmbProduttoreIndirizzo.Location = new Point(609, 54);
+            cmbProduttoreIndirizzo.Location = new Point(1149, 115);
+            cmbProduttoreIndirizzo.Margin = new Padding(6, 6, 6, 6);
             cmbProduttoreIndirizzo.Name = "cmbProduttoreIndirizzo";
-            cmbProduttoreIndirizzo.Size = new Size(230, 23);
+            cmbProduttoreIndirizzo.Size = new Size(406, 40);
             cmbProduttoreIndirizzo.TabIndex = 5;
             // 
             // lblNumeroFormulario
             // 
             lblNumeroFormulario.AutoSize = true;
-            lblNumeroFormulario.Location = new Point(489, 28);
+            lblNumeroFormulario.Location = new Point(908, 60);
+            lblNumeroFormulario.Margin = new Padding(6, 0, 6, 0);
             lblNumeroFormulario.Name = "lblNumeroFormulario";
-            lblNumeroFormulario.Size = new Size(115, 15);
+            lblNumeroFormulario.Size = new Size(229, 32);
             lblNumeroFormulario.TabIndex = 6;
             lblNumeroFormulario.Text = "Numero Formulario:";
             // 
             // txtNumeroFormulario
             // 
-            txtNumeroFormulario.Location = new Point(609, 25);
+            txtNumeroFormulario.Location = new Point(1149, 57);
+            txtNumeroFormulario.Margin = new Padding(6, 6, 6, 6);
             txtNumeroFormulario.MaxLength = 50;
             txtNumeroFormulario.Name = "txtNumeroFormulario";
-            txtNumeroFormulario.Size = new Size(230, 23);
+            txtNumeroFormulario.Size = new Size(404, 39);
             txtNumeroFormulario.TabIndex = 7;
             // 
             // lblAutomezzo
             // 
             lblAutomezzo.AutoSize = true;
-            lblAutomezzo.Location = new Point(20, 145);
+            lblAutomezzo.Location = new Point(37, 309);
+            lblAutomezzo.Margin = new Padding(6, 0, 6, 0);
             lblAutomezzo.Name = "lblAutomezzo";
-            lblAutomezzo.Size = new Size(70, 15);
+            lblAutomezzo.Size = new Size(140, 32);
             lblAutomezzo.TabIndex = 8;
             lblAutomezzo.Text = "Automezzo:";
             // 
@@ -819,16 +990,18 @@ namespace FormulariRif_G.Forms
             // 
             cmbAutomezzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbAutomezzo.FormattingEnabled = true;
-            cmbAutomezzo.Location = new Point(140, 142);
+            cmbAutomezzo.Location = new Point(444, 306);
+            cmbAutomezzo.Margin = new Padding(6, 6, 6, 6);
             cmbAutomezzo.Name = "cmbAutomezzo";
-            cmbAutomezzo.Size = new Size(230, 23);
+            cmbAutomezzo.Size = new Size(393, 40);
             cmbAutomezzo.TabIndex = 9;
             // 
             // btnSalva
             // 
-            btnSalva.Location = new Point(786, 434);
+            btnSalva.Location = new Point(1455, 1022);
+            btnSalva.Margin = new Padding(6, 6, 6, 6);
             btnSalva.Name = "btnSalva";
-            btnSalva.Size = new Size(75, 30);
+            btnSalva.Size = new Size(139, 64);
             btnSalva.TabIndex = 10;
             btnSalva.Text = "Salva";
             btnSalva.UseVisualStyleBackColor = true;
@@ -836,9 +1009,10 @@ namespace FormulariRif_G.Forms
             // 
             // btnAnnulla
             // 
-            btnAnnulla.Location = new Point(591, 434);
+            btnAnnulla.Location = new Point(1093, 1022);
+            btnAnnulla.Margin = new Padding(6, 6, 6, 6);
             btnAnnulla.Name = "btnAnnulla";
-            btnAnnulla.Size = new Size(75, 30);
+            btnAnnulla.Size = new Size(139, 64);
             btnAnnulla.TabIndex = 24;
             btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
@@ -862,9 +1036,11 @@ namespace FormulariRif_G.Forms
             grCarattRifiuto.Controls.Add(label2);
             grCarattRifiuto.Controls.Add(txtCodiceEER);
             grCarattRifiuto.Controls.Add(label1);
-            grCarattRifiuto.Location = new Point(20, 181);
+            grCarattRifiuto.Location = new Point(32, 482);
+            grCarattRifiuto.Margin = new Padding(6, 6, 6, 6);
             grCarattRifiuto.Name = "grCarattRifiuto";
-            grCarattRifiuto.Size = new Size(841, 238);
+            grCarattRifiuto.Padding = new Padding(6, 6, 6, 6);
+            grCarattRifiuto.Size = new Size(1562, 508);
             grCarattRifiuto.TabIndex = 33;
             grCarattRifiuto.TabStop = false;
             grCarattRifiuto.Text = "Caratteristiche del rifiuto";
@@ -874,64 +1050,72 @@ namespace FormulariRif_G.Forms
             grAspettoEsteriore.Controls.Add(txtColli);
             grAspettoEsteriore.Controls.Add(label6);
             grAspettoEsteriore.Controls.Add(ckAllaRinfusa);
-            grAspettoEsteriore.Location = new Point(572, 131);
+            grAspettoEsteriore.Location = new Point(1062, 279);
+            grAspettoEsteriore.Margin = new Padding(6, 6, 6, 6);
             grAspettoEsteriore.Name = "grAspettoEsteriore";
-            grAspettoEsteriore.Size = new Size(249, 48);
+            grAspettoEsteriore.Padding = new Padding(6, 6, 6, 6);
+            grAspettoEsteriore.Size = new Size(462, 102);
             grAspettoEsteriore.TabIndex = 48;
             grAspettoEsteriore.TabStop = false;
             grAspettoEsteriore.Text = "Aspetto esteriore";
             // 
             // txtColli
             // 
-            txtColli.Location = new Point(75, 17);
+            txtColli.Location = new Point(139, 36);
+            txtColli.Margin = new Padding(6, 6, 6, 6);
             txtColli.MaxLength = 5;
             txtColli.Name = "txtColli";
-            txtColli.Size = new Size(76, 23);
+            txtColli.Size = new Size(138, 39);
             txtColli.TabIndex = 28;
             txtColli.KeyPress += txtColli_KeyPress;
             // 
             // label6
             // 
             label6.AutoSize = true;
-            label6.Location = new Point(11, 20);
+            label6.Location = new Point(20, 43);
+            label6.Margin = new Padding(6, 0, 6, 0);
             label6.Name = "label6";
-            label6.Size = new Size(53, 15);
+            label6.Size = new Size(104, 32);
             label6.TabIndex = 27;
             label6.Text = "Nr. Colli:";
             // 
             // ckAllaRinfusa
             // 
             ckAllaRinfusa.AutoSize = true;
-            ckAllaRinfusa.Location = new Point(157, 20);
+            ckAllaRinfusa.Location = new Point(292, 43);
+            ckAllaRinfusa.Margin = new Padding(6, 6, 6, 6);
             ckAllaRinfusa.Name = "ckAllaRinfusa";
-            ckAllaRinfusa.Size = new Size(88, 19);
+            ckAllaRinfusa.Size = new Size(170, 36);
             ckAllaRinfusa.TabIndex = 29;
             ckAllaRinfusa.Text = "Alla Rinfusa";
             ckAllaRinfusa.UseVisualStyleBackColor = true;
             // 
             // txtChimicoFisiche
             // 
-            txtChimicoFisiche.Location = new Point(138, 189);
+            txtChimicoFisiche.Location = new Point(256, 403);
+            txtChimicoFisiche.Margin = new Padding(6, 6, 6, 6);
             txtChimicoFisiche.MaxLength = 25;
             txtChimicoFisiche.Name = "txtChimicoFisiche";
-            txtChimicoFisiche.Size = new Size(683, 23);
+            txtChimicoFisiche.Size = new Size(1265, 39);
             txtChimicoFisiche.TabIndex = 47;
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(18, 192);
+            label7.Location = new Point(33, 410);
+            label7.Margin = new Padding(6, 0, 6, 0);
             label7.Name = "label7";
-            label7.Size = new Size(111, 15);
+            label7.Size = new Size(215, 32);
             label7.TabIndex = 46;
             label7.Text = "Caratt. Chim.-Fisic.:";
             // 
             // ckPesoVerificato
             // 
             ckPesoVerificato.AutoSize = true;
-            ckPesoVerificato.Location = new Point(454, 150);
+            ckPesoVerificato.Location = new Point(843, 320);
+            ckPesoVerificato.Margin = new Padding(6, 6, 6, 6);
             ckPesoVerificato.Name = "ckPesoVerificato";
-            ckPesoVerificato.Size = new Size(103, 19);
+            ckPesoVerificato.Size = new Size(200, 36);
             ckPesoVerificato.TabIndex = 45;
             ckPesoVerificato.Text = "Peso verificato";
             ckPesoVerificato.UseVisualStyleBackColor = true;
@@ -940,18 +1124,21 @@ namespace FormulariRif_G.Forms
             // 
             grKgLitri.Controls.Add(rbKg);
             grKgLitri.Controls.Add(rbLitri);
-            grKgLitri.Location = new Point(311, 136);
+            grKgLitri.Location = new Point(578, 290);
+            grKgLitri.Margin = new Padding(6, 6, 6, 6);
             grKgLitri.Name = "grKgLitri";
-            grKgLitri.Size = new Size(122, 38);
+            grKgLitri.Padding = new Padding(6, 6, 6, 6);
+            grKgLitri.Size = new Size(227, 81);
             grKgLitri.TabIndex = 44;
             grKgLitri.TabStop = false;
             // 
             // rbKg
             // 
             rbKg.AutoSize = true;
-            rbKg.Location = new Point(19, 13);
+            rbKg.Location = new Point(35, 28);
+            rbKg.Margin = new Padding(6, 6, 6, 6);
             rbKg.Name = "rbKg";
-            rbKg.Size = new Size(39, 19);
+            rbKg.Size = new Size(73, 36);
             rbKg.TabIndex = 15;
             rbKg.TabStop = true;
             rbKg.Text = "Kg";
@@ -960,9 +1147,10 @@ namespace FormulariRif_G.Forms
             // rbLitri
             // 
             rbLitri.AutoSize = true;
-            rbLitri.Location = new Point(64, 14);
+            rbLitri.Location = new Point(119, 30);
+            rbLitri.Margin = new Padding(6, 6, 6, 6);
             rbLitri.Name = "rbLitri";
-            rbLitri.Size = new Size(45, 19);
+            rbLitri.Size = new Size(84, 36);
             rbLitri.TabIndex = 16;
             rbLitri.TabStop = true;
             rbLitri.Text = "Litri";
@@ -970,53 +1158,59 @@ namespace FormulariRif_G.Forms
             // 
             // txtQuantita
             // 
-            txtQuantita.Location = new Point(138, 149);
+            txtQuantita.Location = new Point(256, 318);
+            txtQuantita.Margin = new Padding(6, 6, 6, 6);
             txtQuantita.MaxLength = 12;
             txtQuantita.Name = "txtQuantita";
-            txtQuantita.Size = new Size(163, 23);
+            txtQuantita.Size = new Size(299, 39);
             txtQuantita.TabIndex = 43;
             txtQuantita.KeyPress += txtQuantita_KeyPress;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(18, 152);
+            label5.Location = new Point(33, 324);
+            label5.Margin = new Padding(6, 0, 6, 0);
             label5.Name = "label5";
-            label5.Size = new Size(56, 15);
+            label5.Size = new Size(111, 32);
             label5.TabIndex = 42;
             label5.Text = "Quantità:";
             // 
             // txtDescr
             // 
-            txtDescr.Location = new Point(138, 106);
+            txtDescr.Location = new Point(256, 226);
+            txtDescr.Margin = new Padding(6, 6, 6, 6);
             txtDescr.MaxLength = 50;
             txtDescr.Name = "txtDescr";
-            txtDescr.Size = new Size(683, 23);
+            txtDescr.Size = new Size(1265, 39);
             txtDescr.TabIndex = 41;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(18, 109);
+            label4.Location = new Point(33, 233);
+            label4.Margin = new Padding(6, 0, 6, 0);
             label4.Name = "label4";
-            label4.Size = new Size(70, 15);
+            label4.Size = new Size(142, 32);
             label4.TabIndex = 40;
             label4.Text = "Descrizione:";
             // 
             // txtCarattPericolosità
             // 
-            txtCarattPericolosità.Location = new Point(591, 69);
+            txtCarattPericolosità.Location = new Point(1098, 147);
+            txtCarattPericolosità.Margin = new Padding(6, 6, 6, 6);
             txtCarattPericolosità.MaxLength = 25;
             txtCarattPericolosità.Name = "txtCarattPericolosità";
-            txtCarattPericolosità.Size = new Size(230, 23);
+            txtCarattPericolosità.Size = new Size(424, 39);
             txtCarattPericolosità.TabIndex = 39;
             // 
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(471, 72);
+            label3.Location = new Point(875, 154);
+            label3.Margin = new Padding(6, 0, 6, 0);
             label3.Name = "label3";
-            label3.Size = new Size(109, 15);
+            label3.Size = new Size(214, 32);
             label3.TabIndex = 38;
             label3.Text = "Caratt. Pericolosità:";
             // 
@@ -1024,9 +1218,11 @@ namespace FormulariRif_G.Forms
             // 
             grProvenienza.Controls.Add(rbProvUrb);
             grProvenienza.Controls.Add(rbProvSpec);
-            grProvenienza.Location = new Point(591, 21);
+            grProvenienza.Location = new Point(1098, 45);
+            grProvenienza.Margin = new Padding(6, 6, 6, 6);
             grProvenienza.Name = "grProvenienza";
-            grProvenienza.Size = new Size(228, 42);
+            grProvenienza.Padding = new Padding(6, 6, 6, 6);
+            grProvenienza.Size = new Size(423, 90);
             grProvenienza.TabIndex = 37;
             grProvenienza.TabStop = false;
             grProvenienza.Text = "Provenienza";
@@ -1034,9 +1230,10 @@ namespace FormulariRif_G.Forms
             // rbProvUrb
             // 
             rbProvUrb.AutoSize = true;
-            rbProvUrb.Location = new Point(19, 15);
+            rbProvUrb.Location = new Point(35, 32);
+            rbProvUrb.Margin = new Padding(6, 6, 6, 6);
             rbProvUrb.Name = "rbProvUrb";
-            rbProvUrb.Size = new Size(64, 19);
+            rbProvUrb.Size = new Size(123, 36);
             rbProvUrb.TabIndex = 15;
             rbProvUrb.TabStop = true;
             rbProvUrb.Text = "Urbano";
@@ -1045,9 +1242,10 @@ namespace FormulariRif_G.Forms
             // rbProvSpec
             // 
             rbProvSpec.AutoSize = true;
-            rbProvSpec.Location = new Point(89, 15);
+            rbProvSpec.Location = new Point(165, 32);
+            rbProvSpec.Margin = new Padding(6, 6, 6, 6);
             rbProvSpec.Name = "rbProvSpec";
-            rbProvSpec.Size = new Size(68, 19);
+            rbProvSpec.Size = new Size(133, 36);
             rbProvSpec.TabIndex = 16;
             rbProvSpec.TabStop = true;
             rbProvSpec.Text = "Speciale";
@@ -1055,45 +1253,50 @@ namespace FormulariRif_G.Forms
             // 
             // txtStatoFisco
             // 
-            txtStatoFisco.Location = new Point(357, 69);
+            txtStatoFisco.Location = new Point(663, 147);
+            txtStatoFisco.Margin = new Padding(6, 6, 6, 6);
             txtStatoFisco.MaxLength = 3;
             txtStatoFisco.Name = "txtStatoFisco";
-            txtStatoFisco.Size = new Size(76, 23);
+            txtStatoFisco.Size = new Size(138, 39);
             txtStatoFisco.TabIndex = 36;
             txtStatoFisco.KeyPress += txtStatoFisco_KeyPress;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(269, 72);
+            label2.Location = new Point(500, 154);
+            label2.Margin = new Padding(6, 0, 6, 0);
             label2.Name = "label2";
-            label2.Size = new Size(70, 15);
+            label2.Size = new Size(139, 32);
             label2.TabIndex = 35;
             label2.Text = "Stato Fisico:";
             // 
             // txtCodiceEER
             // 
-            txtCodiceEER.Location = new Point(138, 69);
+            txtCodiceEER.Location = new Point(256, 147);
+            txtCodiceEER.Margin = new Padding(6, 6, 6, 6);
             txtCodiceEER.MaxLength = 10;
             txtCodiceEER.Name = "txtCodiceEER";
-            txtCodiceEER.Size = new Size(115, 23);
+            txtCodiceEER.Size = new Size(210, 39);
             txtCodiceEER.TabIndex = 34;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(18, 72);
+            label1.Location = new Point(33, 154);
+            label1.Margin = new Padding(6, 0, 6, 0);
             label1.Name = "label1";
-            label1.Size = new Size(69, 15);
+            label1.Size = new Size(137, 32);
             label1.TabIndex = 33;
             label1.Text = "Codice EER:";
             // 
             // btStampa
             // 
             btStampa.Enabled = false;
-            btStampa.Location = new Point(688, 434);
+            btStampa.Location = new Point(1273, 1022);
+            btStampa.Margin = new Padding(6, 6, 6, 6);
             btStampa.Name = "btStampa";
-            btStampa.Size = new Size(75, 30);
+            btStampa.Size = new Size(139, 64);
             btStampa.TabIndex = 34;
             btStampa.Text = "Stampa";
             btStampa.UseVisualStyleBackColor = true;
@@ -1102,9 +1305,10 @@ namespace FormulariRif_G.Forms
             // lblDestinatario
             // 
             lblDestinatario.AutoSize = true;
-            lblDestinatario.Location = new Point(20, 86);
+            lblDestinatario.Location = new Point(37, 183);
+            lblDestinatario.Margin = new Padding(6, 0, 6, 0);
             lblDestinatario.Name = "lblDestinatario";
-            lblDestinatario.Size = new Size(73, 15);
+            lblDestinatario.Size = new Size(147, 32);
             lblDestinatario.TabIndex = 35;
             lblDestinatario.Text = "Destinatario:";
             // 
@@ -1112,17 +1316,19 @@ namespace FormulariRif_G.Forms
             // 
             cmbDestinatario.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbDestinatario.FormattingEnabled = true;
-            cmbDestinatario.Location = new Point(140, 83);
+            cmbDestinatario.Location = new Point(444, 175);
+            cmbDestinatario.Margin = new Padding(6, 6, 6, 6);
             cmbDestinatario.Name = "cmbDestinatario";
-            cmbDestinatario.Size = new Size(230, 23);
+            cmbDestinatario.Size = new Size(393, 40);
             cmbDestinatario.TabIndex = 36;
             // 
             // lblDestinatarioIndirizzo
             // 
             lblDestinatarioIndirizzo.AutoSize = true;
-            lblDestinatarioIndirizzo.Location = new Point(489, 86);
+            lblDestinatarioIndirizzo.Location = new Point(908, 183);
+            lblDestinatarioIndirizzo.Margin = new Padding(6, 0, 6, 0);
             lblDestinatarioIndirizzo.Name = "lblDestinatarioIndirizzo";
-            lblDestinatarioIndirizzo.Size = new Size(54, 15);
+            lblDestinatarioIndirizzo.Size = new Size(109, 32);
             lblDestinatarioIndirizzo.TabIndex = 37;
             lblDestinatarioIndirizzo.Text = "Indirizzo:";
             // 
@@ -1130,17 +1336,19 @@ namespace FormulariRif_G.Forms
             // 
             cmbDestinatarioIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbDestinatarioIndirizzo.FormattingEnabled = true;
-            cmbDestinatarioIndirizzo.Location = new Point(609, 83);
+            cmbDestinatarioIndirizzo.Location = new Point(1149, 177);
+            cmbDestinatarioIndirizzo.Margin = new Padding(6, 6, 6, 6);
             cmbDestinatarioIndirizzo.Name = "cmbDestinatarioIndirizzo";
-            cmbDestinatarioIndirizzo.Size = new Size(230, 23);
+            cmbDestinatarioIndirizzo.Size = new Size(406, 40);
             cmbDestinatarioIndirizzo.TabIndex = 38;
             // 
             // lblTrasportatore
             // 
             lblTrasportatore.AutoSize = true;
-            lblTrasportatore.Location = new Point(20, 115);
+            lblTrasportatore.Location = new Point(37, 245);
+            lblTrasportatore.Margin = new Padding(6, 0, 6, 0);
             lblTrasportatore.Name = "lblTrasportatore";
-            lblTrasportatore.Size = new Size(79, 15);
+            lblTrasportatore.Size = new Size(159, 32);
             lblTrasportatore.TabIndex = 39;
             lblTrasportatore.Text = "Trasportatore:";
             // 
@@ -1148,17 +1356,19 @@ namespace FormulariRif_G.Forms
             // 
             cmbTrasportatore.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTrasportatore.FormattingEnabled = true;
-            cmbTrasportatore.Location = new Point(140, 112);
+            cmbTrasportatore.Location = new Point(444, 237);
+            cmbTrasportatore.Margin = new Padding(6, 6, 6, 6);
             cmbTrasportatore.Name = "cmbTrasportatore";
-            cmbTrasportatore.Size = new Size(230, 23);
+            cmbTrasportatore.Size = new Size(393, 40);
             cmbTrasportatore.TabIndex = 40;
             // 
             // lblTrasportatoreIndirizzo
             // 
             lblTrasportatoreIndirizzo.AutoSize = true;
-            lblTrasportatoreIndirizzo.Location = new Point(489, 115);
+            lblTrasportatoreIndirizzo.Location = new Point(908, 245);
+            lblTrasportatoreIndirizzo.Margin = new Padding(6, 0, 6, 0);
             lblTrasportatoreIndirizzo.Name = "lblTrasportatoreIndirizzo";
-            lblTrasportatoreIndirizzo.Size = new Size(54, 15);
+            lblTrasportatoreIndirizzo.Size = new Size(109, 32);
             lblTrasportatoreIndirizzo.TabIndex = 41;
             lblTrasportatoreIndirizzo.Text = "Indirizzo:";
             // 
@@ -1166,24 +1376,66 @@ namespace FormulariRif_G.Forms
             // 
             cmbTrasportatoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTrasportatoreIndirizzo.FormattingEnabled = true;
-            cmbTrasportatoreIndirizzo.Location = new Point(609, 112);
+            cmbTrasportatoreIndirizzo.Location = new Point(1149, 239);
+            cmbTrasportatoreIndirizzo.Margin = new Padding(6, 6, 6, 6);
             cmbTrasportatoreIndirizzo.Name = "cmbTrasportatoreIndirizzo";
-            cmbTrasportatoreIndirizzo.Size = new Size(230, 23);
+            cmbTrasportatoreIndirizzo.Size = new Size(406, 40);
             cmbTrasportatoreIndirizzo.TabIndex = 42;
             // 
             // panel1
             // 
             panel1.BorderStyle = BorderStyle.Fixed3D;
-            panel1.Location = new Point(20, 171);
+            panel1.Location = new Point(32, 461);
+            panel1.Margin = new Padding(6, 6, 6, 6);
             panel1.Name = "panel1";
-            panel1.Size = new Size(841, 4);
+            panel1.Size = new Size(1558, 4);
             panel1.TabIndex = 43;
+            // 
+            // txtProduttoreSearch
+            // 
+            txtProduttoreSearch.Location = new Point(260, 115);
+            txtProduttoreSearch.Margin = new Padding(3, 4, 3, 4);
+            txtProduttoreSearch.Name = "txtProduttoreSearch";
+            txtProduttoreSearch.PlaceholderText = "Cerca...";
+            txtProduttoreSearch.Size = new Size(178, 39);
+            txtProduttoreSearch.TabIndex = 44;
+            // 
+            // textBox2
+            // 
+            textBox2.Location = new Point(260, 176);
+            textBox2.Margin = new Padding(3, 4, 3, 4);
+            textBox2.Name = "textBox2";
+            textBox2.PlaceholderText = "Cerca...";
+            textBox2.Size = new Size(178, 39);
+            textBox2.TabIndex = 45;
+            // 
+            // textBox3
+            // 
+            textBox3.Location = new Point(260, 238);
+            textBox3.Margin = new Padding(3, 4, 3, 4);
+            textBox3.Name = "textBox3";
+            textBox3.PlaceholderText = "Cerca...";
+            textBox3.Size = new Size(178, 39);
+            textBox3.TabIndex = 46;
+            // 
+            // textBox4
+            // 
+            textBox4.Location = new Point(260, 306);
+            textBox4.Margin = new Padding(3, 4, 3, 4);
+            textBox4.Name = "textBox4";
+            textBox4.PlaceholderText = "Cerca...";
+            textBox4.Size = new Size(178, 39);
+            textBox4.TabIndex = 47;
             // 
             // FormulariRifiutiDetailForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(893, 488);
+            ClientSize = new Size(1658, 1140);
+            Controls.Add(textBox4);
+            Controls.Add(textBox3);
+            Controls.Add(textBox2);
+            Controls.Add(txtProduttoreSearch);
             Controls.Add(panel1);
             Controls.Add(cmbTrasportatoreIndirizzo);
             Controls.Add(lblTrasportatoreIndirizzo);
@@ -1208,6 +1460,7 @@ namespace FormulariRif_G.Forms
             Controls.Add(dtpData);
             Controls.Add(lblData);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(6, 6, 6, 6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FormulariRifiutiDetailForm";
@@ -1273,6 +1526,10 @@ namespace FormulariRif_G.Forms
         private ComboBox cmbTrasportatoreIndirizzo;
         private Panel panel1;
 
+        private TextBox txtProduttoreSearch;
+        private TextBox textBox2;
+        private TextBox textBox3;
+        private TextBox textBox4;
 
 
         #endregion
