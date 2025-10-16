@@ -42,11 +42,11 @@
 * **Migrazione Database (Valutazione):**
     * [x] Valutare il passaggio da SQL Server a **SQLite**, in quanto SQL Server 2022 Express non è compatibile con Windows 7, presente sulla macchina del cliente.
 * **Debug Funzioni di Caricamento Asincrone:**
-    * [ ] Indagare e risolvere i problemi di caricamento (es. "data source già aperto") che si verificano con le funzioni asincrone lanciate al `load` (ad esempio, nella lista dei formulari).
-    * [ ] Verificare se il problema è legato alla latenza, data la differenza di comportamento tra computer desktop e notebook.
-    * [ ] Controllare se l'evento `load` e `on change` del campo di ricerca scattano contemporaneamente.
+    * [x] Indagare e risolvere i problemi di caricamento (es. "data source già aperto") che si verificano con le funzioni asincrone lanciate al `load` (ad esempio, nella lista dei formulari).
+    * [x] Verificare se il problema è legato alla latenza, data la differenza di comportamento tra computer desktop e notebook.
+    * [x] Controllare se l'evento `load` e `on change` del campo di ricerca scattano contemporaneamente.
 * **Filtro Dati di Test:**
-    * [ ] Assicurarsi che le form di produzione non mostrino i dati di test (attualmente vengono esclusi nell'elenco clienti ma inclusi nel formulario).
+    * [x] Assicurarsi che le form di produzione non mostrino i dati di test (attualmente vengono esclusi nell'elenco clienti ma inclusi nel formulario).
     * [x] Creando database nuovo dal cliente e non creando i dati di test dalla form di configurazione si elimina qualsiasi problema sulla visualizzazione dei dati di test  
     * [x] Valutare la creazione di un comando specifico per popolare il DB con dati di test solo negli ambienti di sviluppo.
 
@@ -59,5 +59,5 @@
 * **Long Closing (Dispose Context):**
     * [ ] Implementare il `Long Closing` (dispose del DB Context) alla chiusura delle form, specialmente se il `NewDB Context` è creato all'interno della form, per evitare problemi di connessioni massime raggiunte o instanze multiple. Testare lo scenario di apertura/chiusura/riapertura delle form.
 * **Gestione Form Modali (Dialoghi):**
-    * [ ] Rifattorizzare la gestione delle form per evitare l'uso esclusivo di dialoghi modali.
-    * [ ] Valutare l'implementazione di un **service provider** per la gestione delle form, che consenta di avere più form aperte contemporaneamente (es. clienti e formulari). Il service provider dovrebbe gestire l'apertura delle form in base alla classe, portando in primo piano un'istanza esistente o creandone una nuova se non presente, per evitare problemi con query sugli stessi dati o istanze multiple dello stesso oggetto.
+    * [x] Rifattorizzare la gestione delle form per evitare l'uso esclusivo di dialoghi modali.
+    * [x] Valutare l'implementazione di un **service provider** per la gestione delle form, che consenta di avere più form aperte contemporaneamente (es. clienti e formulari). Il service provider dovrebbe gestire l'apertura delle form in base alla classe, portando in primo piano un'istanza esistente o creandone una nuova se non presente, per evitare problemi con query sugli stessi dati o istanze multiple dello stesso oggetto.

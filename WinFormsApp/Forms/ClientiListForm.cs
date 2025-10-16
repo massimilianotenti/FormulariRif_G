@@ -17,7 +17,7 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Cliente> _clienteRepository;
         private readonly IGenericRepository<Configurazione> _configurazioneRepository;
         private readonly IServiceProvider _serviceProvider;
-        private readonly FormManager _formManager; // NUOVO: Riferimento al FormManager
+        private readonly FormManager _formManager;
 
         // Timer per il debouncing
         private System.Windows.Forms.Timer _searchTimer;
@@ -27,21 +27,22 @@ namespace FormulariRif_G.Forms
         public ClientiListForm(IGenericRepository<Cliente> clienteRepository,
                                IGenericRepository<Configurazione> configurazioneRepository,
                                IServiceProvider serviceProvider,
-                               FormManager formManager) // NUOVO: Inietta il FormManager
+                               FormManager formManager)
         {
             InitializeComponent();
             _clienteRepository = clienteRepository;
             _configurazioneRepository = configurazioneRepository;
             _serviceProvider = serviceProvider;
-            _formManager = formManager; // Inizializza il FormManager
+            _formManager = formManager; 
+
             this.Load += ClientiListForm_Load;
-            this.FormClosed += ClientiListForm_FormClosed; // NUOVO: Gestisce la chiusura del form
+            this.FormClosed += ClientiListForm_FormClosed;
 
             // **Inizializza il timer per il debouncing**
-            _searchTimer = new System.Windows.Forms.Timer();
-            _searchTimer.Interval = 500; // Aspetta 500ms dopo l'ultima battitura
-            _searchTimer.Tick += SearchTimer_Tick; // Collega l'evento Tick al metodo di ricerca
-            _searchTimer.Stop(); // Il timer inizia fermo
+            _searchTimer = new System.Windows.Forms.Timer();            
+            _searchTimer.Interval = 500;            
+            _searchTimer.Tick += SearchTimer_Tick;  // Collega l'evento Tick al metodo di ricerca            
+            _searchTimer.Stop();                    // Il timer inizia fermo
         }
 
         // Metodo chiamato al caricamento del form
@@ -59,7 +60,8 @@ namespace FormulariRif_G.Forms
             // Cancella e disattiva il CancellationTokenSource quando il form viene chiuso
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null; // Imposta a null per evitare usi successivi di un oggetto disposto
+            // Imposta a null per evitare usi successivi di un oggetto disposto
+            _cancellationTokenSource = null; 
         }
 
         /// <summary>
@@ -68,10 +70,14 @@ namespace FormulariRif_G.Forms
         private async Task LoadClientiAsync() // Rimosso CancellationToken dal parametro per gestirlo internamente
         {
             // Inizializza un nuovo CancellationTokenSource per questa operazione
-            _cancellationTokenSource?.Cancel(); // Annulla qualsiasi operazione precedente in corso
-            _cancellationTokenSource?.Dispose(); // Rilascia le risorse del vecchio CancellationTokenSource
-            _cancellationTokenSource = new CancellationTokenSource(); // Crea un nuovo CancellationTokenSource
-            var cancellationToken = _cancellationTokenSource.Token; // Ottieni il token per questa operazione
+            // Annulla qualsiasi operazione precedente in corso
+            _cancellationTokenSource?.Cancel();
+            // Rilascia le risorse del vecchio CancellationTokenSource
+            _cancellationTokenSource?.Dispose();
+            // Crea un nuovo CancellationTokenSource
+            _cancellationTokenSource = new CancellationTokenSource();
+            // Ottieni il token per questa operazione
+            var cancellationToken = _cancellationTokenSource.Token; 
 
             try
             {

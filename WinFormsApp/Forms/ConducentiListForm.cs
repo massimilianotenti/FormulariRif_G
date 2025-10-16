@@ -1,10 +1,11 @@
 // File: Forms/ConducentiListForm.cs
 // Questo form visualizza un elenco di conducenti, permette la ricerca e le operazioni CRUD.
-using Microsoft.Extensions.DependencyInjection;
 using FormulariRif_G.Data;
-using Microsoft.EntityFrameworkCore;
 using FormulariRif_G.Models;
 using FormulariRif_G.Service;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System.Configuration;
 using System.Linq;
 
 namespace FormulariRif_G.Forms
@@ -12,36 +13,54 @@ namespace FormulariRif_G.Forms
     public partial class ConducentiListForm : Form
     {
         private readonly IGenericRepository<Conducente> _conducenteRepository;
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository;
+        private readonly IServiceProvider _serviceProvider;
         private readonly FormManager _formManager;
-        private readonly System.Windows.Forms.Timer _searchDebounceTimer;
 
-        public ConducentiListForm(IGenericRepository<Conducente> conducenteRepository, FormManager formManager)
+        private readonly System.Windows.Forms.Timer _searchDebounceTimer;
+        private CancellationTokenSource _cancellationTokenSource;
+
+        public ConducentiListForm(IGenericRepository<Conducente> conducenteRepository,
+                                  IGenericRepository<Configurazione> configurazioneRepository,
+                                  IServiceProvider serviceProvider,
+                                  FormManager formManager)
         {
             InitializeComponent();
             _conducenteRepository = conducenteRepository;
+            _configurazioneRepository = configurazioneRepository;
+            _serviceProvider = serviceProvider;
             _formManager = formManager;
+
             this.Load += ConducentiListForm_Load;
+            this.FormClosed += ConducentiListForm_FormClosed;
             this.dataGridViewConducenti.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.dataGridViewConducenti_CellFormatting);
 
             // Inizializza il timer per il "debouncing" della ricerca
             _searchDebounceTimer = new System.Windows.Forms.Timer();
-            _searchDebounceTimer.Interval = 500; // Ritardo di 500ms prima di avviare la ricerca
+            _searchDebounceTimer.Interval = 500;
             _searchDebounceTimer.Tick += SearchDebounceTimer_Tick;
+            _searchDebounceTimer.Stop();
         }
 
         private async void ConducentiListForm_Load(object? sender, EventArgs e)
         {
             // Popola la ComboBox di filtro prima di collegare l'evento per evitare un caricamento doppio all'avvio.
             PopulateTipoFiltro();
-
             // Ora che la ComboBox è popolata, possiamo collegare l'evento per le interazioni future dell'utente.
-            if (this.cmbTipoFiltro != null)
-            {
-                this.cmbTipoFiltro.SelectedIndexChanged += CmbTipoFiltro_SelectedIndexChanged;
-            }
-            await LoadConducentiAsync();
-            // Imposta il focus sul campo di ricerca all'apertura del form
+            if (this.cmbTipoFiltro != null)            
+                this.cmbTipoFiltro.SelectedIndexChanged += CmbTipoFiltro_SelectedIndexChanged;            
+
+            await LoadConducentiAsync();            
             txtRicerca?.Focus();
+        }
+
+        private void ConducentiListForm_FormClosed(object? sender, FormClosedEventArgs e)
+        {
+            // Cancella e disattiva il CancellationTokenSource quando il form viene chiuso
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            // Imposta a null per evitare usi successivi di un oggetto disposto
+            _cancellationTokenSource = null;
         }
 
         /// <summary>
@@ -49,18 +68,30 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async Task LoadConducentiAsync()
         {
+            // Inizializza un nuovo CancellationTokenSource per questa operazione
+            // Annulla qualsiasi operazione precedente in corso
+            _cancellationTokenSource?.Cancel();
+            // Rilascia le risorse del vecchio CancellationTokenSource
+            _cancellationTokenSource?.Dispose();
+            // Crea un nuovo CancellationTokenSource
+            _cancellationTokenSource = new CancellationTokenSource();
+            // Ottieni il token per questa operazione
+            var cancellationToken = _cancellationTokenSource.Token;
+
             try
             {
+                var configurazione = (await _configurazioneRepository.GetAllAsync()).FirstOrDefault();
+                bool showTestData = configurazione?.DatiTest ?? false;
+
                 // Utilizziamo IQueryable per costruire la query in modo dinamico ed efficiente
                 IQueryable<Conducente> query = _conducenteRepository.AsQueryable();
 
-                // 1. Applica il filtro per tipo
-                if (cmbTipoFiltro.SelectedValue is int tipoValue)
-                {
+                if (!showTestData)                   
+                    query = query.Where(c => c.IsTestData == false);                
+                
+                if (cmbTipoFiltro.SelectedValue is int tipoValue)                
                     query = query.Where(c => c.Tipo == tipoValue);
-                }
-
-                // 2. Applica il filtro per testo (concatenato al precedente)
+                
                 var searchText = txtRicerca?.Text.Trim() ?? "";
                 if (!string.IsNullOrEmpty(searchText))
                 {
