@@ -73,9 +73,6 @@ namespace FormulariRif_G.Forms
             if (btnEliminaContatto != null) btnEliminaContatto.Click += btnEliminaContatto_Click;
 
             if (btnSalva != null) btnSalva.Click += btnSalva_Click;
-
-            // Assicurati che btnAnnulla esista nel designer se lo usi.
-            // Se non hai un pulsante Annulla, puoi rimuovere questa riga.
             if (btnAnnulla != null)
             {
                 btnAnnulla.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
@@ -160,15 +157,16 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async Task LoadDataAsync()
         {
-            if (_currentCliente?.Id != 0) // Se è un cliente esistente
+            // Se è un cliente esistente
+            if (_currentCliente?.Id != 0) 
             {
                 await LoadIndirizziAsync();
                 await LoadContattiAsync();
             }
             // Per un nuovo cliente, le griglie rimarranno vuote fino al salvataggio
             // e i pulsanti di gestione indirizzi/contatti saranno disabilitati (gestito da SetFormState).
-
-            SetFormState(); // Riapplica lo stato per gestire l'abilitazione dei pulsanti secondari
+            // Riapplica lo stato per gestire l'abilitazione dei pulsanti secondari
+            SetFormState();
         }
 
         /// <summary>
@@ -193,10 +191,8 @@ namespace FormulariRif_G.Forms
                 {
                     dataGridViewIndirizzi.DataSource = displayIndirizzi;
                     // Nascondi la colonna Id se non necessaria per la visualizzazione
-                    if (dataGridViewIndirizzi.Columns.Contains("Id"))
-                    {
+                    if (dataGridViewIndirizzi.Columns.Contains("Id"))                    
                         dataGridViewIndirizzi.Columns["Id"].Visible = false;
-                    }
                     // Adatta le colonne alla dimensione del contenuto
                     dataGridViewIndirizzi.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                 }
@@ -231,10 +227,8 @@ namespace FormulariRif_G.Forms
                 {
                     dataGridViewContatti.DataSource = displayContatti;
                     // Nascondi la colonna Id se non necessaria per la visualizzazione
-                    if (dataGridViewContatti.Columns.Contains("Id"))
-                    {
-                        dataGridViewContatti.Columns["Id"].Visible = false;
-                    }
+                    if (dataGridViewContatti.Columns.Contains("Id"))                   
+                        dataGridViewContatti.Columns["Id"].Visible = false;                    
                     // Adatta le colonne alla dimensione del contenuto
                     dataGridViewContatti.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                 }
@@ -250,15 +244,11 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async void btnSalva_Click(object? sender, EventArgs e)
         {
-            if (!ValidateInput())
-            {
-                return;
-            }
+            if (!ValidateInput())           
+                return;            
 
-            if (_currentCliente == null)
-            {
-                _currentCliente = new Cliente();
-            }
+            if (_currentCliente == null)           
+                _currentCliente = new Cliente();           
 
             _currentCliente.RagSoc = txtRagSoc.Text.Trim();
             _currentCliente.PartitaIva = txtPIVA.Text.Trim();
@@ -272,20 +262,24 @@ namespace FormulariRif_G.Forms
                 if (_currentCliente.Id == 0) // Nuovo cliente
                 {
                     await _clienteRepository.AddAsync(_currentCliente);
-                    await _clienteRepository.SaveChangesAsync(); // Salva per ottenere l'ID del nuovo cliente
+                    // Salva per ottenere l'ID del nuovo cliente
+                    await _clienteRepository.SaveChangesAsync(); 
                     MessageBox.Show("Cliente salvato con successo! Ora puoi aggiungere indirizzi e contatti.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                    this.DialogResult = DialogResult.OK; // Segnala che il cliente è stato salvato
+                    // Segnala che il cliente è stato salvato
+                    this.DialogResult = DialogResult.OK; 
                     // Non chiudere il form per permettere l'aggiunta di indirizzi e contatti subito
-                    SetFormState(); // Ricarica lo stato per abilitare i pulsanti di gestione
+                    // Ricarica lo stato per abilitare i pulsanti di gestione
+                    SetFormState(); 
                 }
-                else // Cliente esistente
+                else 
                 {
+                    // Cliente esistente
                     _clienteRepository.Update(_currentCliente);
                     await _clienteRepository.SaveChangesAsync();
                     MessageBox.Show("Cliente aggiornato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
-                    this.Close(); // Chiude il form dopo l'aggiornamento
+                    this.Close(); 
                 }
             }
             catch (Exception ex)
@@ -345,11 +339,10 @@ namespace FormulariRif_G.Forms
             {
                 var newIndirizzo = new ClienteIndirizzo { IdCli = _currentCliente.Id };
                 detailForm.SetIndirizzo(newIndirizzo);
-                if (detailForm.ShowDialog() == DialogResult.OK)
-                {
+                if (detailForm.ShowDialog() == DialogResult.OK)                
                     // La logica di salvataggio e gestione del predefinito è nel detail form
-                    await LoadIndirizziAsync(); // Ricarica la griglia dopo il salvataggio
-                }
+                    // Ricarica la griglia dopo il salvataggio
+                    await LoadIndirizziAsync();                
             }
         }
 
@@ -375,11 +368,8 @@ namespace FormulariRif_G.Forms
             using (var detailForm = _serviceProvider.GetRequiredService<ClientiIndirizzoDetailForm>())
             {
                 detailForm.SetIndirizzo(selectedIndirizzo);
-                if (detailForm.ShowDialog() == DialogResult.OK)
-                {
-                    // La logica di salvataggio e gestione del predefinito è nel detail form
-                    await LoadIndirizziAsync(); // Ricarica la griglia dopo il salvataggio
-                }
+                if (detailForm.ShowDialog() == DialogResult.OK)                                   
+                    await LoadIndirizziAsync();                
             }
         }
 
@@ -428,7 +418,7 @@ namespace FormulariRif_G.Forms
                         firstRemaining.Predefinito = true;
                         _clienteIndirizzoRepository.Update(firstRemaining);
                         await _clienteIndirizzoRepository.SaveChangesAsync();
-                        await LoadIndirizziAsync(); // Ricarica per riflettere il nuovo predefinito
+                        await LoadIndirizziAsync(); 
                     }
 
                     MessageBox.Show("Indirizzo eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -459,10 +449,8 @@ namespace FormulariRif_G.Forms
             {
                 var newContatto = new ClienteContatto { IdCli = _currentCliente.Id };
                 detailForm.SetContatto(newContatto);
-                if (detailForm.ShowDialog() == DialogResult.OK)
-                {
-                    await LoadContattiAsync(); // Ricarica la griglia dopo il salvataggio
-                }
+                if (detailForm.ShowDialog() == DialogResult.OK)                
+                    await LoadContattiAsync();                
             }
         }
 
@@ -488,10 +476,8 @@ namespace FormulariRif_G.Forms
             using (var detailForm = _serviceProvider.GetRequiredService<ClientiContattiDetailForm>())
             {
                 detailForm.SetContatto(selectedContatto);
-                if (detailForm.ShowDialog() == DialogResult.OK)
-                {
-                    await LoadContattiAsync(); // Ricarica la griglia dopo il salvataggio
-                }
+                if (detailForm.ShowDialog() == DialogResult.OK)               
+                    await LoadContattiAsync();                 
             }
         }
 

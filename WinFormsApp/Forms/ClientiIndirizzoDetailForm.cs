@@ -128,6 +128,7 @@ namespace FormulariRif_G.Forms
                 // --- INIZIO MODIFICA QUI ---
                 // Rimuovi questa riga
                 // this.DialogResult = DialogResult.OK;
+                this.DialogResult = DialogResult.OK;
                 this.Close(); // Chiudi la form dopo il salvataggio
                 // --- FINE MODIFICA ---
             }
