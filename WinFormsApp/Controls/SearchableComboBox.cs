@@ -160,6 +160,7 @@ namespace FormulariRif_G.Controls
             {
                 SetInitialDataSource(cmbBox.SelectedValue);
                 cmbBox.DroppedDown = false;
+                cmbBox.SelectedIndex = -1;
                 return;
             }
 
@@ -182,6 +183,8 @@ namespace FormulariRif_G.Controls
             if (currentSelectedValue != null && filtered.Any(i => i.GetType().GetProperty(ValueMember).GetValue(i).Equals(currentSelectedValue)))
             {
                 cmbBox.SelectedValue = currentSelectedValue;
+            } else {
+                cmbBox.SelectedIndex = -1;
             }
 
             cmbBox.DroppedDown = true;

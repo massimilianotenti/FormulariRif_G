@@ -22,7 +22,9 @@
     * [x] La targa è fissa per l'automezzo.
     * [x] Il rimorchio è variabile: un automezzo può avere uno o più rimorchi.
 * **Unità Locale:**
-    * [ ] L'unità locale deve essere tabellata tra gli indirizzi dei soggetti. La ragione sociale, partita IVA e indirizzo della sede principale vanno nella parte superiore del modulo, mentre l'unità locale (uno degli indirizzi dell'anagrafica del soggetto) va nel rigo dedicato.
+    * [ ] L'unità locale deve essere tabellata tra gli indirizzi dei soggetti. La ragione sociale, partita IVA e indirizzo della sede principale vanno nella parte superiore del modulo, mentre l'unità locale (uno degli indirizzi dell'anagrafica del soggetto) va nel rigo dedicato
+* **Bug**   
+    * [ ] nuovo indirizzo su cliente va in errore per la conversione del cap
 
 ---
 

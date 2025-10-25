@@ -47,7 +47,7 @@
             // txtSearch
             // 
             txtSearch.Location = new Point(156, 11);
-            txtSearch.Margin = new Padding(6, 6, 6, 6);
+            txtSearch.Margin = new Padding(6);
             txtSearch.Name = "txtSearch";
             txtSearch.PlaceholderText = "Cerca...";
             txtSearch.Size = new Size(205, 39);
@@ -58,10 +58,9 @@
             // cmbBox
             // 
             cmbBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            cmbBox.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbBox.FormattingEnabled = true;
             cmbBox.Location = new Point(371, 11);
-            cmbBox.Margin = new Padding(6, 6, 6, 6);
+            cmbBox.Margin = new Padding(6);
             cmbBox.Name = "cmbBox";
             cmbBox.Size = new Size(448, 40);
             cmbBox.TabIndex = 2;
@@ -75,7 +74,7 @@
             Controls.Add(cmbBox);
             Controls.Add(txtSearch);
             Controls.Add(lblText);
-            Margin = new Padding(6, 6, 6, 6);
+            Margin = new Padding(6);
             Name = "SearchableComboBox";
             Size = new Size(844, 64);
             ResumeLayout(false);
