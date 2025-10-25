@@ -55,7 +55,11 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.ListBox lstRimorchiAssociati;
         private System.Windows.Forms.Button btnRimuoviRimorchio;
 
-        public AutomezziDetailForm(IGenericRepository<Automezzo> automezzoRepository, IGenericRepository<Conducente> conducenteRepository, IGenericRepository<Autom_Cond> automCondRepository, IGenericRepository<Rimorchio> rimorchioRepository, IGenericRepository<Autom_Rim> automRimRepository)
+        public AutomezziDetailForm(IGenericRepository<Automezzo> automezzoRepository, 
+                                   IGenericRepository<Conducente> conducenteRepository, 
+                                   IGenericRepository<Autom_Cond> automCondRepository, 
+                                   IGenericRepository<Rimorchio> rimorchioRepository, 
+                                   IGenericRepository<Autom_Rim> automRimRepository)
         {
             InitializeComponent();
             _automezzoRepository = automezzoRepository;

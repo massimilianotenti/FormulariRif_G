@@ -52,8 +52,9 @@ namespace FormulariRif_G.Models
         [Column("codice_eer")]
         public string? CodiceEER { get; set; }
         
+        [StringLength(1)]
         [Column("stato_fisico")]
-        public int? SatoFisico { get; set; } 
+        public string? SatoFisico { get; set; } 
 
         [Column("provenienza")]
         //1 - Urbano / 2 - Speciale

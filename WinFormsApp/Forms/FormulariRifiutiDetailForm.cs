@@ -43,10 +43,13 @@ namespace FormulariRif_G.Forms
             _clienteIndirizzoRepository = clienteIndirizzoRepository;
             _automezzoRepository = automezzoRepository;
             _configurazioneRepository = configurazioneRepository;
-            this.Load += FormulariRifiutiDetailForm_Load;
-
+            //this.Load += FormulariRifiutiDetailForm_Load;
+            if(scbProduttore != null) scbProduttore.SelectedIndexChanged += scbProduttore_SelectedIndexChanged;
+            if(scbDestinatario != null) scbDestinatario.SelectedIndexChanged += scbDestinatario_SelectedIndexChanged;
+            if(scbTrasportatore != null) scbTrasportatore.SelectedIndexChanged += scbTrasportatore_SelectedIndexChanged;
         }
 
+        /*
         private async void FormulariRifiutiDetailForm_Load(object? sender, EventArgs e)
         {
             _isLoading = true;
@@ -57,23 +60,35 @@ namespace FormulariRif_G.Forms
             scbDestinatario.SelectedIndexChanged += scbDestinatario_SelectedIndexChanged;
             scbTrasportatore.SelectedIndexChanged += scbTrasportatore_SelectedIndexChanged;
         }
+        */
 
         /// <summary>
         /// Imposta il formulario da visualizzare o modificare.
         /// </summary>
         /// <param name="formulario">L'oggetto FormularioRifiuti.</param>
-        public void SetFormulario(FormularioRifiuti formulario)
-        {
-            // La data viene impostata nel LoadFormularioData dopo che le combobox sono caricate
+        public async void SetFormulario(FormularioRifiuti formulario)
+        {            
             _currentFormulario = formulario;
+
+            _isLoading = true;
+            await LoadComboBoxes();
+            // I valori delle ComboBox principali sono già stati impostati da SetComboBoxDataSource.
+            // Ora carichiamo solo gli indirizzi dipendenti.
+            await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
+            await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
+            await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
+            _isLoading = false;
+
+            LoadFormularioData();
+            this.Text = _currentFormulario.Id == 0 ? "Nuovo Formulario Rifiuti" : "Modifica Formulario Rifiuti";
             // La logica _isFormularioSaved ora riflette se il formulario esiste già nel DB (non è nuovo)
-            _isFormularioSaved = (_currentFormulario != null && _currentFormulario.Id != 0);
+            _isFormularioSaved = (_currentFormulario != null && _currentFormulario.Id != 0);            
         }
 
         /// <summary>
         /// Carica i dati del formulario nei controlli del form.
         /// </summary>
-        private async Task LoadFormularioData()
+        private void LoadFormularioData()
         {
             if (_currentFormulario != null)
             {
@@ -85,18 +100,9 @@ namespace FormulariRif_G.Forms
                 scbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
                 scbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
 
-                // I valori delle ComboBox principali sono già stati impostati da SetComboBoxDataSource.
-                // Ora carichiamo solo gli indirizzi dipendenti.
-                await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
-                await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
-                await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
-
                 // Caratteristiche del rifiuto
-                txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;
-                if (_currentFormulario.SatoFisico.HasValue)
-                    txtStatoFisco.Text = _currentFormulario.SatoFisico.Value.ToString();
-                else
-                    txtStatoFisco.Text = string.Empty;
+                txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;                
+                txtStatoFisco.Text = _currentFormulario.SatoFisico ?? string.Empty;
 
                 // NOTA: La proprietà CaratteristicheChimiche è usata per due campi diversi.
                 // Questo potrebbe essere un errore nel modello o nel design.
@@ -209,10 +215,7 @@ namespace FormulariRif_G.Forms
 
             // Caratteristiche del rifiuto
             _currentFormulario.CodiceEER = txtCodiceEER.Text.Trim();
-            if (!string.IsNullOrWhiteSpace(txtStatoFisco.Text) && int.TryParse(txtStatoFisco.Text, out int st_fisico))
-                _currentFormulario.SatoFisico = st_fisico;
-            else
-                _currentFormulario.SatoFisico = null;
+            _currentFormulario.SatoFisico = txtStatoFisco.Text.Trim();
 
             _currentFormulario.CaratteristicheChimiche = txtCarattPericolosità.Text.Trim();
             if (rbProvUrb.Checked)
@@ -434,10 +437,10 @@ namespace FormulariRif_G.Forms
         {
             // Allow digits (0-9)
             // Allow the Backspace key (char.IsControl(e.KeyChar) handles this and other control characters)
-            if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+            /*if (!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
             {
                 e.Handled = true;
-            }
+            }*/
         }
 
         private bool ValidateInput()
@@ -1047,7 +1050,7 @@ namespace FormulariRif_G.Forms
             // 
             txtStatoFisco.Location = new Point(663, 147);
             txtStatoFisco.Margin = new Padding(6);
-            txtStatoFisco.MaxLength = 3;
+            txtStatoFisco.MaxLength = 1;
             txtStatoFisco.Name = "txtStatoFisco";
             txtStatoFisco.Size = new Size(138, 39);
             txtStatoFisco.TabIndex = 36;

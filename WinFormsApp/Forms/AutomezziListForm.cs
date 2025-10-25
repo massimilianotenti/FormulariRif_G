@@ -36,7 +36,13 @@ namespace FormulariRif_G.Forms
         private TextBox txtRicerca;
         private System.Windows.Forms.Button btnAggiorna;
 
-        public AutomezziListForm(IGenericRepository<Automezzo> automezzoRepository, IGenericRepository<Conducente> conducenteRepository, IGenericRepository<Autom_Cond> automCondRepository, IGenericRepository<Rimorchio> rimorchioRepository, IGenericRepository<Autom_Rim> automRimRepository, IGenericRepository<Configurazione> configurazioneRepository, IServiceProvider serviceProvider)
+        public AutomezziListForm(IGenericRepository<Automezzo> automezzoRepository, 
+                                 IGenericRepository<Conducente> conducenteRepository, 
+                                 IGenericRepository<Autom_Cond> automCondRepository, 
+                                 IGenericRepository<Rimorchio> rimorchioRepository, 
+                                 IGenericRepository<Autom_Rim> automRimRepository, 
+                                 IGenericRepository<Configurazione> configurazioneRepository, 
+                                 IServiceProvider serviceProvider)
         
         {
             InitializeComponent();

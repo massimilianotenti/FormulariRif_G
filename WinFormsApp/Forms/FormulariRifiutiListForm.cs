@@ -18,21 +18,26 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Automezzo> _automezzoRepository;
         private DateTimePicker dtpDaData;
         private Label label1;
-        private readonly FormManager _formManager; // Sostituito IServiceProvider con FormManager
+        private readonly IGenericRepository<Configurazione> _configurazioneRepository;
+        private readonly IServiceProvider _serviceProvider;
+
 
         private System.Windows.Forms.Timer _searchTimer;
         private CancellationTokenSource _cancellationTokenSource;
 
         public FormulariRifiutiListForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
-                                         IGenericRepository<Cliente> clienteRepository,
-                                         IGenericRepository<Automezzo> automezzoRepository,
-                                         FormManager formManager) // Inietta FormManager
+                                        IGenericRepository<Cliente> clienteRepository,
+                                        IGenericRepository<Automezzo> automezzoRepository,
+                                        IGenericRepository<Configurazione> configurazioneRepository,
+                                        IServiceProvider serviceProvider) 
         {
             InitializeComponent();
             _formularioRifiutiRepository = formularioRifiutiRepository;
             _clienteRepository = clienteRepository;
             _automezzoRepository = automezzoRepository;
-            _formManager = formManager; // Assegna il FormManager iniettato
+            _configurazioneRepository = configurazioneRepository;
+            _serviceProvider = serviceProvider;
+
             this.Load += FormulariRifiutiListForm_Load;
 
             _searchTimer = new System.Windows.Forms.Timer();
@@ -113,8 +118,17 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async void btnNuovo_Click(object sender, EventArgs e)
         {
-            // Usa il FormManager per aprire o attivare la FormulariRifiutiDetailForm
-            var detailForm = _formManager.ShowOrActivate<FormulariRifiutiDetailForm>();
+            using (var detailForm = _serviceProvider.GetRequiredService<FormulariRifiutiDetailForm>())
+            {                
+                detailForm.SetFormulario(new FormularioRifiuti { Data = DateTime.Now });
+                if(detailForm.ShowDialog() == DialogResult.OK)
+                {
+                    await LoadFormulariRifiutiAsync();
+                }   
+            }
+            /*
+                // Usa il FormManager per aprire o attivare la FormulariRifiutiDetailForm
+                var detailForm = _formManager.ShowOrActivate<FormulariRifiutiDetailForm>();
 
             // Imposta il formulario e la modalità.
             // Se la form era già aperta, potremmo volerla resettare o meno,
@@ -125,6 +139,7 @@ namespace FormulariRif_G.Forms
             // per sapere quando ricaricare i dati.
             detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
             detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
+            */
         }
 
         /// <summary>
@@ -140,13 +155,28 @@ namespace FormulariRif_G.Forms
 
                 if (selectedFormulario != null)
                 {
-                    // Usa il FormManager per aprire o attivare la FormulariRifiutiDetailForm
-                    var detailForm = _formManager.ShowOrActivate<FormulariRifiutiDetailForm>();
+                    using (var detailForm = _serviceProvider.GetRequiredService<FormulariRifiutiDetailForm>())
+                    {
+                        detailForm.SetFormulario(selectedFormulario);
+                        if (detailForm.ShowDialog() == DialogResult.OK)
+                        {
+                            await LoadFormulariRifiutiAsync();
+                        }
+                    }
+                }
+                /*
+                if (selectedFormulario != null)
+                {
+                    using(var detailForm = _servicepro )
+                    {
+                        // Usa il FormManager per aprire o attivare la FormulariRifiutiDetailForm
+                        var detailForm = _formManager.ShowOrActivate<FormulariRifiutiDetailForm>();
                     detailForm.SetFormulario(selectedFormulario);
 
                     detailForm.FormClosed -= DetailForm_FormClosed; // Rimuovi per evitare duplicati
                     detailForm.FormClosed += DetailForm_FormClosed; // Aggiungi il gestore
                 }
+                */
             }
             else
             {
