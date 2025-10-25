@@ -10,6 +10,7 @@ namespace FormulariRif_G.Forms
     {
         private readonly IGenericRepository<ClienteIndirizzo> _clienteIndirizzoRepository;
         private ClienteIndirizzo? _currentIndirizzo;
+        private TextBox numCap;
         private int _idCliCorrente; // Aggiunto per tenere traccia dell'IdCli per i nuovi indirizzi
 
         public ClientiIndirizzoDetailForm(IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository)
@@ -42,14 +43,17 @@ namespace FormulariRif_G.Forms
             {
                 txtIndirizzo.Text = _currentIndirizzo.Indirizzo;
                 txtComune.Text = _currentIndirizzo.Comune;
-                numCap.Value = (int)_currentIndirizzo.Cap;
+                if (_currentIndirizzo.Cap.HasValue)
+                    numCap.Text = _currentIndirizzo.Cap.Value.ToString();
+                else
+                    numCap.Text = string.Empty;
                 chkPredefinito.Checked = _currentIndirizzo.Predefinito;
             }
             else
             {
                 txtIndirizzo.Text = string.Empty;
                 txtComune.Text = string.Empty;
-                numCap.Value = 0;
+                numCap.Text = string.Empty;
                 chkPredefinito.Checked = false;
             }
         }
@@ -72,7 +76,10 @@ namespace FormulariRif_G.Forms
 
             _currentIndirizzo.Indirizzo = txtIndirizzo.Text.Trim();
             _currentIndirizzo.Comune = txtComune.Text.Trim();
-            _currentIndirizzo.Cap = (int)numCap.Value;
+            if (!string.IsNullOrWhiteSpace(numCap.Text) && decimal.TryParse(numCap.Text, out decimal cap))
+                _currentIndirizzo.Cap = (int)cap;
+            else
+                _currentIndirizzo.Cap = null;
             bool newPredefinitoState = chkPredefinito.Checked;
 
             try
@@ -156,7 +163,7 @@ namespace FormulariRif_G.Forms
                 txtComune.Focus();
                 return false;
             }
-            if (numCap.Value == 0)
+            if (string.IsNullOrWhiteSpace(numCap.Text))
             {
                 MessageBox.Show("CAP è un campo obbligatorio e non può essere 0.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 numCap.Focus();
@@ -197,122 +204,126 @@ namespace FormulariRif_G.Forms
             lblComune = new Label();
             txtComune = new TextBox();
             lblCap = new Label();
-            numCap = new NumericUpDown();
             chkPredefinito = new CheckBox();
             btnSalva = new Button();
-            // Aggiungi qui la dichiarazione e l'inizializzazione del pulsante Annulla
-            // Se non hai già un pulsante Annulla nel tuo designer, devi aggiungerlo.
-            // Esempio:
-            btnAnnulla = new Button(); // Dichiarazione
-            ((System.ComponentModel.ISupportInitialize)numCap).BeginInit();
+            btnAnnulla = new Button();
+            numCap = new TextBox();
             SuspendLayout();
-            //
+            // 
             // lblIndirizzo
-            //
+            // 
             lblIndirizzo.AutoSize = true;
-            lblIndirizzo.Location = new Point(20, 30);
+            lblIndirizzo.Location = new Point(37, 64);
+            lblIndirizzo.Margin = new Padding(6, 0, 6, 0);
             lblIndirizzo.Name = "lblIndirizzo";
-            lblIndirizzo.Size = new Size(54, 15);
+            lblIndirizzo.Size = new Size(109, 32);
             lblIndirizzo.TabIndex = 0;
             lblIndirizzo.Text = "Indirizzo:";
-            //
+            // 
             // txtIndirizzo
-            //
+            // 
             txtIndirizzo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtIndirizzo.Location = new Point(100, 27);
+            txtIndirizzo.Location = new Point(186, 58);
+            txtIndirizzo.Margin = new Padding(6);
             txtIndirizzo.MaxLength = 255;
             txtIndirizzo.Name = "txtIndirizzo";
-            txtIndirizzo.Size = new Size(270, 23);
+            txtIndirizzo.Size = new Size(498, 39);
             txtIndirizzo.TabIndex = 1;
-            //
+            // 
             // lblComune
-            //
+            // 
             lblComune.AutoSize = true;
-            lblComune.Location = new Point(20, 70);
+            lblComune.Location = new Point(37, 149);
+            lblComune.Margin = new Padding(6, 0, 6, 0);
             lblComune.Name = "lblComune";
-            lblComune.Size = new Size(56, 15);
+            lblComune.Size = new Size(110, 32);
             lblComune.TabIndex = 2;
             lblComune.Text = "Comune:";
-            //
+            // 
             // txtComune
-            //
+            // 
             txtComune.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtComune.Location = new Point(100, 67);
+            txtComune.Location = new Point(186, 143);
+            txtComune.Margin = new Padding(6);
             txtComune.MaxLength = 100;
             txtComune.Name = "txtComune";
-            txtComune.Size = new Size(270, 23);
+            txtComune.Size = new Size(498, 39);
             txtComune.TabIndex = 3;
-            //
+            // 
             // lblCap
-            //
+            // 
             lblCap.AutoSize = true;
-            lblCap.Location = new Point(20, 110);
+            lblCap.Location = new Point(37, 235);
+            lblCap.Margin = new Padding(6, 0, 6, 0);
             lblCap.Name = "lblCap";
-            lblCap.Size = new Size(33, 15);
+            lblCap.Size = new Size(62, 32);
             lblCap.TabIndex = 4;
             lblCap.Text = "CAP:";
-            //
-            // numCap
-            //
-            numCap.Location = new Point(100, 107);
-            numCap.Maximum = new decimal(new int[] { 99999, 0, 0, 0 });
-            numCap.Name = "numCap";
-            numCap.Size = new Size(120, 23);
-            numCap.TabIndex = 5;
-            //
+            // 
             // chkPredefinito
-            //
+            // 
             chkPredefinito.AutoSize = true;
-            chkPredefinito.Location = new Point(20, 145);
+            chkPredefinito.Location = new Point(37, 309);
+            chkPredefinito.Margin = new Padding(6);
             chkPredefinito.Name = "chkPredefinito";
-            chkPredefinito.Size = new Size(84, 19);
+            chkPredefinito.Size = new Size(163, 36);
             chkPredefinito.TabIndex = 6;
             chkPredefinito.Text = "Predefinito";
             chkPredefinito.UseVisualStyleBackColor = true;
-            //
+            // 
             // btnSalva
-            //
+            // 
             btnSalva.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnSalva.Location = new Point(295, 170);
+            btnSalva.Location = new Point(548, 363);
+            btnSalva.Margin = new Padding(6);
             btnSalva.Name = "btnSalva";
-            btnSalva.Size = new Size(75, 30);
+            btnSalva.Size = new Size(139, 64);
             btnSalva.TabIndex = 7;
             btnSalva.Text = "Salva";
             btnSalva.UseVisualStyleBackColor = true;
             btnSalva.Click += btnSalva_Click;
-            //
-            // btnAnnulla (Aggiunta per gestire l'annullamento)
-            //
+            // 
+            // btnAnnulla
+            // 
             btnAnnulla.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnAnnulla.Location = new Point(210, 170); // Posizionalo accanto al pulsante Salva
+            btnAnnulla.Location = new Point(390, 363);
+            btnAnnulla.Margin = new Padding(6);
             btnAnnulla.Name = "btnAnnulla";
-            btnAnnulla.Size = new Size(75, 30);
-            btnAnnulla.TabIndex = 8; // Assicurati che l'indice sia corretto
+            btnAnnulla.Size = new Size(139, 64);
+            btnAnnulla.TabIndex = 8;
             btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
-            btnAnnulla.Click += btnAnnulla_Click; // Collega l'evento click al nuovo metodo
-            //
+            btnAnnulla.Click += btnAnnulla_Click;
+            // 
+            // numCap
+            // 
+            numCap.Location = new Point(186, 232);
+            numCap.Name = "numCap";
+            numCap.Size = new Size(200, 39);
+            numCap.TabIndex = 9;
+            numCap.KeyPress += numCap_KeyPress;
+            // 
             // ClientiIndirizzoDetailForm
-            //
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            // 
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(390, 215);
-            Controls.Add(btnAnnulla); // Aggiungi il bottone Annulla ai controlli
+            ClientSize = new Size(724, 459);
+            Controls.Add(numCap);
+            Controls.Add(btnAnnulla);
             Controls.Add(btnSalva);
             Controls.Add(chkPredefinito);
-            Controls.Add(numCap);
             Controls.Add(lblCap);
             Controls.Add(txtComune);
             Controls.Add(lblComune);
             Controls.Add(txtIndirizzo);
             Controls.Add(lblIndirizzo);
             FormBorderStyle = FormBorderStyle.FixedDialog;
+            Margin = new Padding(6);
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "ClientiIndirizzoDetailForm";
-            StartPosition = FormStartPosition.CenterParent; // Potresti volerlo su CenterScreen per form non modali "primarie"
+            StartPosition = FormStartPosition.CenterParent;
             Text = "Dettagli Indirizzo Cliente";
-            ((System.ComponentModel.ISupportInitialize)numCap).EndInit();
             ResumeLayout(false);
             PerformLayout();
 
@@ -323,11 +334,18 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label lblComune;
         private System.Windows.Forms.TextBox txtComune;
         private System.Windows.Forms.Label lblCap;
-        private System.Windows.Forms.NumericUpDown numCap;
         private System.Windows.Forms.CheckBox chkPredefinito;
         private System.Windows.Forms.Button btnSalva;
         private System.Windows.Forms.Button btnAnnulla; // Dichiarazione per il bottone Annulla
 
         #endregion
+
+        private void numCap_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(!char.IsDigit(e.KeyChar) && !char.IsControl(e.KeyChar))
+            {
+                e.Handled = true;
+            }
+        }
     }
 }

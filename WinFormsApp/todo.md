@@ -28,7 +28,7 @@
           sede principale vanno nella parte superiore del modulo, mentre l'unità locale (uno degli indirizzi dell'anagrafica del 
           soggetto) va nel rigo dedicato
 * **Bug**   
-    * [ ] nuovo indirizzo su cliente va in errore per la conversione del cap
+    * [x] nuovo indirizzo su cliente va in errore per la conversione del cap
 
 ---
 
