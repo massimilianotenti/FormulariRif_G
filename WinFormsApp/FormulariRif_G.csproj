@@ -45,6 +45,12 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Forms\DestinazioniRDDetailForm.cs">
+	    <SubType>Form</SubType>
+	  </Compile>
+	  <Compile Update="Forms\DestinazioniRDListForm.cs">
+	    <SubType>Form</SubType>
+	  </Compile>
 	  <Compile Update="Forms\ConfigurazioneAzienda.cs">
 	    <SubType>Form</SubType>
 	  </Compile>

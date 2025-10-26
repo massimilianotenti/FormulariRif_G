@@ -44,10 +44,13 @@ namespace FormulariRif_G.Data
         public DbSet<Rimorchio> Rimorchi { get; set; }
 
         public DbSet<Autom_Rim> FKAutomRim { get; set; }
+        public DbSet<DestinatarioDest> DestinazioniRD { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DestinatarioDest>();
+
             // Configurazione della relazione tra Cliente e ClienteContatto
             modelBuilder.Entity<ClienteContatto>()
                 .HasOne(cc => cc.Cliente)

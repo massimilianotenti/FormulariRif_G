@@ -32,6 +32,7 @@ namespace FormulariRif_G.Forms
     {
         private readonly IServiceProvider _serviceProvider;
         private Button btnGestioneRimorchi;
+        private Button cmbDestRD;
         private readonly FormManager _formManager; // NUOVO: Riferimento al FormManager
 
         // Modifica del costruttore per iniettare il FormManager
@@ -92,6 +93,11 @@ namespace FormulariRif_G.Forms
         private void btnGestioneRimorchi_Click(object sender, EventArgs e)
         {
             _formManager.ShowOrActivate<RimorchiListForm>();
+        }
+
+        private void cmbDestRD_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowOrActivate<DestinazioniRDListForm>();
         }
 
         /// <summary>
@@ -171,6 +177,7 @@ namespace FormulariRif_G.Forms
             btnGestioneFormulariRifiuti = new Button();
             btnGestioneConducenti = new Button();
             btnGestioneRimorchi = new Button();
+            cmbDestRD = new Button();
             SuspendLayout();
             // 
             // btnGestioneClienti
@@ -254,17 +261,28 @@ namespace FormulariRif_G.Forms
             // 
             btnGestioneRimorchi.Location = new Point(43, 602);
             btnGestioneRimorchi.Name = "btnGestioneRimorchi";
-            btnGestioneRimorchi.Size = new Size(550, 107);
+            btnGestioneRimorchi.Size = new Size(269, 107);
             btnGestioneRimorchi.TabIndex = 7;
             btnGestioneRimorchi.Text = "Gestione Rimorchi";
             btnGestioneRimorchi.UseVisualStyleBackColor = true;
             btnGestioneRimorchi.Click += btnGestioneRimorchi_Click;
+            // 
+            // cmbDestRD
+            // 
+            cmbDestRD.Location = new Point(324, 602);
+            cmbDestRD.Name = "cmbDestRD";
+            cmbDestRD.Size = new Size(269, 107);
+            cmbDestRD.TabIndex = 8;
+            cmbDestRD.Text = "Destinazione R/D";
+            cmbDestRD.UseVisualStyleBackColor = true;
+            cmbDestRD.Click += cmbDestRD_Click;
             // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1054, 911);
+            Controls.Add(cmbDestRD);
             Controls.Add(btnGestioneRimorchi);
             Controls.Add(btnGestioneFormulariRifiuti);
             Controls.Add(btnGestioneAutomezzi);
@@ -293,6 +311,7 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Button btnGestioneConducenti; // NUOVO: Dichiarazione del pulsante per Gestione Conducenti
 
         #endregion
+
 
         
     }

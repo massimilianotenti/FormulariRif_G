@@ -214,6 +214,8 @@ namespace FormulariRif_G
                     services.AddTransient<ConducentiDetailForm>();
                     services.AddTransient<RimorchiListForm>();
                     services.AddTransient<RimorchiDetailForm>();
+                    services.AddTransient<DestinazioniRDListForm>();
+                    services.AddTransient<DestinazioniRDDetailForm>();
 
                     // Aggiungi qui eventuali altri Form del tuo progetto
 

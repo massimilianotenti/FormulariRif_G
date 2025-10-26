@@ -88,6 +88,16 @@ namespace FormulariRif_G.Models
         [Column("caratteristiche_chimiche")]
         public string? CaratteristicheChimiche { get; set; }
 
+        [StringLength(2)]
+        [Column("dest_r")]
+        public string? Dest_R { get; set; }
+        [StringLength(2)]
+        [Column("dest_d")]
+        public string? Dest_D { get; set; }
+
+        [Column("detentore_rif")]
+        public bool? Detentore_R { get; set; }
+
         // Proprietà di navigazione
         public Cliente? Produttore { get; set; }
         public ClienteIndirizzo? ProduttoreIndirizzo { get; set; }

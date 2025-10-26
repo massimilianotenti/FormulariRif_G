@@ -30,6 +30,11 @@ namespace FormulariRif_G.Forms
         // Flag per evitare che gli eventi di ricerca si attivino durante aggiornamenti programmatici
         private bool _isFormularioSaved = false;
         private List<Cliente> _allClienti;
+        private CheckBox ckDetentoreR;
+        private ComboBox cmbDestD;
+        private ComboBox cmbDestR;
+        private Label label9;
+        private Label label8;
         private List<Automezzo> _allAutomezzi;
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
@@ -141,6 +146,10 @@ namespace FormulariRif_G.Forms
                     ckPesoVerificato.Checked = _currentFormulario.PesoVerificato.Value;
                 else
                     ckPesoVerificato.Checked = false;
+                if(_currentFormulario.Detentore_R.HasValue)
+                    ckDetentoreR.Checked = _currentFormulario.Detentore_R.Value;
+                else
+                    ckDetentoreR.Checked = false;
                 if (_currentFormulario.NumeroColli.HasValue)
                     txtColli.Text = _currentFormulario.NumeroColli.Value.ToString();
                 else
@@ -150,6 +159,11 @@ namespace FormulariRif_G.Forms
                 else
                     ckAllaRinfusa.Checked = false;
                 txtChimicoFisiche.Text = _currentFormulario.CaratteristicheChimiche ?? string.Empty;
+
+                if (_currentFormulario.Detentore_R.HasValue)
+                    ckDetentoreR.Checked = _currentFormulario.Detentore_R.Value;
+                else
+                    ckDetentoreR.Checked = false;
 
                 _isFormularioSaved = (_currentFormulario.Id != 0);
             }
@@ -175,6 +189,7 @@ namespace FormulariRif_G.Forms
                 rbKg.Checked = false;
                 rbLitri.Checked = false;
                 ckPesoVerificato.Checked = false;
+                ckDetentoreR.Checked = false;
                 txtColli.Text = string.Empty;
                 ckAllaRinfusa.Checked = false;
                 txtChimicoFisiche.Text = string.Empty;
@@ -240,7 +255,10 @@ namespace FormulariRif_G.Forms
                 _currentFormulario.PesoVerificato = true;
             else
                 _currentFormulario.PesoVerificato = false;
-
+            if(ckDetentoreR.Checked)
+                _currentFormulario.Detentore_R = true;
+            else
+                _currentFormulario.Detentore_R = false;
             if (!string.IsNullOrWhiteSpace(txtColli.Text) && decimal.TryParse(txtColli.Text, out decimal numColli))
                 _currentFormulario.NumeroColli = (int)numColli;
             else
@@ -694,6 +712,11 @@ namespace FormulariRif_G.Forms
             btnSalva = new Button();
             btnAnnulla = new Button();
             grCarattRifiuto = new GroupBox();
+            label9 = new Label();
+            label8 = new Label();
+            ckDetentoreR = new CheckBox();
+            cmbDestD = new ComboBox();
+            cmbDestR = new ComboBox();
             grAspettoEsteriore = new GroupBox();
             txtColli = new TextBox();
             label6 = new Label();
@@ -815,6 +838,11 @@ namespace FormulariRif_G.Forms
             // 
             // grCarattRifiuto
             // 
+            grCarattRifiuto.Controls.Add(label9);
+            grCarattRifiuto.Controls.Add(label8);
+            grCarattRifiuto.Controls.Add(ckDetentoreR);
+            grCarattRifiuto.Controls.Add(cmbDestD);
+            grCarattRifiuto.Controls.Add(cmbDestR);
             grCarattRifiuto.Controls.Add(grAspettoEsteriore);
             grCarattRifiuto.Controls.Add(txtChimicoFisiche);
             grCarattRifiuto.Controls.Add(label7);
@@ -839,6 +867,53 @@ namespace FormulariRif_G.Forms
             grCarattRifiuto.TabIndex = 33;
             grCarattRifiuto.TabStop = false;
             grCarattRifiuto.Text = "Caratteristiche del rifiuto";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Location = new Point(643, 54);
+            label9.Name = "label9";
+            label9.Size = new Size(31, 32);
+            label9.TabIndex = 53;
+            label9.Text = "D";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Location = new Point(345, 54);
+            label8.Name = "label8";
+            label8.Size = new Size(173, 32);
+            label8.TabIndex = 52;
+            label8.Text = "Destinazione R";
+            // 
+            // ckDetentoreR
+            // 
+            ckDetentoreR.AutoSize = true;
+            ckDetentoreR.Location = new Point(119, 55);
+            ckDetentoreR.Name = "ckDetentoreR";
+            ckDetentoreR.Size = new Size(189, 36);
+            ckDetentoreR.TabIndex = 51;
+            ckDetentoreR.Text = "Detentore Rif";
+            ckDetentoreR.UseVisualStyleBackColor = true;
+            // 
+            // cmbDestD
+            // 
+            cmbDestD.Enabled = false;
+            cmbDestD.FormattingEnabled = true;
+            cmbDestD.Location = new Point(680, 51);
+            cmbDestD.Name = "cmbDestD";
+            cmbDestD.Size = new Size(102, 40);
+            cmbDestD.TabIndex = 50;
+            // 
+            // cmbDestR
+            // 
+            cmbDestR.Enabled = false;
+            cmbDestR.FormattingEnabled = true;
+            cmbDestR.Items.AddRange(new object[] { "", "R13", "R4" });
+            cmbDestR.Location = new Point(524, 51);
+            cmbDestR.Name = "cmbDestR";
+            cmbDestR.Size = new Size(102, 40);
+            cmbDestR.TabIndex = 49;
             // 
             // grAspettoEsteriore
             // 
