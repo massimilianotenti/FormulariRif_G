@@ -67,7 +67,6 @@ namespace FormulariRif_G.Controls
                 _isProgrammaticChange = true;
                 EnsureItemIsVisible(value);
                 cmbBox.SelectedValue = value;
-                UpdateSearchBoxFromComboBox();
                 _isProgrammaticChange = false;
             }
         }
@@ -95,9 +94,10 @@ namespace FormulariRif_G.Controls
         public void Clear()
         {
             _isProgrammaticChange = true;
-            cmbBox.SelectedIndex = -1;
-            txtSearch.Clear();
+            cmbBox.DataSource = null; // Reset datasource to clear internal bindings if needed
             SetInitialDataSource();
+            cmbBox.SelectedIndex = -1;
+            cmbBox.Text = string.Empty;
             _isProgrammaticChange = false;
         }
 
@@ -145,22 +145,18 @@ namespace FormulariRif_G.Controls
             }
         }
 
-        private void UpdateSearchBoxFromComboBox()
-        {
-            txtSearch.Text = cmbBox.SelectedItem != null ? cmbBox.Text : string.Empty;
-        }
-
-        private void txtSearch_TextChanged(object sender, EventArgs e)
+        private void cmbBox_TextUpdate(object sender, EventArgs e)
         {
             if (_isProgrammaticChange) return;
 
-            string searchText = txtSearch.Text.Trim();
+            string searchText = cmbBox.Text;
+            int cursorPosition = cmbBox.SelectionStart;
 
             if (string.IsNullOrEmpty(searchText))
             {
-                SetInitialDataSource(cmbBox.SelectedValue);
-                cmbBox.DroppedDown = false;
+                SetInitialDataSource();
                 cmbBox.SelectedIndex = -1;
+                cmbBox.Text = "";
                 return;
             }
 
@@ -177,36 +173,19 @@ namespace FormulariRif_G.Controls
                 return match;
             }).ToList();
 
-            var currentSelectedValue = cmbBox.SelectedValue;
+            _isProgrammaticChange = true;
             cmbBox.DataSource = filtered;
-
-            if (currentSelectedValue != null && filtered.Any(i => i.GetType().GetProperty(ValueMember).GetValue(i).Equals(currentSelectedValue)))
-            {
-                cmbBox.SelectedValue = currentSelectedValue;
-            } else {
-                cmbBox.SelectedIndex = -1;
-            }
-
-            cmbBox.DroppedDown = true;
-            txtSearch.Focus();
-            txtSearch.Select(txtSearch.Text.Length, 0);
-        }
-
-        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
-        {
-            if ((e.KeyCode == Keys.Down || e.KeyCode == Keys.Enter) && cmbBox.Items.Count > 0)
-            {
-                cmbBox.Focus();
-                e.Handled = true;
-                e.SuppressKeyPress = true;
-            }
+            cmbBox.SelectedIndex = -1;
+            cmbBox.Text = searchText; // Restore text
+            cmbBox.SelectionStart = cursorPosition; // Restore cursor
+            cmbBox.DroppedDown = true; // Keep dropdown open
+            Cursor.Current = Cursors.Default; // Prevent cursor flickering
+            _isProgrammaticChange = false;
         }
 
         private void cmbBox_SelectionChangeCommitted(object sender, EventArgs e)
         {
-            _isProgrammaticChange = true;
-            UpdateSearchBoxFromComboBox();
-            _isProgrammaticChange = false;
+            // Optional: Logic when user explicitly selects an item
         }
 
         private void cmbBox_SelectedIndexChanged(object sender, EventArgs e)

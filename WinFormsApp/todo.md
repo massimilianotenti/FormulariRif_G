@@ -9,7 +9,7 @@
     * [x] Prevedere la possibilità che un soggetto possa ricoprire più ruoli contemporaneamente (es. destinatario che è anche 
           trasportatore, o produttore che è anche trasportatore).
 * **Flag Detentore:**
-    * [ ] Prevedere un flag "detentore" sul modulo, spuntabile sul produttore se è anche il detentore dei rifiuti.
+    * [x] Prevedere un flag "detentore" sul modulo, spuntabile sul produttore se è anche il detentore dei rifiuti.
 * **Codice R13/R4:**
     * [ ] Il codice non è fisso R13; può essere **R13** o **R4**. Va inserito nel formulario, non nell'anagrafica.
 * **Alternazione Comunale:**

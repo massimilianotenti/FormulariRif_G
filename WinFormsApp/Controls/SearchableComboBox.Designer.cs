@@ -44,35 +44,24 @@
             lblText.TabIndex = 0;
             lblText.Text = "Label:";
             // 
-            // txtSearch
-            // 
-            txtSearch.Location = new Point(156, 11);
-            txtSearch.Margin = new Padding(6);
-            txtSearch.Name = "txtSearch";
-            txtSearch.PlaceholderText = "Cerca...";
-            txtSearch.Size = new Size(205, 39);
-            txtSearch.TabIndex = 1;
-            txtSearch.TextChanged += txtSearch_TextChanged;
-            txtSearch.KeyDown += txtSearch_KeyDown;
-            // 
             // cmbBox
             // 
             cmbBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             cmbBox.FormattingEnabled = true;
-            cmbBox.Location = new Point(371, 11);
+            cmbBox.Location = new Point(156, 11);
             cmbBox.Margin = new Padding(6);
             cmbBox.Name = "cmbBox";
-            cmbBox.Size = new Size(448, 40);
-            cmbBox.TabIndex = 2;
+            cmbBox.Size = new Size(663, 40);
+            cmbBox.TabIndex = 1;
             cmbBox.SelectedIndexChanged += cmbBox_SelectedIndexChanged;
             cmbBox.SelectionChangeCommitted += cmbBox_SelectionChangeCommitted;
+            cmbBox.TextUpdate += cmbBox_TextUpdate;
             // 
             // SearchableComboBox
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(cmbBox);
-            Controls.Add(txtSearch);
             Controls.Add(lblText);
             Margin = new Padding(6);
             Name = "SearchableComboBox";
@@ -85,7 +74,6 @@
         #endregion
 
         private System.Windows.Forms.Label lblText;
-        private System.Windows.Forms.TextBox txtSearch;
         private System.Windows.Forms.ComboBox cmbBox;
     }
 }
