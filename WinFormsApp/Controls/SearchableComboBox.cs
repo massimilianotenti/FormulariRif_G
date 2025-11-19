@@ -14,7 +14,7 @@ namespace FormulariRif_G.Controls
     {
         // Campi privati per la gestione dei dati
         private List<object> _fullDataSource;
-        private const int InitialLoadSize = 200;
+        private const int InitialLoadSize = 100;
         private bool _isProgrammaticChange = false;
 
         #region Public Properties
@@ -171,7 +171,7 @@ namespace FormulariRif_G.Controls
                     match = targaValue.Contains(searchText, StringComparison.OrdinalIgnoreCase);
                 }
                 return match;
-            }).ToList();
+            }).Take(InitialLoadSize).ToList();
 
             _isProgrammaticChange = true;
             cmbBox.DataSource = filtered;
