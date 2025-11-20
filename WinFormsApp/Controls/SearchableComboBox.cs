@@ -122,6 +122,12 @@ namespace FormulariRif_G.Controls
             }
 
             cmbBox.DataSource = displayList;
+
+            if (valueToSelect == null)
+            {
+                cmbBox.SelectedIndex = -1;
+                cmbBox.Text = string.Empty;
+            }
         }
 
         private void EnsureItemIsVisible(object valueToSelect)
