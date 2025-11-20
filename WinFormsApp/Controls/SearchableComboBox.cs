@@ -157,6 +157,8 @@ namespace FormulariRif_G.Controls
                 SetInitialDataSource();
                 cmbBox.SelectedIndex = -1;
                 cmbBox.Text = "";
+                // Force event to notify parent that selection is cleared
+                SelectedIndexChanged?.Invoke(this, EventArgs.Empty);
                 return;
             }
 
