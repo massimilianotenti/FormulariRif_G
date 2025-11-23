@@ -58,6 +58,7 @@ namespace FormulariRif_G.Forms
         private Label label22;
         private Label label23;
         private Label label24;
+        private Label label25;
         private SearchableComboBox scbConducente;
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
@@ -112,11 +113,11 @@ namespace FormulariRif_G.Forms
 
                 scbProduttore.SelectedValue = _currentFormulario.IdProduttore;
                 await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
-                await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndUl, _currentFormulario.IdProduttoreIndUl);
+                await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndUl, _currentFormulario.IdProduttoreIndUl, true);
 
                 scbDestinatario.SelectedValue = _currentFormulario.IdDestinatario;
                 await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
-                await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndUl, _currentFormulario.IdDestinatarioIndUl);
+                await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndUl, _currentFormulario.IdDestinatarioIndUl, true);
 
                 scbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
                 await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
@@ -251,11 +252,17 @@ namespace FormulariRif_G.Forms
 
             _currentFormulario.IdProduttore = (int)scbProduttore.SelectedValue;
             _currentFormulario.IdProduttoreIndirizzo = (int)cmbProduttoreIndirizzo.SelectedValue;
-            _currentFormulario.IdProduttoreIndUl = (int)cmbProduttoreIndUl.SelectedValue;
+            if (cmbProduttoreIndUl.SelectedItem != null)
+                _currentFormulario.IdProduttoreIndUl = (int)cmbProduttoreIndUl.SelectedValue;
+            else
+                _currentFormulario.IdProduttoreIndUl = null;
 
             _currentFormulario.IdDestinatario = (int)scbDestinatario.SelectedValue;
             _currentFormulario.IdDestinatarioIndirizzo = (int)cmbDestinatarioIndirizzo.SelectedValue;
-            _currentFormulario.IdDestinatarioIndUl = (int)cmbDestinatarioIndUl.SelectedValue;
+            if (cmbDestinatarioIndUl.SelectedItem != null)
+                _currentFormulario.IdDestinatarioIndUl = (int)cmbDestinatarioIndUl.SelectedValue;
+            else
+                _currentFormulario.IdDestinatarioIndUl = null;
 
             _currentFormulario.IdTrasportatore = (int)scbTrasportatore.SelectedValue;
             _currentFormulario.IdTrasportatoreIndirizzo = (int)cmbTrasportatoreIndirizzo.SelectedValue;
@@ -405,10 +412,11 @@ namespace FormulariRif_G.Forms
             if (_isLoading) return;
             var ownerCombo = sender as SearchableComboBox;
             await LoadIndirizziAsync(ownerCombo, cmbProduttoreIndirizzo);
-            await LoadIndirizziAsync(ownerCombo, cmbProduttoreIndUl);
+            await LoadIndirizziAsync(ownerCombo, cmbProduttoreIndUl, null, true);
         }
 
-        private async Task LoadIndirizziAsync(SearchableComboBox ownerCombo, SearchableComboBox addressCombo, int? addressIdToSelect = null)
+        private async Task LoadIndirizziAsync(SearchableComboBox ownerCombo, SearchableComboBox addressCombo, int? addressIdToSelect = null, 
+                                               bool noDefaul = false)
         {
             addressCombo.DataSource = null;
             addressCombo.Clear();
@@ -424,7 +432,7 @@ namespace FormulariRif_G.Forms
                         addressCombo.DisplayMember = "IndirizzoCompleto";
                         addressCombo.ValueMember = "Id";
 
-                        int idToSelect;
+                        int idToSelect = -1;
 
                         // Priorità 1: ID specifico fornito (e valido)
                         if (addressIdToSelect.HasValue && indirizzi.Any(i => i.Id == addressIdToSelect.Value))
@@ -432,12 +440,13 @@ namespace FormulariRif_G.Forms
                             idToSelect = addressIdToSelect.Value;
                         }
                         // Priorità 2: Indirizzo predefinito, altrimenti il primo della lista
-                        else
+                        else if (!noDefaul)
                         {
                             var defaultAddress = indirizzi.FirstOrDefault(ci => ci.Predefinito);
                             idToSelect = defaultAddress?.Id ?? indirizzi.First().Id;
                         }
-                        addressCombo.SelectedValue = idToSelect;
+                        if(idToSelect > 0)
+                            addressCombo.SelectedValue = idToSelect;
                     }
                 }
                 catch (Exception ex)
@@ -452,7 +461,7 @@ namespace FormulariRif_G.Forms
             if (_isLoading) return;
             var ownerCombo = sender as SearchableComboBox;
             await LoadIndirizziAsync(ownerCombo, cmbDestinatarioIndirizzo);
-            await LoadIndirizziAsync(ownerCombo, cmbDestinatarioIndUl);
+            await LoadIndirizziAsync(ownerCombo, cmbDestinatarioIndUl, null, true);
         }
 
         private async void scbTrasportatore_SelectedIndexChanged(object? sender, EventArgs e)
@@ -877,6 +886,7 @@ namespace FormulariRif_G.Forms
             label22 = new Label();
             label23 = new Label();
             label24 = new Label();
+            label25 = new Label();
             grAspettoEsteriore.SuspendLayout();
             grKgLitri.SuspendLayout();
             grProvenienza.SuspendLayout();
@@ -905,14 +915,14 @@ namespace FormulariRif_G.Forms
             // 
             // cmbProduttoreIndirizzo
             // 
-            cmbProduttoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduttoreIndirizzo.DisplayMember = "";
             cmbProduttoreIndirizzo.Font = new Font("Segoe UI", 10.875F);
-            cmbProduttoreIndirizzo.FormattingEnabled = true;
-            cmbProduttoreIndirizzo.Location = new Point(328, 211);
+            cmbProduttoreIndirizzo.Location = new Point(321, 197);
             cmbProduttoreIndirizzo.Margin = new Padding(6);
             cmbProduttoreIndirizzo.Name = "cmbProduttoreIndirizzo";
-            cmbProduttoreIndirizzo.Size = new Size(561, 48);
+            cmbProduttoreIndirizzo.Size = new Size(561, 63);
             cmbProduttoreIndirizzo.TabIndex = 3;
+            cmbProduttoreIndirizzo.ValueMember = "";
             // 
             // lblNumeroFormulario
             // 
@@ -938,10 +948,10 @@ namespace FormulariRif_G.Forms
             // btnSalva
             // 
             btnSalva.Font = new Font("Segoe UI", 10.875F);
-            btnSalva.Location = new Point(1672, 19);
+            btnSalva.Location = new Point(1683, 19);
             btnSalva.Margin = new Padding(6);
             btnSalva.Name = "btnSalva";
-            btnSalva.Size = new Size(144, 64);
+            btnSalva.Size = new Size(191, 64);
             btnSalva.TabIndex = 45;
             btnSalva.Text = "Salva";
             btnSalva.Click += btnSalva_Click;
@@ -949,9 +959,9 @@ namespace FormulariRif_G.Forms
             // btnAnnulla
             // 
             btnAnnulla.Font = new Font("Segoe UI", 10.875F);
-            btnAnnulla.Location = new Point(1672, 92);
+            btnAnnulla.Location = new Point(1683, 92);
             btnAnnulla.Name = "btnAnnulla";
-            btnAnnulla.Size = new Size(144, 64);
+            btnAnnulla.Size = new Size(191, 64);
             btnAnnulla.TabIndex = 44;
             btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
@@ -1270,10 +1280,10 @@ namespace FormulariRif_G.Forms
             // 
             btStampa.Enabled = false;
             btStampa.Font = new Font("Segoe UI", 10.875F);
-            btStampa.Location = new Point(1672, 168);
+            btStampa.Location = new Point(1683, 168);
             btStampa.Margin = new Padding(6);
             btStampa.Name = "btStampa";
-            btStampa.Size = new Size(144, 64);
+            btStampa.Size = new Size(191, 64);
             btStampa.TabIndex = 34;
             btStampa.Text = "Stampa";
             btStampa.UseVisualStyleBackColor = true;
@@ -1281,24 +1291,24 @@ namespace FormulariRif_G.Forms
             // 
             // cmbDestinatarioIndirizzo
             // 
-            cmbDestinatarioIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDestinatarioIndirizzo.DisplayMember = "";
             cmbDestinatarioIndirizzo.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            cmbDestinatarioIndirizzo.FormattingEnabled = true;
-            cmbDestinatarioIndirizzo.Location = new Point(329, 452);
+            cmbDestinatarioIndirizzo.Location = new Point(321, 438);
             cmbDestinatarioIndirizzo.Margin = new Padding(6);
             cmbDestinatarioIndirizzo.Name = "cmbDestinatarioIndirizzo";
-            cmbDestinatarioIndirizzo.Size = new Size(561, 48);
+            cmbDestinatarioIndirizzo.Size = new Size(561, 61);
             cmbDestinatarioIndirizzo.TabIndex = 6;
+            cmbDestinatarioIndirizzo.ValueMember = "";
             // 
             // cmbTrasportatoreIndirizzo
             // 
-            cmbTrasportatoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
-            cmbTrasportatoreIndirizzo.FormattingEnabled = true;
-            cmbTrasportatoreIndirizzo.Location = new Point(329, 702);
+            cmbTrasportatoreIndirizzo.DisplayMember = "";
+            cmbTrasportatoreIndirizzo.Location = new Point(321, 684);
             cmbTrasportatoreIndirizzo.Margin = new Padding(6);
             cmbTrasportatoreIndirizzo.Name = "cmbTrasportatoreIndirizzo";
-            cmbTrasportatoreIndirizzo.Size = new Size(561, 40);
+            cmbTrasportatoreIndirizzo.Size = new Size(561, 64);
             cmbTrasportatoreIndirizzo.TabIndex = 10;
+            cmbTrasportatoreIndirizzo.ValueMember = "";
             // 
             // scbProduttore
             // 
@@ -1501,26 +1511,25 @@ namespace FormulariRif_G.Forms
             // 
             // cmbProduttoreIndUl
             // 
-            cmbProduttoreIndUl.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduttoreIndUl.DisplayMember = "";
             cmbProduttoreIndUl.Font = new Font("Segoe UI", 10.875F);
-            cmbProduttoreIndUl.FormattingEnabled = true;
-            cmbProduttoreIndUl.ItemHeight = 40;
-            cmbProduttoreIndUl.Location = new Point(329, 269);
+            cmbProduttoreIndUl.Location = new Point(319, 259);
             cmbProduttoreIndUl.Margin = new Padding(6);
             cmbProduttoreIndUl.Name = "cmbProduttoreIndUl";
-            cmbProduttoreIndUl.Size = new Size(561, 48);
+            cmbProduttoreIndUl.Size = new Size(561, 61);
             cmbProduttoreIndUl.TabIndex = 67;
+            cmbProduttoreIndUl.ValueMember = "";
             // 
             // cmbDestinatarioIndUl
             // 
-            cmbDestinatarioIndUl.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDestinatarioIndUl.DisplayMember = "";
             cmbDestinatarioIndUl.Font = new Font("Segoe UI", 10.875F);
-            cmbDestinatarioIndUl.FormattingEnabled = true;
-            cmbDestinatarioIndUl.Location = new Point(328, 511);
+            cmbDestinatarioIndUl.Location = new Point(321, 496);
             cmbDestinatarioIndUl.Margin = new Padding(6);
             cmbDestinatarioIndUl.Name = "cmbDestinatarioIndUl";
-            cmbDestinatarioIndUl.Size = new Size(561, 48);
+            cmbDestinatarioIndUl.Size = new Size(561, 62);
             cmbDestinatarioIndUl.TabIndex = 6;
+            cmbDestinatarioIndUl.ValueMember = "";
             // 
             // label21
             // 
@@ -1536,7 +1545,7 @@ namespace FormulariRif_G.Forms
             // 
             label22.AutoSize = true;
             label22.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label22.Location = new Point(39, 514);
+            label22.Location = new Point(38, 509);
             label22.Name = "label22";
             label22.Size = new Size(180, 40);
             label22.TabIndex = 70;
@@ -1562,11 +1571,22 @@ namespace FormulariRif_G.Forms
             label24.TabIndex = 71;
             label24.Text = "Indirizzo:";
             // 
+            // label25
+            // 
+            label25.AutoSize = true;
+            label25.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label25.Location = new Point(39, 699);
+            label25.Name = "label25";
+            label25.Size = new Size(131, 40);
+            label25.TabIndex = 73;
+            label25.Text = "Indirizzo:";
+            // 
             // FormulariRifiutiDetailForm
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1908, 1423);
+            Controls.Add(label25);
             Controls.Add(label23);
             Controls.Add(label24);
             Controls.Add(label22);
@@ -1642,7 +1662,7 @@ namespace FormulariRif_G.Forms
 
         private System.Windows.Forms.Label lblData;
         private System.Windows.Forms.DateTimePicker dtpData;
-        private System.Windows.Forms.ComboBox cmbProduttoreIndirizzo;
+        private Controls.SearchableComboBox cmbProduttoreIndirizzo;
         private System.Windows.Forms.Label lblNumeroFormulario;
         private System.Windows.Forms.TextBox txtNumeroFormulario;
         private System.Windows.Forms.Button btnSalva;
@@ -1671,8 +1691,8 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.TextBox txtCodiceEER;
         private System.Windows.Forms.Label label1;
         private Button btStampa;
-        private ComboBox cmbDestinatarioIndirizzo;
-        private ComboBox cmbTrasportatoreIndirizzo;
+        private Controls.SearchableComboBox cmbDestinatarioIndirizzo;
+        private Controls.SearchableComboBox cmbTrasportatoreIndirizzo;
         private Controls.SearchableComboBox scbProduttore;
         private Controls.SearchableComboBox scbDestinatario;
         private Controls.SearchableComboBox scbTrasportatore;
