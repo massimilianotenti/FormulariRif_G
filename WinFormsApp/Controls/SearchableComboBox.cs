@@ -19,14 +19,6 @@ namespace FormulariRif_G.Controls
 
         #region Public Properties
 
-        [Category("Appearance")]
-        [Description("Il testo da visualizzare nell'etichetta a sinistra del controllo.")]
-        public string LabelText
-        {
-            get => lblText.Text;
-            set => lblText.Text = value;
-        }
-
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public List<object> DataSource

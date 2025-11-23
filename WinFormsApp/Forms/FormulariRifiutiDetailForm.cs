@@ -35,11 +35,23 @@ namespace FormulariRif_G.Forms
         private ComboBox cmbDestR;
         private Label label9;
         private Label label8;
-        private Label label8;
+        //private Label label8;
         private List<Automezzo> _allAutomezzi;
         private readonly IGenericRepository<Rimorchio> _rimorchioRepository;
         private readonly IGenericRepository<Conducente> _conducenteRepository;
         private SearchableComboBox scbRimorchio;
+        private Label lbProduttore;
+        private Label label10;
+        private Label label11;
+        private Label label12;
+        private Label label13;
+        private Label label14;
+        private Label label15;
+        private Label label16;
+        private Label label17;
+        private Label label18;
+        private Label label19;
+        private Label label20;
         private SearchableComboBox scbConducente;
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
@@ -54,15 +66,11 @@ namespace FormulariRif_G.Forms
             _clienteRepository = clienteRepository;
             _clienteIndirizzoRepository = clienteIndirizzoRepository;
             _automezzoRepository = automezzoRepository;
-            _isLoading = true;
-            await LoadComboBoxes();
-            await LoadFormularioData();
-            _isLoading = false;
             scbProduttore.SelectedIndexChanged += scbProduttore_SelectedIndexChanged;
             scbDestinatario.SelectedIndexChanged += scbDestinatario_SelectedIndexChanged;
             scbTrasportatore.SelectedIndexChanged += scbTrasportatore_SelectedIndexChanged;
         }
-        */
+
 
         /// <summary>
         /// Imposta il formulario da visualizzare o modificare.
@@ -79,6 +87,8 @@ namespace FormulariRif_G.Forms
             await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
             await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
             await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
+            await LoadComboBoxes();
+            await LoadFormularioData();
             _isLoading = false;
 
             await LoadFormularioData();
@@ -329,36 +339,36 @@ namespace FormulariRif_G.Forms
                 _allAutomezzi = (await _automezzoRepository.GetAllAsync()).ToList();
 
                 // Configura il componente per il Produttore
-                scbProduttore.LabelText = "Produttore:";
+
                 scbProduttore.DisplayMember = "RagSoc";
                 scbProduttore.ValueMember = "Id";
                 scbProduttore.DataSource = _allClienti.Cast<object>().ToList();
 
                 // Configura il componente per il Destinatario
-                scbDestinatario.LabelText = "Destinatario:";
+
                 scbDestinatario.DisplayMember = "RagSoc";
                 scbDestinatario.ValueMember = "Id";
                 scbDestinatario.DataSource = _allClienti.Cast<object>().ToList();
 
                 // Configura il componente per il Trasportatore
-                scbTrasportatore.LabelText = "Trasportatore:";
+
                 scbTrasportatore.DisplayMember = "RagSoc";
                 scbTrasportatore.ValueMember = "Id";
                 scbTrasportatore.DataSource = _allClienti.Cast<object>().ToList();
 
                 // Configura il componente per l'Automezzo
-                scbAutomezzo.LabelText = "Automezzo:";
+
                 scbAutomezzo.DisplayMember = "Descrizione";
                 scbAutomezzo.ValueMember = "Id";
                 scbAutomezzo.DataSource = _allAutomezzi.Cast<object>().ToList();
 
                 // Configura il componente per il Rimorchio
-                scbRimorchio.LabelText = "Rimorchio:";
+
                 scbRimorchio.DisplayMember = "Descrizione"; // O Targa?
                 scbRimorchio.ValueMember = "Id";
 
                 // Configura il componente per il Conducente
-                scbConducente.LabelText = "Conducente:";
+
                 scbConducente.DisplayMember = "DisplayText";
                 scbConducente.ValueMember = "Id";
             }
@@ -779,18 +789,12 @@ namespace FormulariRif_G.Forms
         {
             lblData = new Label();
             dtpData = new DateTimePicker();
-            lblProduttoreIndirizzo = new Label();
             cmbProduttoreIndirizzo = new ComboBox();
             lblNumeroFormulario = new Label();
             txtNumeroFormulario = new TextBox();
             btnSalva = new Button();
             btnAnnulla = new Button();
-            grCarattRifiuto = new GroupBox();
-            label9 = new Label();
-            label8 = new Label();
             ckDetentoreR = new CheckBox();
-            cmbDestD = new ComboBox();
-            cmbDestR = new ComboBox();
             grAspettoEsteriore = new GroupBox();
             txtColli = new TextBox();
             label6 = new Label();
@@ -806,7 +810,6 @@ namespace FormulariRif_G.Forms
             txtDescr = new TextBox();
             label4 = new Label();
             txtCarattPericolosità = new TextBox();
-            label3 = new Label();
             grProvenienza = new GroupBox();
             rbProvUrb = new RadioButton();
             rbProvSpec = new RadioButton();
@@ -814,19 +817,32 @@ namespace FormulariRif_G.Forms
             label2 = new Label();
             txtCodiceEER = new TextBox();
             label1 = new Label();
+            label3 = new Label();
+            label9 = new Label();
+            label8 = new Label();
+            cmbDestD = new ComboBox();
+            cmbDestR = new ComboBox();
             btStampa = new Button();
-            lblDestinatarioIndirizzo = new Label();
             cmbDestinatarioIndirizzo = new ComboBox();
-            lblTrasportatoreIndirizzo = new Label();
             cmbTrasportatoreIndirizzo = new ComboBox();
-            panel1 = new Panel();
             scbProduttore = new SearchableComboBox();
             scbDestinatario = new SearchableComboBox();
             scbTrasportatore = new SearchableComboBox();
             scbAutomezzo = new SearchableComboBox();
             scbRimorchio = new SearchableComboBox();
             scbConducente = new SearchableComboBox();
-            grCarattRifiuto.SuspendLayout();
+            lbProduttore = new Label();
+            label10 = new Label();
+            label11 = new Label();
+            label12 = new Label();
+            label13 = new Label();
+            label14 = new Label();
+            label15 = new Label();
+            label16 = new Label();
+            label17 = new Label();
+            label18 = new Label();
+            label19 = new Label();
+            label20 = new Label();
             grAspettoEsteriore.SuspendLayout();
             grKgLitri.SuspendLayout();
             grProvenienza.SuspendLayout();
@@ -835,169 +851,110 @@ namespace FormulariRif_G.Forms
             // lblData
             // 
             lblData.AutoSize = true;
-            lblData.Location = new Point(37, 53);
+            lblData.Font = new Font("Segoe UI", 10.875F);
+            lblData.Location = new Point(37, 19);
             lblData.Margin = new Padding(6, 0, 6, 0);
             lblData.Name = "lblData";
-            lblData.Size = new Size(68, 32);
+            lblData.Size = new Size(83, 40);
             lblData.TabIndex = 0;
             lblData.Text = "Data:";
             // 
             // dtpData
             // 
+            dtpData.Font = new Font("Segoe UI", 10.875F);
             dtpData.Format = DateTimePickerFormat.Short;
-            dtpData.Location = new Point(260, 47);
+            dtpData.Location = new Point(320, 13);
             dtpData.Margin = new Padding(6);
             dtpData.Name = "dtpData";
-            dtpData.Size = new Size(424, 39);
-            dtpData.TabIndex = 1;
-            // 
-            // lblProduttoreIndirizzo
-            // 
-            lblProduttoreIndirizzo.AutoSize = true;
-            lblProduttoreIndirizzo.Location = new Point(908, 122);
-            lblProduttoreIndirizzo.Margin = new Padding(6, 0, 6, 0);
-            lblProduttoreIndirizzo.Name = "lblProduttoreIndirizzo";
-            lblProduttoreIndirizzo.Size = new Size(109, 32);
-            lblProduttoreIndirizzo.TabIndex = 4;
-            lblProduttoreIndirizzo.Text = "Indirizzo:";
+            dtpData.Size = new Size(251, 46);
+            dtpData.TabIndex = 0;
             // 
             // cmbProduttoreIndirizzo
             // 
             cmbProduttoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbProduttoreIndirizzo.FormattingEnabled = true;
-            cmbProduttoreIndirizzo.Location = new Point(1149, 115);
+            cmbProduttoreIndirizzo.Location = new Point(328, 211);
             cmbProduttoreIndirizzo.Margin = new Padding(6);
             cmbProduttoreIndirizzo.Name = "cmbProduttoreIndirizzo";
-            cmbProduttoreIndirizzo.Size = new Size(406, 40);
+            cmbProduttoreIndirizzo.Size = new Size(561, 40);
             cmbProduttoreIndirizzo.TabIndex = 3;
             // 
             // lblNumeroFormulario
             // 
             lblNumeroFormulario.AutoSize = true;
-            lblNumeroFormulario.Location = new Point(908, 60);
+            lblNumeroFormulario.Font = new Font("Segoe UI", 10.875F);
+            lblNumeroFormulario.Location = new Point(669, 19);
             lblNumeroFormulario.Margin = new Padding(6, 0, 6, 0);
             lblNumeroFormulario.Name = "lblNumeroFormulario";
-            lblNumeroFormulario.Size = new Size(229, 32);
+            lblNumeroFormulario.Size = new Size(274, 40);
             lblNumeroFormulario.TabIndex = 6;
             lblNumeroFormulario.Text = "Numero Formulario:";
             // 
             // txtNumeroFormulario
             // 
-            txtNumeroFormulario.Location = new Point(1149, 57);
+            txtNumeroFormulario.Font = new Font("Segoe UI", 10.875F);
+            txtNumeroFormulario.Location = new Point(972, 13);
             txtNumeroFormulario.Margin = new Padding(6);
             txtNumeroFormulario.MaxLength = 50;
             txtNumeroFormulario.Name = "txtNumeroFormulario";
-            txtNumeroFormulario.Size = new Size(404, 39);
-            txtNumeroFormulario.TabIndex = 9;
+            txtNumeroFormulario.Size = new Size(291, 46);
+            txtNumeroFormulario.TabIndex = 1;
             // 
             // btnSalva
             // 
-            btnSalva.Location = new Point(1455, 1022);
+            btnSalva.Font = new Font("Segoe UI", 10.875F);
+            btnSalva.Location = new Point(1672, 19);
             btnSalva.Margin = new Padding(6);
+            btnSalva.Name = "btnSalva";
+            btnSalva.Size = new Size(144, 64);
+            btnSalva.TabIndex = 45;
+            btnSalva.Text = "Salva";
+            // 
+            // btnAnnulla
+            // 
+            btnAnnulla.Font = new Font("Segoe UI", 10.875F);
+            btnAnnulla.Location = new Point(1672, 92);
+            btnAnnulla.Name = "btnAnnulla";
+            btnAnnulla.Size = new Size(144, 64);
+            btnAnnulla.TabIndex = 44;
+            btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
             btnAnnulla.Click += btnAnnulla_Click;
-            // 
-            // grCarattRifiuto
-            // 
-            grCarattRifiuto.Controls.Add(label9);
-            grCarattRifiuto.Controls.Add(label8);
-            grCarattRifiuto.Controls.Add(ckDetentoreR);
-            grCarattRifiuto.Controls.Add(cmbDestD);
-            grCarattRifiuto.Controls.Add(cmbDestR);
-            grCarattRifiuto.Controls.Add(grAspettoEsteriore);
-            grCarattRifiuto.Controls.Add(txtChimicoFisiche);
-            grCarattRifiuto.Controls.Add(label7);
-            grCarattRifiuto.Controls.Add(ckPesoVerificato);
-            grCarattRifiuto.Controls.Add(grKgLitri);
-            grCarattRifiuto.Controls.Add(txtQuantita);
-            grCarattRifiuto.Controls.Add(label5);
-            grCarattRifiuto.Controls.Add(txtDescr);
-            grCarattRifiuto.Controls.Add(label4);
-            grCarattRifiuto.Controls.Add(txtCarattPericolosità);
-            grCarattRifiuto.Controls.Add(label3);
-            grCarattRifiuto.Controls.Add(grProvenienza);
-            grCarattRifiuto.Controls.Add(txtStatoFisco);
-            grCarattRifiuto.Controls.Add(label2);
-            grCarattRifiuto.Controls.Add(txtCodiceEER);
-            grCarattRifiuto.Controls.Add(label1);
-            grCarattRifiuto.Location = new Point(32, 622);
-            grCarattRifiuto.Margin = new Padding(6);
-            grCarattRifiuto.Name = "grCarattRifiuto";
-            grCarattRifiuto.Padding = new Padding(6);
-            grCarattRifiuto.Size = new Size(1562, 508);
-            grCarattRifiuto.TabIndex = 33;
-            grCarattRifiuto.TabStop = false;
-            grCarattRifiuto.Text = "Caratteristiche del rifiuto";
-            // 
-            // label9
-            // 
-            label9.AutoSize = true;
-            label9.Location = new Point(643, 54);
-            label9.Name = "label9";
-            label9.Size = new Size(31, 32);
-            label9.TabIndex = 53;
-            label9.Text = "D";
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Location = new Point(345, 54);
-            label8.Name = "label8";
-            label8.Size = new Size(173, 32);
-            label8.TabIndex = 52;
-            label8.Text = "Destinazione R";
             // 
             // ckDetentoreR
             // 
             ckDetentoreR.AutoSize = true;
-            ckDetentoreR.Location = new Point(119, 55);
+            ckDetentoreR.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            ckDetentoreR.Location = new Point(1155, 158);
             ckDetentoreR.Name = "ckDetentoreR";
-            ckDetentoreR.Size = new Size(189, 36);
-            ckDetentoreR.TabIndex = 51;
+            ckDetentoreR.Size = new Size(218, 44);
+            ckDetentoreR.TabIndex = 4;
             ckDetentoreR.Text = "Detentore Rif";
             ckDetentoreR.UseVisualStyleBackColor = true;
-            // 
-            // cmbDestD
-            // 
-            cmbDestD.Enabled = false;
-            cmbDestD.FormattingEnabled = true;
-            cmbDestD.Location = new Point(680, 51);
-            cmbDestD.Name = "cmbDestD";
-            cmbDestD.Size = new Size(102, 40);
-            cmbDestD.TabIndex = 50;
-            // 
-            // cmbDestR
-            // 
-            cmbDestR.Enabled = false;
-            cmbDestR.FormattingEnabled = true;
-            cmbDestR.Items.AddRange(new object[] { "", "R13", "R4" });
-            cmbDestR.Location = new Point(524, 51);
-            cmbDestR.Name = "cmbDestR";
-            cmbDestR.Size = new Size(102, 40);
-            cmbDestR.TabIndex = 49;
+            ckDetentoreR.CheckedChanged += ckDetentoreR_CheckedChanged;
             // 
             // grAspettoEsteriore
             // 
             grAspettoEsteriore.Controls.Add(txtColli);
             grAspettoEsteriore.Controls.Add(label6);
             grAspettoEsteriore.Controls.Add(ckAllaRinfusa);
-            grAspettoEsteriore.Location = new Point(1062, 279);
+            grAspettoEsteriore.Location = new Point(1133, 885);
             grAspettoEsteriore.Margin = new Padding(6);
             grAspettoEsteriore.Name = "grAspettoEsteriore";
             grAspettoEsteriore.Padding = new Padding(6);
-            grAspettoEsteriore.Size = new Size(462, 102);
+            grAspettoEsteriore.Size = new Size(496, 84);
             grAspettoEsteriore.TabIndex = 48;
             grAspettoEsteriore.TabStop = false;
             grAspettoEsteriore.Text = "Aspetto esteriore";
             // 
             // txtColli
             // 
-            txtColli.Location = new Point(139, 36);
+            txtColli.Location = new Point(140, 35);
             txtColli.Margin = new Padding(6);
             txtColli.MaxLength = 5;
             txtColli.Name = "txtColli";
-            txtColli.Size = new Size(138, 39);
-            txtColli.TabIndex = 28;
+            txtColli.Size = new Size(137, 39);
+            txtColli.TabIndex = 21;
             txtColli.KeyPress += txtColli_KeyPress;
             // 
             // label6
@@ -1017,37 +974,40 @@ namespace FormulariRif_G.Forms
             ckAllaRinfusa.Margin = new Padding(6);
             ckAllaRinfusa.Name = "ckAllaRinfusa";
             ckAllaRinfusa.Size = new Size(170, 36);
-            ckAllaRinfusa.TabIndex = 29;
+            ckAllaRinfusa.TabIndex = 22;
             ckAllaRinfusa.Text = "Alla Rinfusa";
             ckAllaRinfusa.UseVisualStyleBackColor = true;
             // 
             // txtChimicoFisiche
             // 
-            txtChimicoFisiche.Location = new Point(256, 403);
+            txtChimicoFisiche.Font = new Font("Segoe UI", 10.875F);
+            txtChimicoFisiche.Location = new Point(320, 984);
             txtChimicoFisiche.Margin = new Padding(6);
             txtChimicoFisiche.MaxLength = 25;
             txtChimicoFisiche.Name = "txtChimicoFisiche";
-            txtChimicoFisiche.Size = new Size(1265, 39);
-            txtChimicoFisiche.TabIndex = 47;
+            txtChimicoFisiche.Size = new Size(1309, 46);
+            txtChimicoFisiche.TabIndex = 23;
             // 
             // label7
             // 
             label7.AutoSize = true;
-            label7.Location = new Point(33, 410);
+            label7.Font = new Font("Segoe UI", 10.875F);
+            label7.Location = new Point(38, 984);
             label7.Margin = new Padding(6, 0, 6, 0);
             label7.Name = "label7";
-            label7.Size = new Size(215, 32);
+            label7.Size = new Size(258, 40);
             label7.TabIndex = 46;
             label7.Text = "Caratt. Chim.-Fisic.:";
             // 
             // ckPesoVerificato
             // 
             ckPesoVerificato.AutoSize = true;
-            ckPesoVerificato.Location = new Point(843, 320);
+            ckPesoVerificato.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            ckPesoVerificato.Location = new Point(871, 908);
             ckPesoVerificato.Margin = new Padding(6);
             ckPesoVerificato.Name = "ckPesoVerificato";
-            ckPesoVerificato.Size = new Size(200, 36);
-            ckPesoVerificato.TabIndex = 45;
+            ckPesoVerificato.Size = new Size(233, 44);
+            ckPesoVerificato.TabIndex = 20;
             ckPesoVerificato.Text = "Peso verificato";
             ckPesoVerificato.UseVisualStyleBackColor = true;
             // 
@@ -1055,22 +1015,22 @@ namespace FormulariRif_G.Forms
             // 
             grKgLitri.Controls.Add(rbKg);
             grKgLitri.Controls.Add(rbLitri);
-            grKgLitri.Location = new Point(578, 290);
+            grKgLitri.Location = new Point(610, 885);
             grKgLitri.Margin = new Padding(6);
             grKgLitri.Name = "grKgLitri";
             grKgLitri.Padding = new Padding(6);
-            grKgLitri.Size = new Size(227, 81);
+            grKgLitri.Size = new Size(228, 82);
             grKgLitri.TabIndex = 44;
             grKgLitri.TabStop = false;
             // 
             // rbKg
             // 
             rbKg.AutoSize = true;
-            rbKg.Location = new Point(35, 28);
+            rbKg.Location = new Point(36, 29);
             rbKg.Margin = new Padding(6);
             rbKg.Name = "rbKg";
             rbKg.Size = new Size(73, 36);
-            rbKg.TabIndex = 15;
+            rbKg.TabIndex = 18;
             rbKg.TabStop = true;
             rbKg.Text = "Kg";
             rbKg.UseVisualStyleBackColor = true;
@@ -1082,90 +1042,84 @@ namespace FormulariRif_G.Forms
             rbLitri.Margin = new Padding(6);
             rbLitri.Name = "rbLitri";
             rbLitri.Size = new Size(84, 36);
-            rbLitri.TabIndex = 16;
+            rbLitri.TabIndex = 19;
             rbLitri.TabStop = true;
             rbLitri.Text = "Litri";
             rbLitri.UseVisualStyleBackColor = true;
             // 
             // txtQuantita
             // 
-            txtQuantita.Location = new Point(256, 318);
+            txtQuantita.Font = new Font("Segoe UI", 10.875F);
+            txtQuantita.Location = new Point(320, 909);
             txtQuantita.Margin = new Padding(6);
             txtQuantita.MaxLength = 12;
             txtQuantita.Name = "txtQuantita";
-            txtQuantita.Size = new Size(299, 39);
-            txtQuantita.TabIndex = 43;
+            txtQuantita.Size = new Size(252, 46);
+            txtQuantita.TabIndex = 17;
             txtQuantita.KeyPress += txtQuantita_KeyPress;
             // 
             // label5
             // 
             label5.AutoSize = true;
-            label5.Location = new Point(33, 324);
+            label5.Font = new Font("Segoe UI", 10.875F);
+            label5.Location = new Point(37, 905);
             label5.Margin = new Padding(6, 0, 6, 0);
             label5.Name = "label5";
-            label5.Size = new Size(111, 32);
+            label5.Size = new Size(134, 40);
             label5.TabIndex = 42;
             label5.Text = "Quantità:";
             // 
             // txtDescr
             // 
-            txtDescr.Location = new Point(256, 226);
+            txtDescr.Font = new Font("Segoe UI", 10.875F);
+            txtDescr.Location = new Point(320, 833);
             txtDescr.Margin = new Padding(6);
             txtDescr.MaxLength = 50;
             txtDescr.Name = "txtDescr";
-            txtDescr.Size = new Size(1265, 39);
-            txtDescr.TabIndex = 41;
+            txtDescr.Size = new Size(1309, 46);
+            txtDescr.TabIndex = 16;
             // 
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(33, 233);
+            label4.Font = new Font("Segoe UI", 10.875F);
+            label4.Location = new Point(37, 836);
             label4.Margin = new Padding(6, 0, 6, 0);
             label4.Name = "label4";
-            label4.Size = new Size(142, 32);
+            label4.Size = new Size(168, 40);
             label4.TabIndex = 40;
             label4.Text = "Descrizione:";
             // 
             // txtCarattPericolosità
             // 
-            txtCarattPericolosità.Location = new Point(1098, 147);
+            txtCarattPericolosità.Font = new Font("Segoe UI", 10.875F);
+            txtCarattPericolosità.Location = new Point(1189, 768);
             txtCarattPericolosità.Margin = new Padding(6);
             txtCarattPericolosità.MaxLength = 25;
             txtCarattPericolosità.Name = "txtCarattPericolosità";
-            txtCarattPericolosità.Size = new Size(424, 39);
-            txtCarattPericolosità.TabIndex = 39;
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Location = new Point(875, 154);
-            label3.Margin = new Padding(6, 0, 6, 0);
-            label3.Name = "label3";
-            label3.Size = new Size(214, 32);
-            label3.TabIndex = 38;
-            label3.Text = "Caratt. Pericolosità:";
+            txtCarattPericolosità.Size = new Size(440, 46);
+            txtCarattPericolosità.TabIndex = 15;
             // 
             // grProvenienza
             // 
             grProvenienza.Controls.Add(rbProvUrb);
             grProvenienza.Controls.Add(rbProvSpec);
-            grProvenienza.Location = new Point(1098, 45);
+            grProvenienza.Location = new Point(1189, 674);
             grProvenienza.Margin = new Padding(6);
             grProvenienza.Name = "grProvenienza";
             grProvenienza.Padding = new Padding(6);
-            grProvenienza.Size = new Size(423, 90);
+            grProvenienza.Size = new Size(440, 82);
             grProvenienza.TabIndex = 37;
             grProvenienza.TabStop = false;
-            grProvenienza.Text = "Provenienza";
             // 
             // rbProvUrb
             // 
             rbProvUrb.AutoSize = true;
-            rbProvUrb.Location = new Point(35, 32);
+            rbProvUrb.Location = new Point(36, 32);
             rbProvUrb.Margin = new Padding(6);
             rbProvUrb.Name = "rbProvUrb";
             rbProvUrb.Size = new Size(123, 36);
-            rbProvUrb.TabIndex = 15;
+            rbProvUrb.TabIndex = 13;
             rbProvUrb.TabStop = true;
             rbProvUrb.Text = "Urbano";
             rbProvUrb.UseVisualStyleBackColor = true;
@@ -1173,205 +1127,394 @@ namespace FormulariRif_G.Forms
             // rbProvSpec
             // 
             rbProvSpec.AutoSize = true;
-            rbProvSpec.Location = new Point(165, 32);
+            rbProvSpec.Location = new Point(174, 32);
             rbProvSpec.Margin = new Padding(6);
             rbProvSpec.Name = "rbProvSpec";
             rbProvSpec.Size = new Size(133, 36);
-            rbProvSpec.TabIndex = 16;
+            rbProvSpec.TabIndex = 14;
             rbProvSpec.TabStop = true;
             rbProvSpec.Text = "Speciale";
             rbProvSpec.UseVisualStyleBackColor = true;
             // 
             // txtStatoFisco
             // 
-            txtStatoFisco.Location = new Point(663, 147);
+            txtStatoFisco.Font = new Font("Segoe UI", 10.875F);
+            txtStatoFisco.Location = new Point(670, 774);
             txtStatoFisco.Margin = new Padding(6);
             txtStatoFisco.MaxLength = 1;
             txtStatoFisco.Name = "txtStatoFisco";
-            txtStatoFisco.Size = new Size(138, 39);
-            txtStatoFisco.TabIndex = 36;
+            txtStatoFisco.Size = new Size(137, 46);
+            txtStatoFisco.TabIndex = 12;
             txtStatoFisco.KeyPress += txtStatoFisco_KeyPress;
             // 
             // label2
             // 
             label2.AutoSize = true;
-            label2.Location = new Point(500, 154);
+            label2.Font = new Font("Segoe UI", 10.875F);
+            label2.Location = new Point(491, 781);
             label2.Margin = new Padding(6, 0, 6, 0);
             label2.Name = "label2";
-            label2.Size = new Size(139, 32);
+            label2.Size = new Size(167, 40);
             label2.TabIndex = 35;
             label2.Text = "Stato Fisico:";
             // 
             // txtCodiceEER
             // 
-            txtCodiceEER.Location = new Point(256, 147);
+            txtCodiceEER.Font = new Font("Segoe UI", 10.875F);
+            txtCodiceEER.Location = new Point(320, 774);
             txtCodiceEER.Margin = new Padding(6);
             txtCodiceEER.MaxLength = 10;
             txtCodiceEER.Name = "txtCodiceEER";
-            txtCodiceEER.Size = new Size(210, 39);
-            txtCodiceEER.TabIndex = 34;
+            txtCodiceEER.Size = new Size(134, 46);
+            txtCodiceEER.TabIndex = 11;
             // 
             // label1
             // 
             label1.AutoSize = true;
-            label1.Location = new Point(33, 154);
+            label1.Font = new Font("Segoe UI", 10.875F);
+            label1.Location = new Point(37, 777);
             label1.Margin = new Padding(6, 0, 6, 0);
             label1.Name = "label1";
-            label1.Size = new Size(137, 32);
+            label1.Size = new Size(165, 40);
             label1.TabIndex = 33;
             label1.Text = "Codice EER:";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 10.875F);
+            label3.Location = new Point(917, 774);
+            label3.Margin = new Padding(6, 0, 6, 0);
+            label3.Name = "label3";
+            label3.Size = new Size(260, 40);
+            label3.TabIndex = 38;
+            label3.Text = "Caratt. Pericolosità:";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Font = new Font("Segoe UI", 10.875F);
+            label9.Location = new Point(1484, 333);
+            label9.Name = "label9";
+            label9.Size = new Size(37, 40);
+            label9.TabIndex = 53;
+            label9.Text = "D";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Font = new Font("Segoe UI", 10.875F);
+            label8.Location = new Point(1152, 333);
+            label8.Name = "label8";
+            label8.Size = new Size(205, 40);
+            label8.TabIndex = 52;
+            label8.Text = "Destinazione R";
+            // 
+            // cmbDestD
+            // 
+            cmbDestD.Enabled = false;
+            cmbDestD.Font = new Font("Segoe UI", 10.875F);
+            cmbDestD.FormattingEnabled = true;
+            cmbDestD.Location = new Point(1527, 325);
+            cmbDestD.Name = "cmbDestD";
+            cmbDestD.Size = new Size(102, 48);
+            cmbDestD.TabIndex = 8;
+            // 
+            // cmbDestR
+            // 
+            cmbDestR.Enabled = false;
+            cmbDestR.Font = new Font("Segoe UI", 10.875F);
+            cmbDestR.FormattingEnabled = true;
+            cmbDestR.Items.AddRange(new object[] { "", "R13", "R4" });
+            cmbDestR.Location = new Point(1363, 325);
+            cmbDestR.Name = "cmbDestR";
+            cmbDestR.Size = new Size(102, 48);
+            cmbDestR.TabIndex = 7;
             // 
             // btStampa
             // 
             btStampa.Enabled = false;
-            btStampa.Location = new Point(1273, 1022);
+            btStampa.Font = new Font("Segoe UI", 10.875F);
+            btStampa.Location = new Point(1672, 168);
             btStampa.Margin = new Padding(6);
             btStampa.Name = "btStampa";
-            btStampa.Size = new Size(139, 64);
+            btStampa.Size = new Size(144, 64);
             btStampa.TabIndex = 34;
             btStampa.Text = "Stampa";
             btStampa.UseVisualStyleBackColor = true;
             btStampa.Click += btStampa_Click;
             // 
-            // lblDestinatarioIndirizzo
-            // 
-            lblDestinatarioIndirizzo.AutoSize = true;
-            lblDestinatarioIndirizzo.Location = new Point(908, 183);
-            lblDestinatarioIndirizzo.Margin = new Padding(6, 0, 6, 0);
-            lblDestinatarioIndirizzo.Name = "lblDestinatarioIndirizzo";
-            lblDestinatarioIndirizzo.Size = new Size(109, 32);
-            lblDestinatarioIndirizzo.TabIndex = 37;
-            lblDestinatarioIndirizzo.Text = "Indirizzo:";
-            // 
             // cmbDestinatarioIndirizzo
             // 
             cmbDestinatarioIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbDestinatarioIndirizzo.FormattingEnabled = true;
-            cmbDestinatarioIndirizzo.Location = new Point(1149, 177);
+            cmbDestinatarioIndirizzo.Location = new Point(328, 391);
             cmbDestinatarioIndirizzo.Margin = new Padding(6);
             cmbDestinatarioIndirizzo.Name = "cmbDestinatarioIndirizzo";
-            cmbDestinatarioIndirizzo.Size = new Size(406, 40);
-            cmbDestinatarioIndirizzo.TabIndex = 5;
-            // 
-            // lblTrasportatoreIndirizzo
-            // 
-            lblTrasportatoreIndirizzo.AutoSize = true;
-            lblTrasportatoreIndirizzo.Location = new Point(908, 245);
-            lblTrasportatoreIndirizzo.Margin = new Padding(6, 0, 6, 0);
-            lblTrasportatoreIndirizzo.Name = "lblTrasportatoreIndirizzo";
-            lblTrasportatoreIndirizzo.Size = new Size(109, 32);
-            lblTrasportatoreIndirizzo.TabIndex = 41;
-            lblTrasportatoreIndirizzo.Text = "Indirizzo:";
+            cmbDestinatarioIndirizzo.Size = new Size(561, 40);
+            cmbDestinatarioIndirizzo.TabIndex = 6;
             // 
             // cmbTrasportatoreIndirizzo
             // 
             cmbTrasportatoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTrasportatoreIndirizzo.FormattingEnabled = true;
-            cmbTrasportatoreIndirizzo.Location = new Point(1149, 239);
+            cmbTrasportatoreIndirizzo.Location = new Point(328, 580);
             cmbTrasportatoreIndirizzo.Margin = new Padding(6);
             cmbTrasportatoreIndirizzo.Name = "cmbTrasportatoreIndirizzo";
-            cmbTrasportatoreIndirizzo.Size = new Size(406, 40);
-            cmbTrasportatoreIndirizzo.TabIndex = 7;
-            // 
-            // panel1
-            // 
-            panel1.BorderStyle = BorderStyle.Fixed3D;
-            panel1.Location = new Point(32, 601);
-            panel1.Margin = new Padding(6);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(1558, 4);
-            panel1.TabIndex = 43;
+            cmbTrasportatoreIndirizzo.Size = new Size(561, 40);
+            cmbTrasportatoreIndirizzo.TabIndex = 10;
             // 
             // scbProduttore
             // 
             scbProduttore.DisplayMember = "";
-            scbProduttore.LabelText = "Label:";
-            scbProduttore.Location = new Point(37, 115);
+            scbProduttore.Location = new Point(319, 139);
             scbProduttore.Margin = new Padding(6);
             scbProduttore.Name = "scbProduttore";
-            scbProduttore.Size = new Size(800, 65);
+            scbProduttore.Size = new Size(800, 66);
             scbProduttore.TabIndex = 2;
             scbProduttore.ValueMember = "";
             // 
             // scbDestinatario
             // 
             scbDestinatario.DisplayMember = "";
-            scbDestinatario.LabelText = "Label:";
-            scbDestinatario.Location = new Point(37, 176);
+            scbDestinatario.Location = new Point(319, 317);
             scbDestinatario.Margin = new Padding(6);
             scbDestinatario.Name = "scbDestinatario";
-            scbDestinatario.Size = new Size(800, 63);
-            scbDestinatario.TabIndex = 4;
+            scbDestinatario.Size = new Size(800, 62);
+            scbDestinatario.TabIndex = 5;
             scbDestinatario.ValueMember = "";
             // 
             // scbTrasportatore
             // 
             scbTrasportatore.DisplayMember = "";
-            scbTrasportatore.LabelText = "Label:";
-            scbTrasportatore.Location = new Point(37, 238);
+            scbTrasportatore.Location = new Point(319, 505);
             scbTrasportatore.Margin = new Padding(6);
             scbTrasportatore.Name = "scbTrasportatore";
-            scbTrasportatore.Size = new Size(800, 65);
-            scbTrasportatore.TabIndex = 6;
+            scbTrasportatore.Size = new Size(800, 66);
+            scbTrasportatore.TabIndex = 9;
             scbTrasportatore.ValueMember = "";
             // 
             // scbAutomezzo
             // 
             scbAutomezzo.DisplayMember = "";
-            scbAutomezzo.LabelText = "Label:";
-            scbAutomezzo.Location = new Point(37, 306);
+            scbAutomezzo.Location = new Point(320, 1111);
             scbAutomezzo.Margin = new Padding(6);
             scbAutomezzo.Name = "scbAutomezzo";
             scbAutomezzo.Size = new Size(800, 61);
-            scbAutomezzo.TabIndex = 8;
+            scbAutomezzo.TabIndex = 24;
             scbAutomezzo.ValueMember = "";
             // 
             // scbRimorchio
             // 
             scbRimorchio.DisplayMember = "";
-            scbRimorchio.LabelText = "Label:";
-            scbRimorchio.Location = new Point(37, 374);
+            scbRimorchio.Location = new Point(320, 1173);
             scbRimorchio.Margin = new Padding(6);
             scbRimorchio.Name = "scbRimorchio";
             scbRimorchio.Size = new Size(800, 61);
-            scbRimorchio.TabIndex = 9;
+            scbRimorchio.TabIndex = 25;
             scbRimorchio.ValueMember = "";
             // 
             // scbConducente
             // 
             scbConducente.DisplayMember = "";
-            scbConducente.LabelText = "Label:";
-            scbConducente.Location = new Point(37, 442);
+            scbConducente.Location = new Point(320, 1234);
             scbConducente.Margin = new Padding(6);
             scbConducente.Name = "scbConducente";
             scbConducente.Size = new Size(800, 61);
-            scbConducente.TabIndex = 10;
+            scbConducente.TabIndex = 26;
             scbConducente.ValueMember = "";
+            // 
+            // lbProduttore
+            // 
+            lbProduttore.BackColor = Color.FromArgb(224, 224, 224);
+            lbProduttore.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            lbProduttore.ForeColor = Color.FromArgb(0, 0, 192);
+            lbProduttore.Location = new Point(11, 84);
+            lbProduttore.Name = "lbProduttore";
+            lbProduttore.Padding = new Padding(20, 0, 0, 0);
+            lbProduttore.Size = new Size(1641, 49);
+            lbProduttore.TabIndex = 54;
+            lbProduttore.Text = "Produttore";
+            lbProduttore.TextAlign = ContentAlignment.MiddleLeft;
+            lbProduttore.Click += lbProduttore_Click;
+            // 
+            // label10
+            // 
+            label10.BackColor = Color.FromArgb(224, 224, 224);
+            label10.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label10.ForeColor = Color.FromArgb(0, 0, 192);
+            label10.ImageAlign = ContentAlignment.MiddleLeft;
+            label10.Location = new Point(11, 266);
+            label10.Name = "label10";
+            label10.Padding = new Padding(20, 0, 0, 0);
+            label10.Size = new Size(1641, 49);
+            label10.TabIndex = 55;
+            label10.Text = "Destinatario";
+            label10.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label11
+            // 
+            label11.BackColor = Color.FromArgb(224, 224, 224);
+            label11.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label11.ForeColor = Color.FromArgb(0, 0, 192);
+            label11.Location = new Point(11, 450);
+            label11.Name = "label11";
+            label11.Padding = new Padding(20, 0, 0, 0);
+            label11.Size = new Size(1641, 49);
+            label11.TabIndex = 56;
+            label11.Text = "Trasportatore";
+            label11.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label12
+            // 
+            label12.BackColor = Color.FromArgb(224, 224, 224);
+            label12.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label12.ForeColor = Color.FromArgb(0, 0, 192);
+            label12.Location = new Point(12, 1058);
+            label12.Name = "label12";
+            label12.Padding = new Padding(20, 0, 0, 0);
+            label12.Size = new Size(1640, 47);
+            label12.TabIndex = 57;
+            label12.Text = "Trasporto";
+            label12.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label13
+            // 
+            label13.BackColor = Color.FromArgb(224, 224, 224);
+            label13.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label13.ForeColor = Color.FromArgb(0, 0, 192);
+            label13.Location = new Point(11, 643);
+            label13.Name = "label13";
+            label13.Padding = new Padding(20, 0, 0, 0);
+            label13.Size = new Size(1641, 49);
+            label13.TabIndex = 58;
+            label13.Text = "Caratteristiche del Rifiuto";
+            label13.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // label14
+            // 
+            label14.AutoSize = true;
+            label14.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label14.Location = new Point(37, 1132);
+            label14.Name = "label14";
+            label14.Size = new Size(168, 40);
+            label14.TabIndex = 59;
+            label14.Text = "Automezzo:";
+            label14.Click += label14_Click;
+            // 
+            // label15
+            // 
+            label15.AutoSize = true;
+            label15.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label15.Location = new Point(37, 1194);
+            label15.Name = "label15";
+            label15.Size = new Size(152, 40);
+            label15.TabIndex = 60;
+            label15.Text = "Rimorchio:";
+            // 
+            // label16
+            // 
+            label16.AutoSize = true;
+            label16.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label16.Location = new Point(37, 1255);
+            label16.Name = "label16";
+            label16.Size = new Size(176, 40);
+            label16.TabIndex = 61;
+            label16.Text = "Conducente:";
+            // 
+            // label17
+            // 
+            label17.AutoSize = true;
+            label17.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label17.Location = new Point(37, 333);
+            label17.Name = "label17";
+            label17.Size = new Size(222, 40);
+            label17.TabIndex = 63;
+            label17.Text = "Denominazione:";
+            // 
+            // label18
+            // 
+            label18.AutoSize = true;
+            label18.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label18.Location = new Point(37, 519);
+            label18.Name = "label18";
+            label18.Size = new Size(222, 40);
+            label18.TabIndex = 64;
+            label18.Text = "Denominazione:";
+            // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label19.Location = new Point(37, 153);
+            label19.Name = "label19";
+            label19.Size = new Size(222, 40);
+            label19.TabIndex = 65;
+            label19.Text = "Denominazione:";
+            // 
+            // label20
+            // 
+            label20.AutoSize = true;
+            label20.Font = new Font("Segoe UI", 10.875F);
+            label20.Location = new Point(917, 702);
+            label20.Margin = new Padding(6, 0, 6, 0);
+            label20.Name = "label20";
+            label20.Size = new Size(177, 40);
+            label20.TabIndex = 66;
+            label20.Text = "Provenienza:";
             // 
             // FormulariRifiutiDetailForm
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1658, 1280);
+            ClientSize = new Size(1908, 1337);
+            Controls.Add(label20);
+            Controls.Add(label19);
+            Controls.Add(label18);
+            Controls.Add(label17);
+            Controls.Add(label16);
+            Controls.Add(label15);
+            Controls.Add(label14);
+            Controls.Add(txtChimicoFisiche);
+            Controls.Add(label7);
+            Controls.Add(grAspettoEsteriore);
+            Controls.Add(ckDetentoreR);
+            Controls.Add(label13);
+            Controls.Add(label12);
+            Controls.Add(ckPesoVerificato);
+            Controls.Add(label11);
+            Controls.Add(grKgLitri);
+            Controls.Add(label10);
+            Controls.Add(lbProduttore);
+            Controls.Add(label9);
+            Controls.Add(txtQuantita);
+            Controls.Add(label5);
             Controls.Add(scbConducente);
+            Controls.Add(label8);
+            Controls.Add(txtDescr);
+            Controls.Add(label4);
             Controls.Add(scbRimorchio);
             Controls.Add(scbAutomezzo);
+            Controls.Add(grProvenienza);
+            Controls.Add(txtCarattPericolosità);
+            Controls.Add(cmbDestD);
+            Controls.Add(label3);
+            Controls.Add(cmbDestR);
+            Controls.Add(txtStatoFisco);
+            Controls.Add(label2);
             Controls.Add(scbTrasportatore);
             Controls.Add(scbDestinatario);
+            Controls.Add(txtCodiceEER);
+            Controls.Add(label1);
             Controls.Add(scbProduttore);
-            Controls.Add(panel1);
             Controls.Add(cmbTrasportatoreIndirizzo);
-            Controls.Add(lblTrasportatoreIndirizzo);
             Controls.Add(cmbDestinatarioIndirizzo);
-            Controls.Add(lblDestinatarioIndirizzo);
             Controls.Add(btStampa);
-            Controls.Add(grCarattRifiuto);
             Controls.Add(btnAnnulla);
             Controls.Add(btnSalva);
             Controls.Add(txtNumeroFormulario);
             Controls.Add(lblNumeroFormulario);
             Controls.Add(cmbProduttoreIndirizzo);
-            Controls.Add(lblProduttoreIndirizzo);
             Controls.Add(dtpData);
             Controls.Add(lblData);
             FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -1381,8 +1524,6 @@ namespace FormulariRif_G.Forms
             Name = "FormulariRifiutiDetailForm";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Dettagli Formulario Rifiuti";
-            grCarattRifiuto.ResumeLayout(false);
-            grCarattRifiuto.PerformLayout();
             grAspettoEsteriore.ResumeLayout(false);
             grAspettoEsteriore.PerformLayout();
             grKgLitri.ResumeLayout(false);
@@ -1396,13 +1537,11 @@ namespace FormulariRif_G.Forms
 
         private System.Windows.Forms.Label lblData;
         private System.Windows.Forms.DateTimePicker dtpData;
-        private System.Windows.Forms.Label lblProduttoreIndirizzo;
         private System.Windows.Forms.ComboBox cmbProduttoreIndirizzo;
         private System.Windows.Forms.Label lblNumeroFormulario;
         private System.Windows.Forms.TextBox txtNumeroFormulario;
         private System.Windows.Forms.Button btnSalva;
         private System.Windows.Forms.Button btnAnnulla;
-        private System.Windows.Forms.GroupBox grCarattRifiuto;
         private System.Windows.Forms.GroupBox grAspettoEsteriore;
         private System.Windows.Forms.TextBox txtColli;
         private System.Windows.Forms.Label label6;
@@ -1427,11 +1566,8 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.TextBox txtCodiceEER;
         private System.Windows.Forms.Label label1;
         private Button btStampa;
-        private Label lblDestinatarioIndirizzo;
         private ComboBox cmbDestinatarioIndirizzo;
-        private Label lblTrasportatoreIndirizzo;
         private ComboBox cmbTrasportatoreIndirizzo;
-        private Panel panel1;
         private Controls.SearchableComboBox scbProduttore;
         private Controls.SearchableComboBox scbDestinatario;
         private Controls.SearchableComboBox scbTrasportatore;
@@ -1439,5 +1575,19 @@ namespace FormulariRif_G.Forms
 
         #endregion
 
+        private void lbProduttore_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label14_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ckDetentoreR_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

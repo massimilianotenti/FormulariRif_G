@@ -28,30 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            lblText = new Label();
-            //txtSearch = new TextBox();
             cmbBox = new ComboBox();
             SuspendLayout();
-            // 
-            // lblText
-            // 
-            lblText.Anchor = AnchorStyles.Left;
-            lblText.AutoSize = true;
-            lblText.Location = new Point(16, 14);
-            lblText.Margin = new Padding(0, 0, 6, 0);
-            lblText.Name = "lblText";
-            lblText.Size = new Size(75, 32);
-            lblText.TabIndex = 0;
-            lblText.Text = "Label:";
             // 
             // cmbBox
             // 
             cmbBox.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            cmbBox.Font = new Font("Segoe UI", 10.875F);
             cmbBox.FormattingEnabled = true;
-            cmbBox.Location = new Point(156, 11);
+            cmbBox.Location = new Point(6, 10);
             cmbBox.Margin = new Padding(6);
             cmbBox.Name = "cmbBox";
-            cmbBox.Size = new Size(663, 40);
+            cmbBox.Size = new Size(495, 48);
             cmbBox.TabIndex = 1;
             cmbBox.SelectedIndexChanged += cmbBox_SelectedIndexChanged;
             cmbBox.SelectionChangeCommitted += cmbBox_SelectionChangeCommitted;
@@ -62,19 +50,14 @@
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             Controls.Add(cmbBox);
-            Controls.Add(lblText);
             Margin = new Padding(6);
             Name = "SearchableComboBox";
-            Size = new Size(844, 64);
+            Size = new Size(507, 64);
             ResumeLayout(false);
-            PerformLayout();
 
         }
 
         #endregion
-
-    
-        private System.Windows.Forms.Label lblText;
         private System.Windows.Forms.ComboBox cmbBox;
     }
 }
