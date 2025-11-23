@@ -43,5 +43,10 @@ namespace FormulariRif_G.Models
                 return $"{this.Descrizione} ({tipo})";
             }
         }
+
+        public override string ToString()
+        {
+            return DisplayText;
+        }
     }
 }
