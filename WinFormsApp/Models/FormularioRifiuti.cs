@@ -16,49 +16,55 @@ namespace FormulariRif_G.Models
         public DateTime Data { get; set; }
 
         [Required]
-        [Column("id_produttore")] 
+        [Column("id_produttore")]
         public int IdProduttore { get; set; }
 
         [Required]
-        [Column("id_produttore_indirizzo")] 
+        [Column("id_produttore_indirizzo")]
         public int IdProduttoreIndirizzo { get; set; }
-        
+
         [Required]
-        [Column("id_destinatario")] 
+        [Column("id_destinatario")]
         public int IdDestinatario { get; set; }
 
         [Required]
-        [Column("id_destinatario_indirizzo")] 
+        [Column("id_destinatario_indirizzo")]
         public int IdDestinatarioIndirizzo { get; set; }
 
         [Required]
-        [Column("id_trasportatore")] 
+        [Column("id_trasportatore")]
         public int IdTrasportatore { get; set; }
 
         [Required]
-        [Column("id_trasportatore_indirizzo")] 
+        [Column("id_trasportatore_indirizzo")]
         public int IdTrasportatoreIndirizzo { get; set; }
 
-        [StringLength(50)] 
+        [StringLength(50)]
         [Column("numero_formulario")]
         public string? NumeroFormulario { get; set; } = string.Empty;
 
         [Required]
-        [Column("id_automezzo")] 
+        [Column("id_automezzo")]
         public int IdAutomezzo { get; set; }
+
+        [Column("id_rimorchio")]
+        public int? IdRimorchio { get; set; }
+
+        [Column("id_conducente")]
+        public int? IdConducente { get; set; }
 
         //Caratteristiche del rifiuto
         [StringLength(10)]
         [Column("codice_eer")]
         public string? CodiceEER { get; set; }
-        
+
         [StringLength(1)]
         [Column("stato_fisico")]
-        public string? SatoFisico { get; set; } 
+        public string? SatoFisico { get; set; }
 
         [Column("provenienza")]
         //1 - Urbano / 2 - Speciale
-        public int? Provenienza { get; set; }    
+        public int? Provenienza { get; set; }
 
         [StringLength(25)]
         [Column("caratteristiche_pericolosita")]
@@ -109,5 +115,7 @@ namespace FormulariRif_G.Models
         public ClienteIndirizzo? TrasportatoreIndirizzo { get; set; }
 
         public Automezzo? Automezzo { get; set; }
+        public Rimorchio? Rimorchio { get; set; }
+        public Conducente? Conducente { get; set; }
     }
 }
