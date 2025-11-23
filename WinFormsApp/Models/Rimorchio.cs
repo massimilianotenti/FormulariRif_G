@@ -28,5 +28,10 @@ namespace FormulariRif_G.Models
         public bool IsTestData { get; set; }
 
         public ICollection<Autom_Rim> RimorchioAutomezzi  { get; set; }
+
+        public override string ToString()
+        {
+            return Descrizione;
+        }
     }
 }

@@ -69,6 +69,7 @@ namespace FormulariRif_G.Forms
             scbProduttore.SelectedIndexChanged += scbProduttore_SelectedIndexChanged;
             scbDestinatario.SelectedIndexChanged += scbDestinatario_SelectedIndexChanged;
             scbTrasportatore.SelectedIndexChanged += scbTrasportatore_SelectedIndexChanged;
+            scbAutomezzo.SelectedIndexChanged += scbAutomezzo_SelectedIndexChanged;
         }
 
 
