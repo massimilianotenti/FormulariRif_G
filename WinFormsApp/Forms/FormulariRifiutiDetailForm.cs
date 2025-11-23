@@ -575,6 +575,7 @@ namespace FormulariRif_G.Forms
                 cmbTrasportatoreIndirizzo.Focus();
                 return false;
             }
+            /*
             if (scbAutomezzo.SelectedValue == null)
             {
                 MessageBox.Show("Seleziona un Automezzo.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -593,6 +594,7 @@ namespace FormulariRif_G.Forms
                 scbConducente.Focus();
                 return false;
             }
+            */
             return true;
         }
 
@@ -907,6 +909,7 @@ namespace FormulariRif_G.Forms
             btnSalva.Size = new Size(144, 64);
             btnSalva.TabIndex = 45;
             btnSalva.Text = "Salva";
+            btnSalva.Click += btnSalva_Click;
             // 
             // btnAnnulla
             // 
