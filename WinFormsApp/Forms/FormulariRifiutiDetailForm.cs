@@ -52,6 +52,12 @@ namespace FormulariRif_G.Forms
         private Label label18;
         private Label label19;
         private Label label20;
+        private ComboBox cmbProduttoreIndUl;
+        private ComboBox cmbDestinatarioIndUl;
+        private Label label21;
+        private Label label22;
+        private Label label23;
+        private Label label24;
         private SearchableComboBox scbConducente;
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
@@ -106,9 +112,11 @@ namespace FormulariRif_G.Forms
 
                 scbProduttore.SelectedValue = _currentFormulario.IdProduttore;
                 await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
+                await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndUl, _currentFormulario.IdProduttoreIndUl);
 
                 scbDestinatario.SelectedValue = _currentFormulario.IdDestinatario;
                 await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
+                await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndUl, _currentFormulario.IdDestinatarioIndUl);
 
                 scbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
                 await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
@@ -182,6 +190,8 @@ namespace FormulariRif_G.Forms
                     ckDetentoreR.Checked = _currentFormulario.Detentore_R.Value;
                 else
                     ckDetentoreR.Checked = false;
+                cmbDestR.Text = _currentFormulario.Dest_R ?? string.Empty;
+                cmbDestD.Text = _currentFormulario.Dest_D ?? string.Empty;
 
                 _isFormularioSaved = (_currentFormulario.Id != 0);
             }
@@ -213,6 +223,8 @@ namespace FormulariRif_G.Forms
                 txtColli.Text = string.Empty;
                 ckAllaRinfusa.Checked = false;
                 txtChimicoFisiche.Text = string.Empty;
+                cmbDestR.SelectedIndex = 0;
+                cmbDestR.SelectedIndex = 0;
 
                 _isFormularioSaved = false;
             }
@@ -239,9 +251,11 @@ namespace FormulariRif_G.Forms
 
             _currentFormulario.IdProduttore = (int)scbProduttore.SelectedValue;
             _currentFormulario.IdProduttoreIndirizzo = (int)cmbProduttoreIndirizzo.SelectedValue;
+            _currentFormulario.IdProduttoreIndUl = (int)cmbProduttoreIndUl.SelectedValue;
 
             _currentFormulario.IdDestinatario = (int)scbDestinatario.SelectedValue;
             _currentFormulario.IdDestinatarioIndirizzo = (int)cmbDestinatarioIndirizzo.SelectedValue;
+            _currentFormulario.IdDestinatarioIndUl = (int)cmbDestinatarioIndUl.SelectedValue;
 
             _currentFormulario.IdTrasportatore = (int)scbTrasportatore.SelectedValue;
             _currentFormulario.IdTrasportatoreIndirizzo = (int)cmbTrasportatoreIndirizzo.SelectedValue;
@@ -293,6 +307,16 @@ namespace FormulariRif_G.Forms
             // NOTA: La proprietà CaratteristicheChimiche viene sovrascritta qui.
             // Controllare se è il comportamento desiderato.
             _currentFormulario.CaratteristicheChimiche = txtChimicoFisiche.Text.Trim();
+
+            if(!string.IsNullOrWhiteSpace(cmbDestR.Text))             
+                _currentFormulario.Dest_R = cmbDestR.Text.Trim();            
+            else            
+                _currentFormulario.Dest_R = null;
+            if(!string.IsNullOrWhiteSpace(cmbDestD.Text))             
+                _currentFormulario.Dest_D = cmbDestD.Text.Trim();            
+            else            
+                _currentFormulario.Dest_D = null;
+
 
             try
             {
@@ -381,6 +405,7 @@ namespace FormulariRif_G.Forms
             if (_isLoading) return;
             var ownerCombo = sender as SearchableComboBox;
             await LoadIndirizziAsync(ownerCombo, cmbProduttoreIndirizzo);
+            await LoadIndirizziAsync(ownerCombo, cmbProduttoreIndUl);
         }
 
         private async Task LoadIndirizziAsync(SearchableComboBox ownerCombo, ComboBox addressCombo, int? addressIdToSelect = null)
@@ -426,6 +451,7 @@ namespace FormulariRif_G.Forms
             if (_isLoading) return;
             var ownerCombo = sender as SearchableComboBox;
             await LoadIndirizziAsync(ownerCombo, cmbDestinatarioIndirizzo);
+            await LoadIndirizziAsync(ownerCombo, cmbDestinatarioIndUl);
         }
 
         private async void scbTrasportatore_SelectedIndexChanged(object? sender, EventArgs e)
@@ -844,6 +870,12 @@ namespace FormulariRif_G.Forms
             label18 = new Label();
             label19 = new Label();
             label20 = new Label();
+            cmbProduttoreIndUl = new ComboBox();
+            cmbDestinatarioIndUl = new ComboBox();
+            label21 = new Label();
+            label22 = new Label();
+            label23 = new Label();
+            label24 = new Label();
             grAspettoEsteriore.SuspendLayout();
             grKgLitri.SuspendLayout();
             grProvenienza.SuspendLayout();
@@ -873,11 +905,12 @@ namespace FormulariRif_G.Forms
             // cmbProduttoreIndirizzo
             // 
             cmbProduttoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduttoreIndirizzo.Font = new Font("Segoe UI", 10.875F);
             cmbProduttoreIndirizzo.FormattingEnabled = true;
             cmbProduttoreIndirizzo.Location = new Point(328, 211);
             cmbProduttoreIndirizzo.Margin = new Padding(6);
             cmbProduttoreIndirizzo.Name = "cmbProduttoreIndirizzo";
-            cmbProduttoreIndirizzo.Size = new Size(561, 40);
+            cmbProduttoreIndirizzo.Size = new Size(561, 48);
             cmbProduttoreIndirizzo.TabIndex = 3;
             // 
             // lblNumeroFormulario
@@ -940,7 +973,7 @@ namespace FormulariRif_G.Forms
             grAspettoEsteriore.Controls.Add(txtColli);
             grAspettoEsteriore.Controls.Add(label6);
             grAspettoEsteriore.Controls.Add(ckAllaRinfusa);
-            grAspettoEsteriore.Location = new Point(1133, 885);
+            grAspettoEsteriore.Location = new Point(1134, 1007);
             grAspettoEsteriore.Margin = new Padding(6);
             grAspettoEsteriore.Name = "grAspettoEsteriore";
             grAspettoEsteriore.Padding = new Padding(6);
@@ -983,7 +1016,7 @@ namespace FormulariRif_G.Forms
             // txtChimicoFisiche
             // 
             txtChimicoFisiche.Font = new Font("Segoe UI", 10.875F);
-            txtChimicoFisiche.Location = new Point(320, 984);
+            txtChimicoFisiche.Location = new Point(321, 1103);
             txtChimicoFisiche.Margin = new Padding(6);
             txtChimicoFisiche.MaxLength = 25;
             txtChimicoFisiche.Name = "txtChimicoFisiche";
@@ -994,7 +1027,7 @@ namespace FormulariRif_G.Forms
             // 
             label7.AutoSize = true;
             label7.Font = new Font("Segoe UI", 10.875F);
-            label7.Location = new Point(38, 984);
+            label7.Location = new Point(39, 1103);
             label7.Margin = new Padding(6, 0, 6, 0);
             label7.Name = "label7";
             label7.Size = new Size(258, 40);
@@ -1005,7 +1038,7 @@ namespace FormulariRif_G.Forms
             // 
             ckPesoVerificato.AutoSize = true;
             ckPesoVerificato.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            ckPesoVerificato.Location = new Point(871, 908);
+            ckPesoVerificato.Location = new Point(872, 1030);
             ckPesoVerificato.Margin = new Padding(6);
             ckPesoVerificato.Name = "ckPesoVerificato";
             ckPesoVerificato.Size = new Size(233, 44);
@@ -1017,7 +1050,7 @@ namespace FormulariRif_G.Forms
             // 
             grKgLitri.Controls.Add(rbKg);
             grKgLitri.Controls.Add(rbLitri);
-            grKgLitri.Location = new Point(610, 885);
+            grKgLitri.Location = new Point(611, 1007);
             grKgLitri.Margin = new Padding(6);
             grKgLitri.Name = "grKgLitri";
             grKgLitri.Padding = new Padding(6);
@@ -1052,7 +1085,7 @@ namespace FormulariRif_G.Forms
             // txtQuantita
             // 
             txtQuantita.Font = new Font("Segoe UI", 10.875F);
-            txtQuantita.Location = new Point(320, 909);
+            txtQuantita.Location = new Point(321, 1031);
             txtQuantita.Margin = new Padding(6);
             txtQuantita.MaxLength = 12;
             txtQuantita.Name = "txtQuantita";
@@ -1064,7 +1097,7 @@ namespace FormulariRif_G.Forms
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI", 10.875F);
-            label5.Location = new Point(37, 905);
+            label5.Location = new Point(38, 1027);
             label5.Margin = new Padding(6, 0, 6, 0);
             label5.Name = "label5";
             label5.Size = new Size(134, 40);
@@ -1074,7 +1107,7 @@ namespace FormulariRif_G.Forms
             // txtDescr
             // 
             txtDescr.Font = new Font("Segoe UI", 10.875F);
-            txtDescr.Location = new Point(320, 833);
+            txtDescr.Location = new Point(321, 955);
             txtDescr.Margin = new Padding(6);
             txtDescr.MaxLength = 50;
             txtDescr.Name = "txtDescr";
@@ -1085,7 +1118,7 @@ namespace FormulariRif_G.Forms
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 10.875F);
-            label4.Location = new Point(37, 836);
+            label4.Location = new Point(38, 958);
             label4.Margin = new Padding(6, 0, 6, 0);
             label4.Name = "label4";
             label4.Size = new Size(168, 40);
@@ -1095,7 +1128,7 @@ namespace FormulariRif_G.Forms
             // txtCarattPericolosità
             // 
             txtCarattPericolosità.Font = new Font("Segoe UI", 10.875F);
-            txtCarattPericolosità.Location = new Point(1189, 768);
+            txtCarattPericolosità.Location = new Point(1190, 890);
             txtCarattPericolosità.Margin = new Padding(6);
             txtCarattPericolosità.MaxLength = 25;
             txtCarattPericolosità.Name = "txtCarattPericolosità";
@@ -1106,7 +1139,7 @@ namespace FormulariRif_G.Forms
             // 
             grProvenienza.Controls.Add(rbProvUrb);
             grProvenienza.Controls.Add(rbProvSpec);
-            grProvenienza.Location = new Point(1189, 674);
+            grProvenienza.Location = new Point(1190, 796);
             grProvenienza.Margin = new Padding(6);
             grProvenienza.Name = "grProvenienza";
             grProvenienza.Padding = new Padding(6);
@@ -1141,7 +1174,7 @@ namespace FormulariRif_G.Forms
             // txtStatoFisco
             // 
             txtStatoFisco.Font = new Font("Segoe UI", 10.875F);
-            txtStatoFisco.Location = new Point(670, 774);
+            txtStatoFisco.Location = new Point(671, 896);
             txtStatoFisco.Margin = new Padding(6);
             txtStatoFisco.MaxLength = 1;
             txtStatoFisco.Name = "txtStatoFisco";
@@ -1153,7 +1186,7 @@ namespace FormulariRif_G.Forms
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 10.875F);
-            label2.Location = new Point(491, 781);
+            label2.Location = new Point(492, 903);
             label2.Margin = new Padding(6, 0, 6, 0);
             label2.Name = "label2";
             label2.Size = new Size(167, 40);
@@ -1163,7 +1196,7 @@ namespace FormulariRif_G.Forms
             // txtCodiceEER
             // 
             txtCodiceEER.Font = new Font("Segoe UI", 10.875F);
-            txtCodiceEER.Location = new Point(320, 774);
+            txtCodiceEER.Location = new Point(321, 896);
             txtCodiceEER.Margin = new Padding(6);
             txtCodiceEER.MaxLength = 10;
             txtCodiceEER.Name = "txtCodiceEER";
@@ -1174,7 +1207,7 @@ namespace FormulariRif_G.Forms
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 10.875F);
-            label1.Location = new Point(37, 777);
+            label1.Location = new Point(38, 899);
             label1.Margin = new Padding(6, 0, 6, 0);
             label1.Name = "label1";
             label1.Size = new Size(165, 40);
@@ -1185,7 +1218,7 @@ namespace FormulariRif_G.Forms
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 10.875F);
-            label3.Location = new Point(917, 774);
+            label3.Location = new Point(918, 896);
             label3.Margin = new Padding(6, 0, 6, 0);
             label3.Name = "label3";
             label3.Size = new Size(260, 40);
@@ -1196,7 +1229,7 @@ namespace FormulariRif_G.Forms
             // 
             label9.AutoSize = true;
             label9.Font = new Font("Segoe UI", 10.875F);
-            label9.Location = new Point(1484, 333);
+            label9.Location = new Point(1485, 394);
             label9.Name = "label9";
             label9.Size = new Size(37, 40);
             label9.TabIndex = 53;
@@ -1206,7 +1239,7 @@ namespace FormulariRif_G.Forms
             // 
             label8.AutoSize = true;
             label8.Font = new Font("Segoe UI", 10.875F);
-            label8.Location = new Point(1152, 333);
+            label8.Location = new Point(1153, 394);
             label8.Name = "label8";
             label8.Size = new Size(205, 40);
             label8.TabIndex = 52;
@@ -1214,21 +1247,20 @@ namespace FormulariRif_G.Forms
             // 
             // cmbDestD
             // 
-            cmbDestD.Enabled = false;
             cmbDestD.Font = new Font("Segoe UI", 10.875F);
             cmbDestD.FormattingEnabled = true;
-            cmbDestD.Location = new Point(1527, 325);
+            cmbDestD.Items.AddRange(new object[] { "", "D1", "D5", "D9", "D10", "D12", "D15" });
+            cmbDestD.Location = new Point(1528, 386);
             cmbDestD.Name = "cmbDestD";
             cmbDestD.Size = new Size(102, 48);
             cmbDestD.TabIndex = 8;
             // 
             // cmbDestR
             // 
-            cmbDestR.Enabled = false;
             cmbDestR.Font = new Font("Segoe UI", 10.875F);
             cmbDestR.FormattingEnabled = true;
-            cmbDestR.Items.AddRange(new object[] { "", "R13", "R4" });
-            cmbDestR.Location = new Point(1363, 325);
+            cmbDestR.Items.AddRange(new object[] { "", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10", "R11", "R12", "R13" });
+            cmbDestR.Location = new Point(1364, 386);
             cmbDestR.Name = "cmbDestR";
             cmbDestR.Size = new Size(102, 48);
             cmbDestR.TabIndex = 7;
@@ -1249,18 +1281,19 @@ namespace FormulariRif_G.Forms
             // cmbDestinatarioIndirizzo
             // 
             cmbDestinatarioIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDestinatarioIndirizzo.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
             cmbDestinatarioIndirizzo.FormattingEnabled = true;
-            cmbDestinatarioIndirizzo.Location = new Point(328, 391);
+            cmbDestinatarioIndirizzo.Location = new Point(329, 452);
             cmbDestinatarioIndirizzo.Margin = new Padding(6);
             cmbDestinatarioIndirizzo.Name = "cmbDestinatarioIndirizzo";
-            cmbDestinatarioIndirizzo.Size = new Size(561, 40);
+            cmbDestinatarioIndirizzo.Size = new Size(561, 48);
             cmbDestinatarioIndirizzo.TabIndex = 6;
             // 
             // cmbTrasportatoreIndirizzo
             // 
             cmbTrasportatoreIndirizzo.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbTrasportatoreIndirizzo.FormattingEnabled = true;
-            cmbTrasportatoreIndirizzo.Location = new Point(328, 580);
+            cmbTrasportatoreIndirizzo.Location = new Point(329, 702);
             cmbTrasportatoreIndirizzo.Margin = new Padding(6);
             cmbTrasportatoreIndirizzo.Name = "cmbTrasportatoreIndirizzo";
             cmbTrasportatoreIndirizzo.Size = new Size(561, 40);
@@ -1279,7 +1312,7 @@ namespace FormulariRif_G.Forms
             // scbDestinatario
             // 
             scbDestinatario.DisplayMember = "";
-            scbDestinatario.Location = new Point(319, 317);
+            scbDestinatario.Location = new Point(320, 378);
             scbDestinatario.Margin = new Padding(6);
             scbDestinatario.Name = "scbDestinatario";
             scbDestinatario.Size = new Size(800, 62);
@@ -1289,7 +1322,7 @@ namespace FormulariRif_G.Forms
             // scbTrasportatore
             // 
             scbTrasportatore.DisplayMember = "";
-            scbTrasportatore.Location = new Point(319, 505);
+            scbTrasportatore.Location = new Point(320, 627);
             scbTrasportatore.Margin = new Padding(6);
             scbTrasportatore.Name = "scbTrasportatore";
             scbTrasportatore.Size = new Size(800, 66);
@@ -1299,7 +1332,7 @@ namespace FormulariRif_G.Forms
             // scbAutomezzo
             // 
             scbAutomezzo.DisplayMember = "";
-            scbAutomezzo.Location = new Point(320, 1111);
+            scbAutomezzo.Location = new Point(321, 1230);
             scbAutomezzo.Margin = new Padding(6);
             scbAutomezzo.Name = "scbAutomezzo";
             scbAutomezzo.Size = new Size(800, 61);
@@ -1309,7 +1342,7 @@ namespace FormulariRif_G.Forms
             // scbRimorchio
             // 
             scbRimorchio.DisplayMember = "";
-            scbRimorchio.Location = new Point(320, 1173);
+            scbRimorchio.Location = new Point(321, 1292);
             scbRimorchio.Margin = new Padding(6);
             scbRimorchio.Name = "scbRimorchio";
             scbRimorchio.Size = new Size(800, 61);
@@ -1319,7 +1352,7 @@ namespace FormulariRif_G.Forms
             // scbConducente
             // 
             scbConducente.DisplayMember = "";
-            scbConducente.Location = new Point(320, 1234);
+            scbConducente.Location = new Point(321, 1353);
             scbConducente.Margin = new Padding(6);
             scbConducente.Name = "scbConducente";
             scbConducente.Size = new Size(800, 61);
@@ -1346,7 +1379,7 @@ namespace FormulariRif_G.Forms
             label10.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label10.ForeColor = Color.FromArgb(0, 0, 192);
             label10.ImageAlign = ContentAlignment.MiddleLeft;
-            label10.Location = new Point(11, 266);
+            label10.Location = new Point(12, 327);
             label10.Name = "label10";
             label10.Padding = new Padding(20, 0, 0, 0);
             label10.Size = new Size(1641, 49);
@@ -1359,7 +1392,7 @@ namespace FormulariRif_G.Forms
             label11.BackColor = Color.FromArgb(224, 224, 224);
             label11.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label11.ForeColor = Color.FromArgb(0, 0, 192);
-            label11.Location = new Point(11, 450);
+            label11.Location = new Point(12, 572);
             label11.Name = "label11";
             label11.Padding = new Padding(20, 0, 0, 0);
             label11.Size = new Size(1641, 49);
@@ -1372,7 +1405,7 @@ namespace FormulariRif_G.Forms
             label12.BackColor = Color.FromArgb(224, 224, 224);
             label12.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label12.ForeColor = Color.FromArgb(0, 0, 192);
-            label12.Location = new Point(12, 1058);
+            label12.Location = new Point(13, 1177);
             label12.Name = "label12";
             label12.Padding = new Padding(20, 0, 0, 0);
             label12.Size = new Size(1640, 47);
@@ -1385,7 +1418,7 @@ namespace FormulariRif_G.Forms
             label13.BackColor = Color.FromArgb(224, 224, 224);
             label13.Font = new Font("Segoe UI Black", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label13.ForeColor = Color.FromArgb(0, 0, 192);
-            label13.Location = new Point(11, 643);
+            label13.Location = new Point(12, 765);
             label13.Name = "label13";
             label13.Padding = new Padding(20, 0, 0, 0);
             label13.Size = new Size(1641, 49);
@@ -1397,7 +1430,7 @@ namespace FormulariRif_G.Forms
             // 
             label14.AutoSize = true;
             label14.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label14.Location = new Point(37, 1132);
+            label14.Location = new Point(38, 1251);
             label14.Name = "label14";
             label14.Size = new Size(168, 40);
             label14.TabIndex = 59;
@@ -1408,7 +1441,7 @@ namespace FormulariRif_G.Forms
             // 
             label15.AutoSize = true;
             label15.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label15.Location = new Point(37, 1194);
+            label15.Location = new Point(38, 1313);
             label15.Name = "label15";
             label15.Size = new Size(152, 40);
             label15.TabIndex = 60;
@@ -1418,7 +1451,7 @@ namespace FormulariRif_G.Forms
             // 
             label16.AutoSize = true;
             label16.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label16.Location = new Point(37, 1255);
+            label16.Location = new Point(38, 1374);
             label16.Name = "label16";
             label16.Size = new Size(176, 40);
             label16.TabIndex = 61;
@@ -1428,7 +1461,7 @@ namespace FormulariRif_G.Forms
             // 
             label17.AutoSize = true;
             label17.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label17.Location = new Point(37, 333);
+            label17.Location = new Point(38, 394);
             label17.Name = "label17";
             label17.Size = new Size(222, 40);
             label17.TabIndex = 63;
@@ -1438,7 +1471,7 @@ namespace FormulariRif_G.Forms
             // 
             label18.AutoSize = true;
             label18.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label18.Location = new Point(37, 519);
+            label18.Location = new Point(38, 641);
             label18.Name = "label18";
             label18.Size = new Size(222, 40);
             label18.TabIndex = 64;
@@ -1458,18 +1491,87 @@ namespace FormulariRif_G.Forms
             // 
             label20.AutoSize = true;
             label20.Font = new Font("Segoe UI", 10.875F);
-            label20.Location = new Point(917, 702);
+            label20.Location = new Point(918, 824);
             label20.Margin = new Padding(6, 0, 6, 0);
             label20.Name = "label20";
             label20.Size = new Size(177, 40);
             label20.TabIndex = 66;
             label20.Text = "Provenienza:";
             // 
+            // cmbProduttoreIndUl
+            // 
+            cmbProduttoreIndUl.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbProduttoreIndUl.Font = new Font("Segoe UI", 10.875F);
+            cmbProduttoreIndUl.FormattingEnabled = true;
+            cmbProduttoreIndUl.ItemHeight = 40;
+            cmbProduttoreIndUl.Location = new Point(329, 269);
+            cmbProduttoreIndUl.Margin = new Padding(6);
+            cmbProduttoreIndUl.Name = "cmbProduttoreIndUl";
+            cmbProduttoreIndUl.Size = new Size(561, 48);
+            cmbProduttoreIndUl.TabIndex = 67;
+            // 
+            // cmbDestinatarioIndUl
+            // 
+            cmbDestinatarioIndUl.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbDestinatarioIndUl.Font = new Font("Segoe UI", 10.875F);
+            cmbDestinatarioIndUl.FormattingEnabled = true;
+            cmbDestinatarioIndUl.Location = new Point(328, 511);
+            cmbDestinatarioIndUl.Margin = new Padding(6);
+            cmbDestinatarioIndUl.Name = "cmbDestinatarioIndUl";
+            cmbDestinatarioIndUl.Size = new Size(561, 48);
+            cmbDestinatarioIndUl.TabIndex = 6;
+            // 
+            // label21
+            // 
+            label21.AutoSize = true;
+            label21.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label21.Location = new Point(39, 455);
+            label21.Name = "label21";
+            label21.Size = new Size(131, 40);
+            label21.TabIndex = 69;
+            label21.Text = "Indirizzo:";
+            // 
+            // label22
+            // 
+            label22.AutoSize = true;
+            label22.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label22.Location = new Point(39, 514);
+            label22.Name = "label22";
+            label22.Size = new Size(180, 40);
+            label22.TabIndex = 70;
+            label22.Text = "Unità Locale:";
+            // 
+            // label23
+            // 
+            label23.AutoSize = true;
+            label23.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label23.Location = new Point(41, 270);
+            label23.Name = "label23";
+            label23.Size = new Size(180, 40);
+            label23.TabIndex = 72;
+            label23.Text = "Unità Locale:";
+            // 
+            // label24
+            // 
+            label24.AutoSize = true;
+            label24.Font = new Font("Segoe UI", 10.875F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            label24.Location = new Point(41, 211);
+            label24.Name = "label24";
+            label24.Size = new Size(131, 40);
+            label24.TabIndex = 71;
+            label24.Text = "Indirizzo:";
+            // 
             // FormulariRifiutiDetailForm
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1908, 1337);
+            ClientSize = new Size(1908, 1423);
+            Controls.Add(label23);
+            Controls.Add(label24);
+            Controls.Add(label22);
+            Controls.Add(label21);
+            Controls.Add(cmbDestinatarioIndUl);
+            Controls.Add(cmbProduttoreIndUl);
             Controls.Add(label20);
             Controls.Add(label19);
             Controls.Add(label18);

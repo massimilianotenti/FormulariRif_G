@@ -22,6 +22,9 @@ namespace FormulariRif_G.Models
         [Required]
         [Column("id_produttore_indirizzo")]
         public int IdProduttoreIndirizzo { get; set; }
+        
+        [Column("id_produttore_ind_ul")]
+        public int? IdProduttoreIndUl { get; set; }
 
         [Required]
         [Column("id_destinatario")]
@@ -30,6 +33,9 @@ namespace FormulariRif_G.Models
         [Required]
         [Column("id_destinatario_indirizzo")]
         public int IdDestinatarioIndirizzo { get; set; }
+        
+        [Column("id_destinatario_ind_ul")]
+        public int? IdDestinatarioIndUl { get; set; }
 
         [Required]
         [Column("id_trasportatore")]
@@ -108,8 +114,11 @@ namespace FormulariRif_G.Models
         public Cliente? Produttore { get; set; }
         public ClienteIndirizzo? ProduttoreIndirizzo { get; set; }
 
+        public ClienteIndirizzo? ProduttoreIndUl { get; set; }
+
         public Cliente? Destinatario { get; set; }
         public ClienteIndirizzo? DestinatarioIndirizzo { get; set; }
+        public ClienteIndirizzo? DestinatarioIndUl { get; set; }
 
         public Cliente? Trasportatore { get; set; }
         public ClienteIndirizzo? TrasportatoreIndirizzo { get; set; }

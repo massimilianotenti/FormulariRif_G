@@ -3,7 +3,7 @@
 * **Gestione Anagrafiche Conducenti:**
     * [x] Implementare la gestione delle anagrafiche conducenti, associando uno o più conducenti (dipendenti o trasportatori esterni) 
           a ciascun mezzo.
-    * [ ] quando inserisco un formulario devo poi indicare il conducente scegliendo tra quelli associati al mezzo
+    * [x] quando inserisco un formulario devo poi indicare il conducente scegliendo tra quelli associati al mezzo
 * **Centralizzazione Anagrafiche Soggetti:**
     * [x] Assicurarsi che produttore, destinatario e trasportatore attingano da un'unica anagrafica soggetti.
     * [x] Prevedere la possibilità che un soggetto possa ricoprire più ruoli contemporaneamente (es. destinatario che è anche 
@@ -11,7 +11,7 @@
 * **Flag Detentore:**
     * [x] Prevedere un flag "detentore" sul modulo, spuntabile sul produttore se è anche il detentore dei rifiuti.
 * **Codice R13/R4:**
-    * [ ] Il codice non è fisso R13; può essere **R13** o **R4**. Va inserito nel formulario, non nell'anagrafica.
+    * [x] Il codice non è fisso R13; può essere **R13** o **R4**. Va inserito nel formulario, non nell'anagrafica.
 * **Alternazione Comunale:**
     * [ ] L'alternazione comunale è fissa per l'anagrafica soggetto.
 * **Tipologia:**
@@ -24,7 +24,7 @@
     * [x] La targa è fissa per l'automezzo.
     * [x] Il rimorchio è variabile: un automezzo può avere uno o più rimorchi.
 * **Unità Locale:**
-    * [ ] L'unità locale deve essere tabellata tra gli indirizzi dei soggetti. La ragione sociale, partita IVA e indirizzo della 
+    * [x] L'unità locale deve essere tabellata tra gli indirizzi dei soggetti. La ragione sociale, partita IVA e indirizzo della 
           sede principale vanno nella parte superiore del modulo, mentre l'unità locale (uno degli indirizzi dell'anagrafica del 
           soggetto) va nel rigo dedicato
 * **Bug**   
@@ -65,10 +65,10 @@
 ## Gestione Form e Interfaccia Utente
 
 * **Logica di Salvataggio:**
-    * [ ] Rifattorizzare la logica di salvataggio per sfruttare il data binding del designer di Visual Studio, evitando `load` 
+    * [.] Rifattorizzare la logica di salvataggio per sfruttare il data binding del designer di Visual Studio, evitando `load` 
           asincrone a codice. Il bottone salva dovrebbe richiamare `dbContext.SaveChanges()` e aggiornare la data grid.
 * **Long Closing (Dispose Context):**
-    * [ ] Implementare il `Long Closing` (dispose del DB Context) alla chiusura delle form, specialmente se il `NewDB Context` è 
+    * [.] Implementare il `Long Closing` (dispose del DB Context) alla chiusura delle form, specialmente se il `NewDB Context` è 
           creato all'interno della form, per evitare problemi di connessioni massime raggiunte o instanze multiple. Testare lo 
           scenario di apertura/chiusura/riapertura delle form.
 * **Gestione Form Modali (Dialoghi):**
