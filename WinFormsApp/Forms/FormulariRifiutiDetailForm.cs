@@ -52,8 +52,8 @@ namespace FormulariRif_G.Forms
         private Label label18;
         private Label label19;
         private Label label20;
-        private ComboBox cmbProduttoreIndUl;
-        private ComboBox cmbDestinatarioIndUl;
+        private SearchableComboBox cmbProduttoreIndUl;
+        private SearchableComboBox cmbDestinatarioIndUl;
         private Label label21;
         private Label label22;
         private Label label23;
@@ -308,13 +308,13 @@ namespace FormulariRif_G.Forms
             // Controllare se è il comportamento desiderato.
             _currentFormulario.CaratteristicheChimiche = txtChimicoFisiche.Text.Trim();
 
-            if(!string.IsNullOrWhiteSpace(cmbDestR.Text))             
-                _currentFormulario.Dest_R = cmbDestR.Text.Trim();            
-            else            
+            if (!string.IsNullOrWhiteSpace(cmbDestR.Text))
+                _currentFormulario.Dest_R = cmbDestR.Text.Trim();
+            else
                 _currentFormulario.Dest_R = null;
-            if(!string.IsNullOrWhiteSpace(cmbDestD.Text))             
-                _currentFormulario.Dest_D = cmbDestD.Text.Trim();            
-            else            
+            if (!string.IsNullOrWhiteSpace(cmbDestD.Text))
+                _currentFormulario.Dest_D = cmbDestD.Text.Trim();
+            else
                 _currentFormulario.Dest_D = null;
 
 
@@ -408,9 +408,10 @@ namespace FormulariRif_G.Forms
             await LoadIndirizziAsync(ownerCombo, cmbProduttoreIndUl);
         }
 
-        private async Task LoadIndirizziAsync(SearchableComboBox ownerCombo, ComboBox addressCombo, int? addressIdToSelect = null)
+        private async Task LoadIndirizziAsync(SearchableComboBox ownerCombo, SearchableComboBox addressCombo, int? addressIdToSelect = null)
         {
             addressCombo.DataSource = null;
+            addressCombo.Clear();
 
             if (ownerCombo.SelectedValue is int ownerId && ownerId > 0)
             {
@@ -419,7 +420,7 @@ namespace FormulariRif_G.Forms
                     var indirizzi = (await _clienteIndirizzoRepository.FindAsync(ci => ci.IdCli == ownerId)).ToList();
                     if (indirizzi.Any())
                     {
-                        addressCombo.DataSource = indirizzi;
+                        addressCombo.DataSource = indirizzi.Cast<object>().ToList();
                         addressCombo.DisplayMember = "IndirizzoCompleto";
                         addressCombo.ValueMember = "Id";
 
@@ -816,7 +817,7 @@ namespace FormulariRif_G.Forms
         {
             lblData = new Label();
             dtpData = new DateTimePicker();
-            cmbProduttoreIndirizzo = new ComboBox();
+            cmbProduttoreIndirizzo = new SearchableComboBox();
             lblNumeroFormulario = new Label();
             txtNumeroFormulario = new TextBox();
             btnSalva = new Button();
@@ -850,8 +851,8 @@ namespace FormulariRif_G.Forms
             cmbDestD = new ComboBox();
             cmbDestR = new ComboBox();
             btStampa = new Button();
-            cmbDestinatarioIndirizzo = new ComboBox();
-            cmbTrasportatoreIndirizzo = new ComboBox();
+            cmbDestinatarioIndirizzo = new SearchableComboBox();
+            cmbTrasportatoreIndirizzo = new SearchableComboBox();
             scbProduttore = new SearchableComboBox();
             scbDestinatario = new SearchableComboBox();
             scbTrasportatore = new SearchableComboBox();
@@ -870,8 +871,8 @@ namespace FormulariRif_G.Forms
             label18 = new Label();
             label19 = new Label();
             label20 = new Label();
-            cmbProduttoreIndUl = new ComboBox();
-            cmbDestinatarioIndUl = new ComboBox();
+            cmbProduttoreIndUl = new SearchableComboBox();
+            cmbDestinatarioIndUl = new SearchableComboBox();
             label21 = new Label();
             label22 = new Label();
             label23 = new Label();
