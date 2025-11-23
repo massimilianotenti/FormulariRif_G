@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             lblText = new Label();
-            txtSearch = new TextBox();
+            //txtSearch = new TextBox();
             cmbBox = new ComboBox();
             SuspendLayout();
             // 
@@ -73,6 +73,7 @@
 
         #endregion
 
+    
         private System.Windows.Forms.Label lblText;
         private System.Windows.Forms.ComboBox cmbBox;
     }
