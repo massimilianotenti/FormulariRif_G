@@ -35,11 +35,18 @@ namespace FormulariRif_G.Forms
         private ComboBox cmbDestR;
         private Label label9;
         private Label label8;
+        private Label label8;
         private List<Automezzo> _allAutomezzi;
+        private readonly IGenericRepository<Rimorchio> _rimorchioRepository;
+        private readonly IGenericRepository<Conducente> _conducenteRepository;
+        private SearchableComboBox scbRimorchio;
+        private SearchableComboBox scbConducente;
         public FormulariRifiutiDetailForm(IGenericRepository<FormularioRifiuti> formularioRifiutiRepository,
                                          IGenericRepository<Cliente> clienteRepository,
                                          IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository,
                                          IGenericRepository<Automezzo> automezzoRepository,
+                                         IGenericRepository<Rimorchio> rimorchioRepository,
+                                         IGenericRepository<Conducente> conducenteRepository,
                                          IGenericRepository<Configurazione> configurazioneRepository)
         {
             InitializeComponent();
@@ -47,16 +54,6 @@ namespace FormulariRif_G.Forms
             _clienteRepository = clienteRepository;
             _clienteIndirizzoRepository = clienteIndirizzoRepository;
             _automezzoRepository = automezzoRepository;
-            _configurazioneRepository = configurazioneRepository;
-            //this.Load += FormulariRifiutiDetailForm_Load;
-            if(scbProduttore != null) scbProduttore.SelectedIndexChanged += scbProduttore_SelectedIndexChanged;
-            if(scbDestinatario != null) scbDestinatario.SelectedIndexChanged += scbDestinatario_SelectedIndexChanged;
-            if(scbTrasportatore != null) scbTrasportatore.SelectedIndexChanged += scbTrasportatore_SelectedIndexChanged;
-        }
-
-        /*
-        private async void FormulariRifiutiDetailForm_Load(object? sender, EventArgs e)
-        {
             _isLoading = true;
             await LoadComboBoxes();
             await LoadFormularioData();
@@ -72,7 +69,7 @@ namespace FormulariRif_G.Forms
         /// </summary>
         /// <param name="formulario">L'oggetto FormularioRifiuti.</param>
         public async void SetFormulario(FormularioRifiuti formulario)
-        {            
+        {
             _currentFormulario = formulario;
 
             _isLoading = true;
@@ -84,16 +81,19 @@ namespace FormulariRif_G.Forms
             await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
             _isLoading = false;
 
-            LoadFormularioData();
+            await LoadFormularioData();
             this.Text = _currentFormulario.Id == 0 ? "Nuovo Formulario Rifiuti" : "Modifica Formulario Rifiuti";
             // La logica _isFormularioSaved ora riflette se il formulario esiste già nel DB (non è nuovo)
-            _isFormularioSaved = (_currentFormulario != null && _currentFormulario.Id != 0);            
+            _isFormularioSaved = (_currentFormulario != null && _currentFormulario.Id != 0);
         }
 
         /// <summary>
         /// Carica i dati del formulario nei controlli del form.
         /// </summary>
-        private void LoadFormularioData()
+        /// <summary>
+        /// Carica i dati del formulario nei controlli del form.
+        /// </summary>
+        private async Task LoadFormularioData()
         {
             if (_currentFormulario != null)
             {
@@ -103,10 +103,19 @@ namespace FormulariRif_G.Forms
                 scbProduttore.SelectedValue = _currentFormulario.IdProduttore;
                 scbDestinatario.SelectedValue = _currentFormulario.IdDestinatario;
                 scbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
+
+                // Imposta l'automezzo e carica le liste dipendenti
                 scbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
+                await LoadRimorchiAndConducentiAsync();
+
+                // Imposta i valori selezionati per Rimorchio e Conducente
+                if (_currentFormulario.IdRimorchio.HasValue)
+                    scbRimorchio.SelectedValue = _currentFormulario.IdRimorchio.Value;
+                if (_currentFormulario.IdConducente.HasValue)
+                    scbConducente.SelectedValue = _currentFormulario.IdConducente.Value;
 
                 // Caratteristiche del rifiuto
-                txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;                
+                txtCodiceEER.Text = _currentFormulario.CodiceEER ?? string.Empty;
                 txtStatoFisco.Text = _currentFormulario.SatoFisico ?? string.Empty;
 
                 // NOTA: La proprietà CaratteristicheChimiche è usata per due campi diversi.
@@ -146,7 +155,7 @@ namespace FormulariRif_G.Forms
                     ckPesoVerificato.Checked = _currentFormulario.PesoVerificato.Value;
                 else
                     ckPesoVerificato.Checked = false;
-                if(_currentFormulario.Detentore_R.HasValue)
+                if (_currentFormulario.Detentore_R.HasValue)
                     ckDetentoreR.Checked = _currentFormulario.Detentore_R.Value;
                 else
                     ckDetentoreR.Checked = false;
@@ -177,6 +186,8 @@ namespace FormulariRif_G.Forms
                 scbDestinatario.Clear();
                 scbTrasportatore.Clear();
                 scbAutomezzo.Clear();
+                scbRimorchio.Clear();
+                scbConducente.Clear();
 
                 // Pulisci campi caratteristiche rifiuto
                 txtCodiceEER.Text = string.Empty;
@@ -227,6 +238,8 @@ namespace FormulariRif_G.Forms
             _currentFormulario.IdTrasportatoreIndirizzo = (int)cmbTrasportatoreIndirizzo.SelectedValue;
 
             _currentFormulario.IdAutomezzo = (int)scbAutomezzo.SelectedValue;
+            _currentFormulario.IdRimorchio = scbRimorchio.SelectedValue as int?;
+            _currentFormulario.IdConducente = scbConducente.SelectedValue as int?;
 
             // Caratteristiche del rifiuto
             _currentFormulario.CodiceEER = txtCodiceEER.Text.Trim();
@@ -255,7 +268,7 @@ namespace FormulariRif_G.Forms
                 _currentFormulario.PesoVerificato = true;
             else
                 _currentFormulario.PesoVerificato = false;
-            if(ckDetentoreR.Checked)
+            if (ckDetentoreR.Checked)
                 _currentFormulario.Detentore_R = true;
             else
                 _currentFormulario.Detentore_R = false;
@@ -303,7 +316,7 @@ namespace FormulariRif_G.Forms
             this.Close();
         }
 
-        
+
 
         /// <summary>
         /// Carica le ComboBox per Clienti e Automezzi.
@@ -338,6 +351,16 @@ namespace FormulariRif_G.Forms
                 scbAutomezzo.DisplayMember = "Descrizione";
                 scbAutomezzo.ValueMember = "Id";
                 scbAutomezzo.DataSource = _allAutomezzi.Cast<object>().ToList();
+
+                // Configura il componente per il Rimorchio
+                scbRimorchio.LabelText = "Rimorchio:";
+                scbRimorchio.DisplayMember = "Descrizione"; // O Targa?
+                scbRimorchio.ValueMember = "Id";
+
+                // Configura il componente per il Conducente
+                scbConducente.LabelText = "Conducente:";
+                scbConducente.DisplayMember = "DisplayText";
+                scbConducente.ValueMember = "Id";
             }
             catch (Exception ex)
             {
@@ -401,6 +424,45 @@ namespace FormulariRif_G.Forms
             if (_isLoading) return;
             var ownerCombo = sender as SearchableComboBox;
             await LoadIndirizziAsync(ownerCombo, cmbTrasportatoreIndirizzo);
+        }
+
+        private async void scbAutomezzo_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            if (_isLoading) return;
+            await LoadRimorchiAndConducentiAsync();
+        }
+
+        private async Task LoadRimorchiAndConducentiAsync()
+        {
+            scbRimorchio.Clear();
+            scbConducente.Clear();
+            scbRimorchio.DataSource = null;
+            scbConducente.DataSource = null;
+
+            if (scbAutomezzo.SelectedValue is int automezzoId && automezzoId > 0)
+            {
+                try
+                {
+                    // Carica l'automezzo con le relazioni
+                    var automezzo = await _automezzoRepository.AsQueryable()
+                        .Include(a => a.AutomezziRimorchi).ThenInclude(ar => ar.Rimorchio)
+                        .Include(a => a.AutomezziConducenti).ThenInclude(ac => ac.Conducente)
+                        .FirstOrDefaultAsync(a => a.Id == automezzoId);
+
+                    if (automezzo != null)
+                    {
+                        var rimorchi = automezzo.AutomezziRimorchi.Select(ar => ar.Rimorchio).ToList();
+                        var conducenti = automezzo.AutomezziConducenti.Select(ac => ac.Conducente).ToList();
+
+                        scbRimorchio.DataSource = rimorchi.Cast<object>().ToList();
+                        scbConducente.DataSource = conducenti.Cast<object>().ToList();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Errore durante il caricamento di rimorchi e conducenti: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         #region validazione input
@@ -509,6 +571,18 @@ namespace FormulariRif_G.Forms
             {
                 MessageBox.Show("Seleziona un Automezzo.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 scbAutomezzo.Focus();
+                return false;
+            }
+            if (scbRimorchio.SelectedValue == null)
+            {
+                MessageBox.Show("Seleziona un Rimorchio.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                scbRimorchio.Focus();
+                return false;
+            }
+            if (scbConducente.SelectedValue == null)
+            {
+                MessageBox.Show("Seleziona un Conducente.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                scbConducente.Focus();
                 return false;
             }
             return true;
@@ -673,8 +747,8 @@ namespace FormulariRif_G.Forms
             }
         }
 
-        #endregion       
-    
+        #endregion
+
 
         // Codice generato dal designer
         #region Windows Form Designer generated code
@@ -750,6 +824,8 @@ namespace FormulariRif_G.Forms
             scbDestinatario = new SearchableComboBox();
             scbTrasportatore = new SearchableComboBox();
             scbAutomezzo = new SearchableComboBox();
+            scbRimorchio = new SearchableComboBox();
+            scbConducente = new SearchableComboBox();
             grCarattRifiuto.SuspendLayout();
             grAspettoEsteriore.SuspendLayout();
             grKgLitri.SuspendLayout();
@@ -818,21 +894,6 @@ namespace FormulariRif_G.Forms
             // 
             btnSalva.Location = new Point(1455, 1022);
             btnSalva.Margin = new Padding(6);
-            btnSalva.Name = "btnSalva";
-            btnSalva.Size = new Size(139, 64);
-            btnSalva.TabIndex = 10;
-            btnSalva.Text = "Salva";
-            btnSalva.UseVisualStyleBackColor = true;
-            btnSalva.Click += btnSalva_Click;
-            // 
-            // btnAnnulla
-            // 
-            btnAnnulla.Location = new Point(1093, 1022);
-            btnAnnulla.Margin = new Padding(6);
-            btnAnnulla.Name = "btnAnnulla";
-            btnAnnulla.Size = new Size(139, 64);
-            btnAnnulla.TabIndex = 24;
-            btnAnnulla.Text = "Annulla";
             btnAnnulla.UseVisualStyleBackColor = true;
             btnAnnulla.Click += btnAnnulla_Click;
             // 
@@ -859,7 +920,7 @@ namespace FormulariRif_G.Forms
             grCarattRifiuto.Controls.Add(label2);
             grCarattRifiuto.Controls.Add(txtCodiceEER);
             grCarattRifiuto.Controls.Add(label1);
-            grCarattRifiuto.Location = new Point(32, 482);
+            grCarattRifiuto.Location = new Point(32, 622);
             grCarattRifiuto.Margin = new Padding(6);
             grCarattRifiuto.Name = "grCarattRifiuto";
             grCarattRifiuto.Padding = new Padding(6);
@@ -1215,7 +1276,7 @@ namespace FormulariRif_G.Forms
             // panel1
             // 
             panel1.BorderStyle = BorderStyle.Fixed3D;
-            panel1.Location = new Point(32, 461);
+            panel1.Location = new Point(32, 601);
             panel1.Margin = new Padding(6);
             panel1.Name = "panel1";
             panel1.Size = new Size(1558, 4);
@@ -1265,11 +1326,35 @@ namespace FormulariRif_G.Forms
             scbAutomezzo.TabIndex = 8;
             scbAutomezzo.ValueMember = "";
             // 
+            // scbRimorchio
+            // 
+            scbRimorchio.DisplayMember = "";
+            scbRimorchio.LabelText = "Label:";
+            scbRimorchio.Location = new Point(37, 374);
+            scbRimorchio.Margin = new Padding(6);
+            scbRimorchio.Name = "scbRimorchio";
+            scbRimorchio.Size = new Size(800, 61);
+            scbRimorchio.TabIndex = 9;
+            scbRimorchio.ValueMember = "";
+            // 
+            // scbConducente
+            // 
+            scbConducente.DisplayMember = "";
+            scbConducente.LabelText = "Label:";
+            scbConducente.Location = new Point(37, 442);
+            scbConducente.Margin = new Padding(6);
+            scbConducente.Name = "scbConducente";
+            scbConducente.Size = new Size(800, 61);
+            scbConducente.TabIndex = 10;
+            scbConducente.ValueMember = "";
+            // 
             // FormulariRifiutiDetailForm
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1658, 1140);
+            ClientSize = new Size(1658, 1280);
+            Controls.Add(scbConducente);
+            Controls.Add(scbRimorchio);
             Controls.Add(scbAutomezzo);
             Controls.Add(scbTrasportatore);
             Controls.Add(scbDestinatario);
