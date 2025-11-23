@@ -82,16 +82,9 @@ namespace FormulariRif_G.Forms
 
             _isLoading = true;
             await LoadComboBoxes();
-            // I valori delle ComboBox principali sono già stati impostati da SetComboBoxDataSource.
-            // Ora carichiamo solo gli indirizzi dipendenti.
-            await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
-            await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
-            await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
-            await LoadComboBoxes();
             await LoadFormularioData();
             _isLoading = false;
 
-            await LoadFormularioData();
             this.Text = _currentFormulario.Id == 0 ? "Nuovo Formulario Rifiuti" : "Modifica Formulario Rifiuti";
             // La logica _isFormularioSaved ora riflette se il formulario esiste già nel DB (non è nuovo)
             _isFormularioSaved = (_currentFormulario != null && _currentFormulario.Id != 0);
@@ -111,8 +104,13 @@ namespace FormulariRif_G.Forms
                 txtNumeroFormulario.Text = _currentFormulario.NumeroFormulario;
 
                 scbProduttore.SelectedValue = _currentFormulario.IdProduttore;
+                await LoadIndirizziAsync(scbProduttore, cmbProduttoreIndirizzo, _currentFormulario.IdProduttoreIndirizzo);
+
                 scbDestinatario.SelectedValue = _currentFormulario.IdDestinatario;
+                await LoadIndirizziAsync(scbDestinatario, cmbDestinatarioIndirizzo, _currentFormulario.IdDestinatarioIndirizzo);
+
                 scbTrasportatore.SelectedValue = _currentFormulario.IdTrasportatore;
+                await LoadIndirizziAsync(scbTrasportatore, cmbTrasportatoreIndirizzo, _currentFormulario.IdTrasportatoreIndirizzo);
 
                 // Imposta l'automezzo e carica le liste dipendenti
                 scbAutomezzo.SelectedValue = _currentFormulario.IdAutomezzo;
