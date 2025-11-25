@@ -76,7 +76,7 @@ namespace FormulariRif_G.Forms
             if (btnModificaContatto != null) btnModificaContatto.Click += btnModificaContatto_Click;
             if (btnEliminaContatto != null) btnEliminaContatto.Click += btnEliminaContatto_Click;
 
-            if (btnSalva != null) btnSalva.Click += btnSalva_Click;
+            //if (btnSalva != null) btnSalva.Click += btnSalva_Click;
             if (btnAnnulla != null)
             {
                 btnAnnulla.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
