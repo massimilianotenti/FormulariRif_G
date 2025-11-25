@@ -17,6 +17,6 @@ namespace FormulariRif_G.Models
         [Required]
         [StringLength(50)]
         [Column("descrizione")]
-        public string Descrizione { get; set; }
+        public required string Descrizione { get; set; }
     }
 }
