@@ -700,7 +700,7 @@ namespace FormulariRif_G.Forms
                 { "Cli_Cod_Fisc", getStrValore(clienteP.CodiceFiscale) },
                 { "Cli_Iscrizione_Albo", getStrValore(clienteP.Iscrizione_Albo) },
                 { "Cli_Auto_Comunic", getStrValore(clienteP.Auto_Comunicazione) },
-                { "Cli_Tipo", getStrValore(clienteP.Tipo) },
+               // { "Cli_Tipo", getStrValore(clienteP.Tipo) },
                 // Destinatario
                 { "Dest_Rag_Soc",  clienteD.RagSoc.Trim() },
                 { "Dest_Indirizzo", getStrValore(indirizzoD.Indirizzo) + getIntValore(indirizzoD.Cap) + getStrValore(indirizzoD.Comune) },
@@ -709,7 +709,7 @@ namespace FormulariRif_G.Forms
                 { "Dest_R", "" }, // Campo da mappare se esiste nel modello Cliente
                 { "Dest_D", "" }, // Campo da mappare se esiste nel modello Cliente
                 { "Dest_Auto_Comunic", getStrValore(clienteD.Auto_Comunicazione) },
-                { "Dest_Tipo1", getStrValore(clienteD.Tipo) },
+              //  { "Dest_Tipo1", getStrValore(clienteD.Tipo) },
                 //{ "Dest_Tipo2", getStrValore(conf.DestTipo2) },
                 // Trasportatore
                 { "Trasp_Rag_Soc", clienteT.RagSoc.Trim() },

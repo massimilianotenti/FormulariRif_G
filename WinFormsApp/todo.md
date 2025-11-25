@@ -15,7 +15,8 @@
 * **Alternazione Comunale:**
     * [ ] L'alternazione comunale è fissa per l'anagrafica soggetto.
 * **Tipologia:**
-    * [ ] La tipologia deve essere un elenco tabellato, basato sulle circolari ministeriali fornite.
+    * [x] La tipologia deve essere un elenco tabellato, basato sulle circolari ministeriali fornite.
+    * [ ] gestire nella stampa del pdf il tipo ora che da campo di testo è diventanta fk verso una tabella
 * **Intermediario Commerciale:**
     * [ ] Valutare la compilazione dell'intermediario commerciale nel questionario.
 * **Stato Fisico:**
@@ -29,6 +30,8 @@
           soggetto) va nel rigo dedicato
 * **Bug**   
     * [x] nuovo indirizzo su cliente va in errore per la conversione del cap
+    * [ ] dopo una modifica all'anagrafica di un cliente, quando viene riaperta la videata dell'elenco clienti, viene mostrato 
+          un messaggio di errore per la ragione sociale che deve essere obbligatoria
 
 ---
 
