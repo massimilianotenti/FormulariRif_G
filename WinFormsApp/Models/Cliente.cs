@@ -32,9 +32,8 @@ namespace FormulariRif_G.Models
         [Column("auto_comunicazione")]
         public string? Auto_Comunicazione { get; set; }
 
-        [StringLength(50)]
-        [Column("tipo")]
-        public string? Tipo { get; set; }
+        [Column("tipo_id")]
+        public int? TipoId { get; set; }
 
         [Column("is_test_data")] 
         public bool IsTestData { get; set; }
@@ -44,5 +43,7 @@ namespace FormulariRif_G.Models
 
         // Nuova proprietà di navigazione per gli indirizzi associati a questo cliente
         public ICollection<ClienteIndirizzo> Indirizzi { get; set; } = new List<ClienteIndirizzo>();
+
+        public Tipo? Tipo { get; set; }
     }
 }

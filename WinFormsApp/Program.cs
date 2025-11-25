@@ -18,7 +18,7 @@ namespace FormulariRif_G
     internal static class Program
     {
         private static IHost? _host;
-        
+
         static async Task Main()
         {
             // Inizializzazione standard dell'applicazione Windows Forms
@@ -32,7 +32,7 @@ namespace FormulariRif_G
 
             // Ciclo principale dell'applicazione per la gestione della riconfigurazione
             while (restartApp)
-            {                
+            {
                 restartApp = false;
 
                 var configuration = new ConfigurationBuilder()
@@ -77,8 +77,8 @@ namespace FormulariRif_G
 
                 // --- Logica per l'Avvio Completo dell'Applicazione dopo la Configurazione (o se gi� presente) ---
                 // Se � stato richiesto un riavvio o se la configurazione non era necessaria
-                if (restartApp || !configNeeded) 
-                {                    
+                if (restartApp || !configNeeded)
+                {
 
                     if (restartApp)
                     {
@@ -96,14 +96,14 @@ namespace FormulariRif_G
                     // Il metodo che crea l'host ora deve passare solo la stringa di connessione,
                     // non le credenziali di SQL Server
                     _host = CreateFullHostBuilder(configuration, connectionString!).Build();
-                    
-                    var backup = new Backup();                    
+
+                    var backup = new Backup();
                     backup.CreateBackup(connectionString!);
                     backup.CleanOldBackups(connectionString!);
 
                     // Applica le migrazioni del database (se necessarie)
                     await ApplyMigrations(_host.Services);
-                    await EnsureDefaultUserExists(_host.Services.CreateScope().ServiceProvider);                 
+                    await EnsureDefaultUserExists(_host.Services.CreateScope().ServiceProvider);
 
                     // Assicura l'esistenza dell'utente di default e della configurazione aziendale
                     using (var dbScope = _host.Services.CreateScope())
@@ -216,6 +216,8 @@ namespace FormulariRif_G
                     services.AddTransient<RimorchiDetailForm>();
                     services.AddTransient<DestinazioniRDListForm>();
                     services.AddTransient<DestinazioniRDDetailForm>();
+                    services.AddTransient<TipiListForm>();
+                    services.AddTransient<TipiDetailForm>();
 
                     // Aggiungi qui eventuali altri Form del tuo progetto
 

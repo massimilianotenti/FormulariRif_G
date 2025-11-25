@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore; // Non strettamente necessario qui se usi s
 using System.Windows.Forms; // Assicurati che sia presente per Form, MessageBox, DialogResult
 using System; // Per EventArgs e Exception
 using System.Threading.Tasks; // Per Task
+using FormulariRif_G.Controls; // Per SearchableComboBox
 
 namespace FormulariRif_G.Forms
 {
@@ -18,6 +19,7 @@ namespace FormulariRif_G.Forms
         private readonly IGenericRepository<Cliente> _clienteRepository;
         private readonly IGenericRepository<ClienteIndirizzo> _clienteIndirizzoRepository;
         private readonly IGenericRepository<ClienteContatto> _clienteContattoRepository;
+        private readonly IGenericRepository<Tipo> _tipoRepository;
         private readonly IServiceProvider _serviceProvider;
         private Cliente? _currentCliente;
         private bool _isReadOnly;
@@ -44,19 +46,21 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.TextBox txtAutoCom;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox txtTipo;
+        private SearchableComboBox cmbTipo;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button btnAnnulla; // Aggiunto, se presente nel tuo designer
 
         public ClientiDetailForm(IGenericRepository<Cliente> clienteRepository,
                                  IGenericRepository<ClienteIndirizzo> clienteIndirizzoRepository,
                                  IGenericRepository<ClienteContatto> clienteContattoRepository,
+                                 IGenericRepository<Tipo> tipoRepository,
                                  IServiceProvider serviceProvider)
         {
             InitializeComponent();
             _clienteRepository = clienteRepository;
             _clienteIndirizzoRepository = clienteIndirizzoRepository;
             _clienteContattoRepository = clienteContattoRepository;
+            _tipoRepository = tipoRepository;
             _serviceProvider = serviceProvider;
             this.Load += ClientiDetailForm_Load;
 
@@ -84,7 +88,23 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async void ClientiDetailForm_Load(object? sender, EventArgs e)
         {
+            await LoadTipiAsync();
             // await LoadDataAsync();            
+        }
+
+        private async Task LoadTipiAsync()
+        {
+            try
+            {
+                var tipi = await _tipoRepository.GetAllAsync();
+                cmbTipo.DisplayMember = "Descrizione";
+                cmbTipo.ValueMember = "Id";
+                cmbTipo.DataSource = tipi.OrderBy(t => t.Descrizione).Cast<object>().ToList();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Errore durante il caricamento dei tipi: {ex.Message}", "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         /// <summary>
@@ -98,7 +118,7 @@ namespace FormulariRif_G.Forms
             _isReadOnly = isReadOnly;
 
             LoadClienteData();
-            await LoadDataAsync();            
+            await LoadDataAsync();
             SetFormState();
         }
 
@@ -114,7 +134,15 @@ namespace FormulariRif_G.Forms
                 txtCodiceFiscale.Text = _currentCliente.CodiceFiscale;
                 txtIscrizAlbo.Text = _currentCliente.Iscrizione_Albo ?? string.Empty;
                 txtAutoCom.Text = _currentCliente.Auto_Comunicazione ?? string.Empty;
-                txtTipo.Text = _currentCliente.Tipo ?? string.Empty;
+
+                if (_currentCliente.TipoId.HasValue)
+                {
+                    cmbTipo.SelectedValue = _currentCliente.TipoId.Value;
+                }
+                else
+                {
+                    cmbTipo.SelectedValue = 0;
+                }
             }
             else
             {
@@ -124,7 +152,7 @@ namespace FormulariRif_G.Forms
                 txtCodiceFiscale.Text = string.Empty;
                 txtIscrizAlbo.Text = string.Empty;
                 txtAutoCom.Text = string.Empty;
-                txtTipo.Text = string.Empty;
+                cmbTipo.SelectedValue = 0;
             }
         }
 
@@ -138,7 +166,7 @@ namespace FormulariRif_G.Forms
             txtCodiceFiscale.ReadOnly = _isReadOnly;
             txtIscrizAlbo.ReadOnly = _isReadOnly;
             txtAutoCom.ReadOnly = _isReadOnly;
-            txtTipo.ReadOnly = _isReadOnly;
+            cmbTipo.Enabled = !_isReadOnly;
             if (btnSalva != null) btnSalva.Visible = !_isReadOnly;
 
             // I pulsanti di gestione indirizzi/contatti sono abilitati solo se il cliente è esistente e non in sola lettura
@@ -158,7 +186,7 @@ namespace FormulariRif_G.Forms
         private async Task LoadDataAsync()
         {
             // Se è un cliente esistente
-            if (_currentCliente?.Id != 0) 
+            if (_currentCliente?.Id != 0)
             {
                 await LoadIndirizziAsync();
                 await LoadContattiAsync();
@@ -191,7 +219,7 @@ namespace FormulariRif_G.Forms
                 {
                     dataGridViewIndirizzi.DataSource = displayIndirizzi;
                     // Nascondi la colonna Id se non necessaria per la visualizzazione
-                    if (dataGridViewIndirizzi.Columns.Contains("Id"))                    
+                    if (dataGridViewIndirizzi.Columns.Contains("Id"))
                         dataGridViewIndirizzi.Columns["Id"].Visible = false;
                     // Adatta le colonne alla dimensione del contenuto
                     dataGridViewIndirizzi.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
@@ -217,7 +245,7 @@ namespace FormulariRif_G.Forms
                 var displayContatti = contatti.Select(c => new
                 {
                     c.Id,
-                    c.Contatto,                    
+                    c.Contatto,
                     c.Telefono,
                     c.Email,
                     c.Predefinito
@@ -227,8 +255,8 @@ namespace FormulariRif_G.Forms
                 {
                     dataGridViewContatti.DataSource = displayContatti;
                     // Nascondi la colonna Id se non necessaria per la visualizzazione
-                    if (dataGridViewContatti.Columns.Contains("Id"))                   
-                        dataGridViewContatti.Columns["Id"].Visible = false;                    
+                    if (dataGridViewContatti.Columns.Contains("Id"))
+                        dataGridViewContatti.Columns["Id"].Visible = false;
                     // Adatta le colonne alla dimensione del contenuto
                     dataGridViewContatti.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
                 }
@@ -244,18 +272,26 @@ namespace FormulariRif_G.Forms
         /// </summary>
         private async void btnSalva_Click(object? sender, EventArgs e)
         {
-            if (!ValidateInput())           
-                return;            
+            if (!ValidateInput())
+                return;
 
-            if (_currentCliente == null)           
-                _currentCliente = new Cliente();           
+            if (_currentCliente == null)
+                _currentCliente = new Cliente();
 
             _currentCliente.RagSoc = txtRagSoc.Text.Trim();
             _currentCliente.PartitaIva = txtPIVA.Text.Trim();
             _currentCliente.CodiceFiscale = txtCodiceFiscale.Text.Trim();
             _currentCliente.Iscrizione_Albo = txtIscrizAlbo.Text.Trim();
             _currentCliente.Auto_Comunicazione = txtAutoCom.Text.Trim();
-            _currentCliente.Tipo = txtTipo.Text.Trim();
+
+            if (cmbTipo.SelectedValue != null && (int)cmbTipo.SelectedValue > 0)
+            {
+                _currentCliente.TipoId = (int)cmbTipo.SelectedValue;
+            }
+            else
+            {
+                _currentCliente.TipoId = null;
+            }
 
             try
             {
@@ -263,23 +299,23 @@ namespace FormulariRif_G.Forms
                 {
                     await _clienteRepository.AddAsync(_currentCliente);
                     // Salva per ottenere l'ID del nuovo cliente
-                    await _clienteRepository.SaveChangesAsync(); 
+                    await _clienteRepository.SaveChangesAsync();
                     MessageBox.Show("Cliente salvato con successo! Ora puoi aggiungere indirizzi e contatti.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                     // Segnala che il cliente è stato salvato
-                    this.DialogResult = DialogResult.OK; 
+                    this.DialogResult = DialogResult.OK;
                     // Non chiudere il form per permettere l'aggiunta di indirizzi e contatti subito
                     // Ricarica lo stato per abilitare i pulsanti di gestione
-                    SetFormState(); 
+                    SetFormState();
                 }
-                else 
+                else
                 {
                     // Cliente esistente
                     _clienteRepository.Update(_currentCliente);
                     await _clienteRepository.SaveChangesAsync();
                     MessageBox.Show("Cliente aggiornato con successo!", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     this.DialogResult = DialogResult.OK;
-                    this.Close(); 
+                    this.Close();
                 }
             }
             catch (Exception ex)
@@ -320,7 +356,7 @@ namespace FormulariRif_G.Forms
                 return selectedRowData.Id;
             }
             return 0;
-        }        
+        }
 
         #region Gestione Indirizzi
 
@@ -339,10 +375,10 @@ namespace FormulariRif_G.Forms
             {
                 var newIndirizzo = new ClienteIndirizzo { IdCli = _currentCliente.Id };
                 detailForm.SetIndirizzo(newIndirizzo);
-                if (detailForm.ShowDialog() == DialogResult.OK)                
+                if (detailForm.ShowDialog() == DialogResult.OK)
                     // La logica di salvataggio e gestione del predefinito è nel detail form
                     // Ricarica la griglia dopo il salvataggio
-                    await LoadIndirizziAsync();                
+                    await LoadIndirizziAsync();
             }
         }
 
@@ -368,8 +404,8 @@ namespace FormulariRif_G.Forms
             using (var detailForm = _serviceProvider.GetRequiredService<ClientiIndirizzoDetailForm>())
             {
                 detailForm.SetIndirizzo(selectedIndirizzo);
-                if (detailForm.ShowDialog() == DialogResult.OK)                                   
-                    await LoadIndirizziAsync();                
+                if (detailForm.ShowDialog() == DialogResult.OK)
+                    await LoadIndirizziAsync();
             }
         }
 
@@ -418,7 +454,7 @@ namespace FormulariRif_G.Forms
                         firstRemaining.Predefinito = true;
                         _clienteIndirizzoRepository.Update(firstRemaining);
                         await _clienteIndirizzoRepository.SaveChangesAsync();
-                        await LoadIndirizziAsync(); 
+                        await LoadIndirizziAsync();
                     }
 
                     MessageBox.Show("Indirizzo eliminato con successo.", "Successo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -449,8 +485,8 @@ namespace FormulariRif_G.Forms
             {
                 var newContatto = new ClienteContatto { IdCli = _currentCliente.Id };
                 detailForm.SetContatto(newContatto);
-                if (detailForm.ShowDialog() == DialogResult.OK)                
-                    await LoadContattiAsync();                
+                if (detailForm.ShowDialog() == DialogResult.OK)
+                    await LoadContattiAsync();
             }
         }
 
@@ -476,8 +512,8 @@ namespace FormulariRif_G.Forms
             using (var detailForm = _serviceProvider.GetRequiredService<ClientiContattiDetailForm>())
             {
                 detailForm.SetContatto(selectedContatto);
-                if (detailForm.ShowDialog() == DialogResult.OK)               
-                    await LoadContattiAsync();                 
+                if (detailForm.ShowDialog() == DialogResult.OK)
+                    await LoadContattiAsync();
             }
         }
 
@@ -567,7 +603,7 @@ namespace FormulariRif_G.Forms
             label2 = new Label();
             txtAutoCom = new TextBox();
             label3 = new Label();
-            txtTipo = new TextBox();
+            cmbTipo = new SearchableComboBox();
             label4 = new Label();
             btnAnnulla = new Button(); // Aggiunto: Se non lo avevi, assicurati di posizionarlo nel designer
             groupBoxIndirizzi.SuspendLayout();
@@ -794,14 +830,13 @@ namespace FormulariRif_G.Forms
             label3.TabIndex = 11;
             label3.Text = "Auto Comu.:";
             // 
-            // txtTipo
+            // cmbTipo
             // 
-            txtTipo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            txtTipo.Location = new Point(567, 79);
-            txtTipo.MaxLength = 50;
-            txtTipo.Name = "txtTipo";
-            txtTipo.Size = new Size(193, 23);
-            txtTipo.TabIndex = 14;
+            cmbTipo.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            cmbTipo.Location = new Point(567, 79);
+            cmbTipo.Name = "cmbTipo";
+            cmbTipo.Size = new Size(193, 23);
+            cmbTipo.TabIndex = 14;
             // 
             // label4
             // 
@@ -827,7 +862,7 @@ namespace FormulariRif_G.Forms
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(784, 629);
             Controls.Add(btnAnnulla); // Aggiunto ai controlli del form
-            Controls.Add(txtTipo);
+            Controls.Add(cmbTipo);
             Controls.Add(label4);
             Controls.Add(txtAutoCom);
             Controls.Add(label3);
