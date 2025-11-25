@@ -33,6 +33,7 @@ namespace FormulariRif_G.Forms
         private readonly IServiceProvider _serviceProvider;
         private Button btnGestioneRimorchi;
         private Button cmbDestRD;
+        private Button btTipo;
         private readonly FormManager _formManager; // NUOVO: Riferimento al FormManager
 
         // Modifica del costruttore per iniettare il FormManager
@@ -98,6 +99,11 @@ namespace FormulariRif_G.Forms
         private void cmbDestRD_Click(object sender, EventArgs e)
         {
             _formManager.ShowOrActivate<DestinazioniRDListForm>();
+        }
+
+        private void btTipo_Click(object sender, EventArgs e)
+        {
+            _formManager.ShowOrActivate<TipiListForm>();
         }
 
         /// <summary>
@@ -178,6 +184,7 @@ namespace FormulariRif_G.Forms
             btnGestioneConducenti = new Button();
             btnGestioneRimorchi = new Button();
             cmbDestRD = new Button();
+            btTipo = new Button();
             SuspendLayout();
             // 
             // btnGestioneClienti
@@ -251,7 +258,7 @@ namespace FormulariRif_G.Forms
             btnGestioneConducenti.Location = new Point(43, 479);
             btnGestioneConducenti.Margin = new Padding(6);
             btnGestioneConducenti.Name = "btnGestioneConducenti";
-            btnGestioneConducenti.Size = new Size(550, 107);
+            btnGestioneConducenti.Size = new Size(269, 107);
             btnGestioneConducenti.TabIndex = 4;
             btnGestioneConducenti.Text = "Gestione Conducenti";
             btnGestioneConducenti.UseVisualStyleBackColor = true;
@@ -259,7 +266,7 @@ namespace FormulariRif_G.Forms
             // 
             // btnGestioneRimorchi
             // 
-            btnGestioneRimorchi.Location = new Point(43, 602);
+            btnGestioneRimorchi.Location = new Point(324, 479);
             btnGestioneRimorchi.Name = "btnGestioneRimorchi";
             btnGestioneRimorchi.Size = new Size(269, 107);
             btnGestioneRimorchi.TabIndex = 7;
@@ -269,7 +276,7 @@ namespace FormulariRif_G.Forms
             // 
             // cmbDestRD
             // 
-            cmbDestRD.Location = new Point(324, 602);
+            cmbDestRD.Location = new Point(43, 602);
             cmbDestRD.Name = "cmbDestRD";
             cmbDestRD.Size = new Size(269, 107);
             cmbDestRD.TabIndex = 8;
@@ -277,11 +284,22 @@ namespace FormulariRif_G.Forms
             cmbDestRD.UseVisualStyleBackColor = true;
             cmbDestRD.Click += cmbDestRD_Click;
             // 
+            // btTipo
+            // 
+            btTipo.Location = new Point(324, 602);
+            btTipo.Name = "btTipo";
+            btTipo.Size = new Size(269, 107);
+            btTipo.TabIndex = 9;
+            btTipo.Text = "Tipo";
+            btTipo.UseVisualStyleBackColor = true;
+            btTipo.Click += btTipo_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1054, 911);
+            Controls.Add(btTipo);
             Controls.Add(cmbDestRD);
             Controls.Add(btnGestioneRimorchi);
             Controls.Add(btnGestioneFormulariRifiuti);
@@ -311,6 +329,7 @@ namespace FormulariRif_G.Forms
         private System.Windows.Forms.Button btnGestioneConducenti; // NUOVO: Dichiarazione del pulsante per Gestione Conducenti
 
         #endregion
+
 
 
         
