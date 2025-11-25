@@ -93,7 +93,7 @@ namespace FormulariRif_G.Forms
         {
             using (var detailForm = _serviceProvider.GetRequiredService<TipiDetailForm>())
             {
-                detailForm.SetTipo(new Tipo(), false);
+                detailForm.SetTipo(new Tipo { Descrizione = string.Empty }, false);
                 if (detailForm.ShowDialog() == DialogResult.OK)
                 {
                     await LoadTipiAsync();
