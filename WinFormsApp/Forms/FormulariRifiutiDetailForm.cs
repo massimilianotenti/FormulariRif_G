@@ -444,9 +444,8 @@ namespace FormulariRif_G.Forms
                         {
                             var defaultAddress = indirizzi.FirstOrDefault(ci => ci.Predefinito);
                             idToSelect = defaultAddress?.Id ?? indirizzi.First().Id;
-                        }
-                        if(idToSelect > 0)
-                            addressCombo.SelectedValue = idToSelect;
+                        }                        
+                        addressCombo.SelectedValue = idToSelect;
                     }
                 }
                 catch (Exception ex)

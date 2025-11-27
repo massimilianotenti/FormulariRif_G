@@ -30,7 +30,7 @@
           soggetto) va nel rigo dedicato
 * **Bug**   
     * [x] nuovo indirizzo su cliente va in errore per la conversione del cap
-    * [ ] dopo una modifica all'anagrafica di un cliente, quando viene riaperta la videata dell'elenco clienti, viene mostrato 
+    * [x] dopo una modifica all'anagrafica di un cliente, quando viene riaperta la videata dell'elenco clienti, viene mostrato 
           un messaggio di errore per la ragione sociale che deve essere obbligatoria
 
 ---
